@@ -1,6 +1,6 @@
 import express, { type Response } from "express";
 import cors from "cors";
-import pinoHttp from "pino-http";
+import { pinoHttp } from "pino-http";
 
 import { logger } from "./lib/logger.js";
 
@@ -13,7 +13,7 @@ app.use(cors());
 app.use(httpLogger);
 
 // Routes
-app.get("/", (req, res: Response) => {
+app.get("/", (_, res: Response) => {
   res.status(200).json({ message: "Welcome to the System Lab API!" });
 });
 
