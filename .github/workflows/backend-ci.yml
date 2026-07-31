@@ -15,14 +15,26 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v6
+    defaults:
+      run:
+        working-directory: backend
 
-      - uses: actions/setup-node@v7
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: "pnpm"
-          cache-dependency-path: backend/package.json
+          cache-dependency-path: backend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm ci
