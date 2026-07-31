@@ -1,5 +1,5 @@
 import { defineConfig } from "drizzle-kit";
-require("dotenv/config");
+import "dotenv/config";
 
 const config = defineConfig({
   dialect: "postgresql",
