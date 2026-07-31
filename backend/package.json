@@ -9,7 +9,12 @@
     "dev:worker": "tsx watch src/workers/simulation.worker.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "start:worker": "node dist/workers/simulation.worker.js"
+    "start:worker": "node dist/workers/simulation.worker.js",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",
