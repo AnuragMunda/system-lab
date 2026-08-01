@@ -1,2 +1,0 @@
-import { pgTable, uuid } from "drizzle-orm/pg-core";
-
