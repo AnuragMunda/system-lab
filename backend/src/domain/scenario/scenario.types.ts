@@ -15,7 +15,7 @@ export interface ScenarioEvent {
 
 export interface Scenario {
   id: string;
-  projectId: string;
+  architectureId: string;
 
   name: string;
 
