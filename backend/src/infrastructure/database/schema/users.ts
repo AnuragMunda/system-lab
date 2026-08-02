@@ -1,3 +1,8 @@
+/**
+ * This file defines the database schema for the "users" table.
+ * The table stores information about users in the system.
+ */
+
 import {
   boolean,
   pgTable,

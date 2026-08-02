@@ -1,11 +1,14 @@
+/**
+ * This file defines the database schema for the "architectures" table.
+ * The table stores information about different architectures associated with projects.
+ */
+
 import {
   index,
-  integer,
   jsonb,
   pgTable,
   text,
   timestamp,
-  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";

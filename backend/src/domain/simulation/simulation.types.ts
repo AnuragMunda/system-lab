@@ -1,3 +1,7 @@
+/**
+ * This file defines the types and interfaces related to simulations in the system.
+ */
+
 export type SimulationStatus =
   | "pending"
   | "running"

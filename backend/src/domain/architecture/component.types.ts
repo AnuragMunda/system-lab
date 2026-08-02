@@ -1,3 +1,7 @@
+/**
+ * This file defines the types and interfaces related to architecture components in the system.
+ */
+
 export interface ArchitectureNode {
   id: string;
   type: componentType;
@@ -19,8 +23,8 @@ export type componentType =
   | "worker";
 
 interface ComponentConfig {
-  latencyMs?: number;
-  capacity?: number;
-  concurrency?: number;
-  errorRate?: number;
+  latencyMs?: number; // Average latency in milliseconds
+  capacity?: number; // Maximum number of requests that can be processed simultaneously
+  concurrency?: number; // Number of concurrent operations
+  errorRate?: number; // Rate of errors occurring
 }

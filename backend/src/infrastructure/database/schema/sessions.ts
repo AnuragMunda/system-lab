@@ -1,3 +1,8 @@
+/**
+ * This file defines the database schema for the "sessions" table.
+ * The table stores information about user sessions in the system.
+ */
+
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 

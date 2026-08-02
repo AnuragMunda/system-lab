@@ -1,3 +1,8 @@
+/**
+ * This file defines the database schema for the "projects" table.
+ * The table stores information about different projects in the system.
+ */
+
 import {
   index,
   pgEnum,

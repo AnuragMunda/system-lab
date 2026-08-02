@@ -1,5 +1,9 @@
+/**
+ * This file defines the database schema for the "scenarios" table.
+ * The table stores information about different scenarios associated with architectures.
+ */
+
 import {
-  index,
   jsonb,
   pgTable,
   timestamp,

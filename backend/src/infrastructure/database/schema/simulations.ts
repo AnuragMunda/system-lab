@@ -1,3 +1,10 @@
+/**
+ * This file defines the database schema for the "simulations", "simulation_events", and "metrics" tables.
+ * The "simulations" table stores information about different simulations associated with architectures.
+ * The "simulation_events" table stores events that occur during simulations.
+ * The "metrics" table stores performance metrics collected during simulations.
+ */
+
 import {
   bigserial,
   index,

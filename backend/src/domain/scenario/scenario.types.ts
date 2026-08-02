@@ -1,3 +1,7 @@
+/**
+ * This file defines the types and interfaces related to scenarios in the system.
+ */
+
 export type ScenarioEventType =
   | "traffic_spike"
   | "service_failure"
@@ -7,7 +11,7 @@ export type ScenarioEventType =
 
 export interface ScenarioEvent {
   id: string;
-  timestampMs: number;
+  timestampMs: number; // Time in milliseconds since the start of the scenario
   type: ScenarioEventType;
   targetNodeId?: string;
   payload?: Record<string, unknown>;

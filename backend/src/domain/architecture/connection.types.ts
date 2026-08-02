@@ -1,3 +1,7 @@
+/**
+ * This file defines the types and interfaces related to architecture connections in the system.
+ */
+
 export interface ArchitectureEdge {
   id: string;
 
@@ -8,7 +12,7 @@ export interface ArchitectureEdge {
 }
 
 interface ConnectionConfig {
-  latencyMs: number;
-  bandwidthMbps?: number;
-  packetLossRate?: number;
+  latencyMs: number; // Average latency in milliseconds
+  bandwidthMbps?: number; // Maximum bandwidth in megabits per second
+  packetLossRate?: number; // Rate of packet loss occurring
 }

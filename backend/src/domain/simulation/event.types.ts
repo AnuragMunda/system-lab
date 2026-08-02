@@ -1,3 +1,7 @@
+/**
+ * This file defines the types and interfaces related to simulation events in the system.
+ */
+
 export type SimulationEventType =
   | "request.created"
   | "request.routed"
@@ -24,5 +28,5 @@ export interface SimulationEvent {
   sourceNodeId?: string;
   targetNodeId?: string;
 
-  payload?: Record<string, unknown>;
+  payload?: Record<string, unknown>; // Additional data related to the event
 }
