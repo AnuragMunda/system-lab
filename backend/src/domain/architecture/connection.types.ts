@@ -12,7 +12,7 @@ export interface ArchitectureEdge {
 }
 
 interface ConnectionConfig {
-  latencyMs: number; // Average latency in milliseconds
+  latencyMs?: number; // Average latency in milliseconds
   bandwidthMbps?: number; // Maximum bandwidth in megabits per second
   packetLossRate?: number; // Rate of packet loss occurring
 }

@@ -1,5 +1,5 @@
-import { ArchitectureNode } from "../../../../domain/architecture/component.types.js";
-import { ArchitectureEdge } from "../../../../domain/architecture/connection.types.js";
+import { ArchitectureNode } from "@/domain/architecture/component.types.js";
+import { ArchitectureEdge } from "@/domain/architecture/connection.types.js";
 
 export interface ArchitectureGraph {
   // Nodes and edges of the architecture graph.
