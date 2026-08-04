@@ -4,13 +4,13 @@ class ApiError extends Error {
   public readonly statusCode: number;
   public readonly code?: string;
   public readonly isOperational?: boolean; // Indicates if the error is operational (expected) or a programming error (unexpected)
-  public readonly details?: any;
+  public readonly details?: unknown;
 
   constructor(
     message: string,
     statusCode: number = HttpStatus.INTERNAL_SERVER_ERROR,
     code: string,
-    details?: any,
+    details?: unknown,
   ) {
     super(message);
 
@@ -23,7 +23,7 @@ class ApiError extends Error {
   }
 }
 
-export const BadRequestError = (details?: any) =>
+export const BadRequestError = (details?: unknown) =>
   new ApiError(
     ApiMessages.CLIENT_ERROR.BAD_REQUEST,
     HttpStatus.BAD_REQUEST,

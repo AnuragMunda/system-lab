@@ -3,21 +3,19 @@ import { HttpStatus, ApiMessages } from "@/config/constants/index.js";
 import { ApiError } from "@/lib/index.js";
 
 export const errorMiddleware = (
-  err: any,
-  req: Request,
+  err: unknown,
+  _req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) => {
   let statusCode: number = HttpStatus.INTERNAL_SERVER_ERROR;
   let message = ApiMessages.SERVER_ERROR.INTERNAL_ERROR;
   let code: string | undefined;
-  let details: unknown;
 
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
     code = err.code;
-    details = err.details;
   }
 
   console.error("ERROR:", err);
@@ -26,6 +24,11 @@ export const errorMiddleware = (
     success: false,
     message,
     code,
-    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    stack:
+      process.env.NODE_ENV === "development"
+        ? err instanceof Error
+          ? err.stack
+          : String(err)
+        : undefined,
   });
 };

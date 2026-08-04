@@ -1,6 +1,5 @@
 import db from "@/infrastructure/database/db.js";
 import { architecturesTable } from "@/infrastructure/database/schema/architectures.js";
-import { Architecture } from "@/domain/architecture/architecture.types.js";
 import { CreateArchitectureRecord } from "./architecture.dto.js";
 import { InternalServerError } from "@/lib/apiError.js";
 

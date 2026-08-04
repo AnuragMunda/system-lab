@@ -5,7 +5,7 @@ class ApiResponse {
   static success(
     res: Response,
     statusCode: number = HttpStatus.OK,
-    data: null | any = null,
+    data: null | unknown = null,
     message: string = "Success",
   ) {
     const response = {
@@ -25,7 +25,7 @@ class ApiResponse {
    */
   static ok(
     res: Response,
-    data: null | any = null,
+    data: null | unknown = null,
     message: string = ApiMessages.SUCCESS.OK,
   ) {
     return this.success(res, HttpStatus.OK, data, message);
@@ -39,7 +39,7 @@ class ApiResponse {
    */
   static created(
     res: Response,
-    data: null | any = null,
+    data: null | unknown = null,
     message: string = ApiMessages.SUCCESS.CREATED,
   ) {
     return this.success(res, HttpStatus.CREATED, data, message);
