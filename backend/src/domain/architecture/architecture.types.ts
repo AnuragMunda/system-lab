@@ -10,10 +10,12 @@ export interface Architecture {
   projectId: string;
 
   name: string;
-  description?: string;
+  description?: string | null;
 
-  nodes: ArchitectureNode[];
-  edges: ArchitectureEdge[];
+  graph: {
+    nodes: ArchitectureNode[];
+    edges: ArchitectureEdge[];
+  };
 
   createdAt: Date;
   updatedAt: Date;

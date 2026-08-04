@@ -9,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -31,5 +32,11 @@ export const architecturesTable = pgTable(
       .notNull()
       .$onUpdate(() => new Date()),
   },
-  (table) => [index("architectures_project_id_idx").on(table.projectId)],
+  (table) => [
+    index("architectures_project_id_idx").on(table.projectId),
+    unique("architectures_project_id_name_unique").on(
+      table.projectId,
+      table.name,
+    ),
+  ],
 );

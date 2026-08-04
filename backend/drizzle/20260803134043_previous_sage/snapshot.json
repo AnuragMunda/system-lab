@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "e9dd657c-4758-432f-8a7a-713dc061e6fb",
+  "id": "fbce2973-b207-43ef-b2cb-839937469a5b",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -18,11 +18,12 @@
     },
     {
       "values": [
-        "QUEUED",
+        "PENDING",
         "RUNNING",
+        "PAUSED",
         "COMPLETED",
         "FAILED",
-        "STOPPED"
+        "CANCELLED"
       ],
       "name": "simulation_status",
       "entityType": "enums",
@@ -30,19 +31,7 @@
     },
     {
       "isRlsEnabled": false,
-      "name": "architecture_versions",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
       "name": "architectures",
-      "entityType": "tables",
-      "schema": "public"
-    },
-    {
-      "isRlsEnabled": false,
-      "name": "metrics",
       "entityType": "tables",
       "schema": "public"
     },
@@ -66,6 +55,12 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "metrics",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "simulation_events",
       "entityType": "tables",
       "schema": "public"
@@ -81,84 +76,6 @@
       "name": "users",
       "entityType": "tables",
       "schema": "public"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": "gen_random_uuid()",
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architecture_versions"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "architecture_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architecture_versions"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "version",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architecture_versions"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "graph",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architecture_versions"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architecture_versions"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": "now()",
-      "generated": null,
-      "identity": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architecture_versions"
     },
     {
       "type": "uuid",
@@ -200,6 +117,19 @@
       "table": "architectures"
     },
     {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "architectures"
+    },
+    {
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -213,22 +143,9 @@
       "table": "architectures"
     },
     {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "thumbnail_url",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "architectures"
-    },
-    {
       "type": "timestamp",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -239,9 +156,9 @@
       "table": "architectures"
     },
     {
-      "type": "timestamp",
+      "type": "timestamp with time zone",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -250,97 +167,6 @@
       "entityType": "columns",
       "schema": "public",
       "table": "architectures"
-    },
-    {
-      "type": "bigserial",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "simulation_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "requests_per_sec",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
-    },
-    {
-      "type": "real",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "avg_latency_ms",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
-    },
-    {
-      "type": "real",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "error_rate",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "queue_depth",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
-    },
-    {
-      "type": "real",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "cache_hit_rate",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "metrics"
     },
     {
       "type": "uuid",
@@ -410,7 +236,7 @@
     {
       "type": "timestamp",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -421,9 +247,9 @@
       "table": "projects"
     },
     {
-      "type": "timestamp",
+      "type": "timestamp with time zone",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -454,7 +280,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "project_id",
+      "name": "architecture_id",
       "entityType": "columns",
       "schema": "public",
       "table": "scenarios"
@@ -488,12 +314,25 @@
     {
       "type": "timestamp",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
       "identity": null,
       "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "scenarios"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "scenarios"
@@ -553,7 +392,7 @@
     {
       "type": "timestamp",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -575,6 +414,110 @@
       "entityType": "columns",
       "schema": "public",
       "table": "sessions"
+    },
+    {
+      "type": "bigserial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "simulation_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "timestamp_ms",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "real",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "requests_per_sec",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "real",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "avg_latency_ms",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "real",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "error_rate",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "queue_depth",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "type": "real",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cache_hit_rate",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "metrics"
     },
     {
       "type": "bigserial",
@@ -662,19 +605,6 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "project_id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "simulations"
-    },
-    {
-      "type": "uuid",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
       "name": "architecture_id",
       "entityType": "columns",
       "schema": "public",
@@ -685,49 +615,10 @@
       "typeSchema": "public",
       "notNull": true,
       "dimensions": 0,
-      "default": "'QUEUED'",
+      "default": "'PENDING'",
       "generated": null,
       "identity": null,
       "name": "status",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "simulations"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "started_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "simulations"
-    },
-    {
-      "type": "timestamp",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "completed_at",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "simulations"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "duration_ms",
       "entityType": "columns",
       "schema": "public",
       "table": "simulations"
@@ -754,6 +645,32 @@
       "generated": null,
       "identity": null,
       "name": "snapshot",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "simulations"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "started_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "simulations"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "completed_at",
       "entityType": "columns",
       "schema": "public",
       "table": "simulations"
@@ -839,7 +756,7 @@
     {
       "type": "timestamp",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -850,9 +767,9 @@
       "table": "users"
     },
     {
-      "type": "timestamp",
+      "type": "timestamp with time zone",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
@@ -863,21 +780,123 @@
       "table": "users"
     },
     {
-      "nameExplicit": false,
+      "nameExplicit": true,
       "columns": [
-        "architecture_id"
+        {
+          "value": "project_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
       ],
-      "schemaTo": "public",
-      "tableTo": "architectures",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "architecture_versions_architecture_id_architectures_id_fkey",
-      "entityType": "fks",
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "architectures_project_id_idx",
+      "entityType": "indexes",
       "schema": "public",
-      "table": "architecture_versions"
+      "table": "architectures"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "owner_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "projects_owner_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "projects"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "simulation_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "timestamp_ms",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "metrics_simulation_timestamp_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "metrics"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "simulation_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "timestamp_ms",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "simulation_events_simulation_timestamp_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "simulation_events"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "architecture_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "simulations_architecture_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "simulations"
     },
     {
       "nameExplicit": false,
@@ -890,28 +909,11 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "architectures_project_id_projects_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "architectures"
-    },
-    {
-      "nameExplicit": false,
-      "columns": [
-        "simulation_id"
-      ],
-      "schemaTo": "public",
-      "tableTo": "simulations",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "metrics_simulation_id_simulations_id_fkey",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "metrics"
     },
     {
       "nameExplicit": false,
@@ -924,7 +926,7 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "projects_owner_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -933,16 +935,16 @@
     {
       "nameExplicit": false,
       "columns": [
-        "project_id"
+        "architecture_id"
       ],
       "schemaTo": "public",
-      "tableTo": "projects",
+      "tableTo": "architectures",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "scenarios_project_id_projects_id_fkey",
+      "onDelete": "CASCADE",
+      "name": "scenarios_architecture_id_architectures_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "scenarios"
@@ -958,7 +960,7 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "sessions_user_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -975,28 +977,28 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "simulation_events_simulation_id_simulations_id_fkey",
+      "onDelete": "CASCADE",
+      "name": "metrics_simulation_id_simulations_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "simulation_events"
+      "table": "metrics"
     },
     {
       "nameExplicit": false,
       "columns": [
-        "project_id"
+        "simulation_id"
       ],
       "schemaTo": "public",
-      "tableTo": "projects",
+      "tableTo": "simulations",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "simulations_project_id_projects_id_fkey",
+      "onDelete": "CASCADE",
+      "name": "simulation_events_simulation_id_simulations_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "simulations"
+      "table": "simulation_events"
     },
     {
       "nameExplicit": false,
@@ -1009,7 +1011,7 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "name": "simulations_architecture_id_architectures_id_fkey",
       "entityType": "fks",
       "schema": "public",
@@ -1020,29 +1022,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "architecture_versions_pkey",
-      "schema": "public",
-      "table": "architecture_versions",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
       "name": "architectures_pkey",
       "schema": "public",
       "table": "architectures",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "metrics_pkey",
-      "schema": "public",
-      "table": "metrics",
       "entityType": "pks"
     },
     {
@@ -1080,6 +1062,16 @@
         "id"
       ],
       "nameExplicit": false,
+      "name": "metrics_pkey",
+      "schema": "public",
+      "table": "metrics",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
       "name": "simulation_events_pkey",
       "schema": "public",
       "table": "simulation_events",
@@ -1104,6 +1096,18 @@
       "schema": "public",
       "table": "users",
       "entityType": "pks"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "project_id",
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "architectures_project_id_name_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "architectures"
     },
     {
       "nameExplicit": false,
