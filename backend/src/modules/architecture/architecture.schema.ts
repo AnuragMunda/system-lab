@@ -50,3 +50,11 @@ export const architectureSchema = z.object({
   nodes: z.array(nodeSchema),
   edges: z.array(edgeSchema),
 });
+
+export const idParamSchema = z.object({
+  id: z.uuid(),
+});
+
+export const updateArchitectureSchema = architectureSchema
+  .omit({ projectId: true })
+  .partial();

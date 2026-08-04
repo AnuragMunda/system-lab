@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { ApiResponse, asyncHandler, BadRequestError } from "@/lib/index.js";
-import { architectureSchema } from "./architecture.schema.js";
+import {
+  architectureSchema,
+  idParamSchema,
+  updateArchitectureSchema,
+} from "./architecture.schema.js";
 import { architectureService } from "./index.js";
 
 export const createArchitecture = asyncHandler(
@@ -26,5 +30,32 @@ export const getAllArchitectures = asyncHandler(
     const architectures = await architectureService.getAllArchitectures();
 
     return ApiResponse.ok(res, architectures);
+  },
+);
+
+export const updateArchitecture = asyncHandler(
+  async (req: Request, res: Response) => {
+    const params = idParamSchema.safeParse(req.params);
+
+    if (!params.success) {
+      throw BadRequestError(params.error.message);
+    }
+
+    const body = updateArchitectureSchema.safeParse(req.body);
+
+    if (!body.success) {
+      throw BadRequestError(body.error.message);
+    }
+
+    const architecture = await architectureService.update(
+      params.data.id,
+      body.data,
+    );
+
+    return ApiResponse.ok(
+      res,
+      architecture,
+      "Architecture updated successfully",
+    );
   },
 );

@@ -1,6 +1,10 @@
 import { ArchitectureRepository } from "./architecture.repository.js";
-import { CreateArchitectureDto } from "./architecture.dto.js";
+import {
+  CreateArchitectureDto,
+  UpdateArchitectureDto,
+} from "./architecture.dto.js";
 import { Architecture } from "@/domain/architecture/architecture.types.js";
+import { BadRequestError } from "@/lib/apiError.js";
 
 export class ArchitectureService {
   constructor(private readonly repository: ArchitectureRepository) {}
@@ -21,5 +25,29 @@ export class ArchitectureService {
 
   async getAllArchitectures(): Promise<Architecture[]> {
     return this.repository.findAll();
+  }
+
+  async update(id: string, data: UpdateArchitectureDto): Promise<Architecture> {
+    const existing = await this.repository.findById(id);
+
+    const { nodes, edges, ...fields } = data;
+
+    if (Object.keys(fields).length === 0 && nodes === undefined && edges === undefined) {
+      throw BadRequestError("No fields provided to update.");
+    }
+
+    const record = {
+      ...fields,
+      ...(nodes !== undefined || edges !== undefined
+        ? {
+            graph: {
+              nodes: nodes ?? existing.graph.nodes,
+              edges: edges ?? existing.graph.edges,
+            },
+          }
+        : {}),
+    };
+
+    return this.repository.update(id, record);
   }
 }
