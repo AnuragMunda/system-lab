@@ -59,3 +59,21 @@ export const updateArchitecture = asyncHandler(
     );
   },
 );
+
+export const deleteArchitecture = asyncHandler(
+  async (req: Request, res: Response) => {
+    const params = idParamSchema.safeParse(req.params);
+
+    if (!params.success) {
+      throw BadRequestError(params.error.message);
+    }
+
+    const architecture = await architectureService.delete(params.data.id);
+
+    return ApiResponse.ok(
+      res,
+      architecture,
+      "Architecture deleted successfully",
+    );
+  },
+);

@@ -4,12 +4,9 @@ import {
   CreateArchitectureRecord,
   UpdateArchitectureRecord,
 } from "./architecture.dto.js";
-import {
-  ConflictError,
-  InternalServerError,
-  NotFoundError,
-} from "@/lib/apiError.js";
+import { InternalServerError, NotFoundError } from "@/lib/apiError.js";
 import { eq } from "drizzle-orm";
+import { mapDbError } from "@/lib/utils.js";
 
 export class ArchitectureRepository {
   async create(data: CreateArchitectureRecord) {
@@ -26,7 +23,7 @@ export class ArchitectureRepository {
 
       return architecture;
     } catch (error) {
-      throw this.mapDbError(error);
+      throw mapDbError(error);
     }
   }
 
@@ -61,31 +58,24 @@ export class ArchitectureRepository {
 
       return architecture;
     } catch (error) {
-      throw this.mapDbError(error);
+      throw mapDbError(error);
     }
   }
 
-  private mapDbError(error: unknown) {
-    if (this.isUniqueViolation(error)) {
-      return ConflictError();
-    }
+  async delete(id: string) {
+    try {
+      const [architecture] = await db
+        .delete(architecturesTable)
+        .where(eq(architecturesTable.id, id))
+        .returning();
 
-    return error;
-  }
-
-  private isUniqueViolation(error: unknown): boolean {
-    let current: unknown = error;
-
-    while (typeof current === "object" && current !== null) {
-      const candidate = current as { code?: unknown; cause?: unknown };
-
-      if (candidate.code === "23505") {
-        return true;
+      if (!architecture) {
+        throw NotFoundError();
       }
 
-      current = candidate.cause;
+      return architecture;
+    } catch (error) {
+      throw mapDbError(error);
     }
-
-    return false;
   }
 }

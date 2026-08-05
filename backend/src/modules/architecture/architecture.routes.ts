@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createArchitecture,
+  deleteArchitecture,
   getAllArchitectures,
   updateArchitecture,
 } from "./architecture.controller.js";
@@ -8,6 +9,9 @@ import {
 const architectureRouter: Router = Router();
 
 architectureRouter.route("/").get(getAllArchitectures).post(createArchitecture);
-architectureRouter.route("/:id").patch(updateArchitecture);
+architectureRouter
+  .route("/:id")
+  .patch(updateArchitecture)
+  .delete(deleteArchitecture);
 
 export default architectureRouter;

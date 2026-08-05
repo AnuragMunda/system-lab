@@ -50,4 +50,8 @@ export class ArchitectureService {
 
     return this.repository.update(id, record);
   }
+
+  async delete(id: string): Promise<Architecture> {
+    return this.repository.delete(id);
+  }
 }

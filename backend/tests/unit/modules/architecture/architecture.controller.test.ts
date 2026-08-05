@@ -6,6 +6,7 @@ vi.mock("@/modules/architecture/index.js", () => ({
     create: vi.fn(),
     getAllArchitectures: vi.fn(),
     update: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -16,6 +17,7 @@ const {
   createArchitecture,
   getAllArchitectures,
   updateArchitecture,
+  deleteArchitecture,
 } = await import("../../../../src/modules/architecture/architecture.controller.js");
 import { ApiError } from "../../../../src/lib/index.js";
 
@@ -235,6 +237,59 @@ describe("updateArchitecture", () => {
     vi.mocked(architectureService.update).mockRejectedValue(error as never);
 
     await updateArchitecture(req, res, next);
+    await flush();
+
+    await vi.waitFor(() => expect(next).toHaveBeenCalledWith(error));
+  });
+});
+
+describe("deleteArchitecture", () => {
+  it("deletes an architecture and responds with 200", async () => {
+    const req = { params: { id: uuid } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    const deleted = { id: uuid, name: "To Delete" };
+    vi.mocked(architectureService.delete).mockResolvedValue(deleted as never);
+
+    await deleteArchitecture(req, res, next);
+    await flush();
+
+    expect(architectureService.delete).toHaveBeenCalledWith(uuid);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: "Architecture deleted successfully",
+      data: deleted,
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("passes a BadRequestError to next for an invalid id", async () => {
+    const req = { params: { id: "not-a-uuid" } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await deleteArchitecture(req, res, next);
+    await flush();
+
+    expect(architectureService.delete).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 400,
+      code: "BAD_REQUEST",
+    });
+  });
+
+  it("passes a service error to next", async () => {
+    const req = { params: { id: uuid } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    const error = new Error("delete failed");
+    vi.mocked(architectureService.delete).mockRejectedValue(error as never);
+
+    await deleteArchitecture(req, res, next);
     await flush();
 
     await vi.waitFor(() => expect(next).toHaveBeenCalledWith(error));

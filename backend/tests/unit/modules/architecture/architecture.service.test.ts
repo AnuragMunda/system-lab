@@ -33,6 +33,7 @@ const repo = {
   findAll: vi.fn(),
   findById: vi.fn(),
   update: vi.fn(),
+  delete: vi.fn(),
 } as unknown as ArchitectureRepository;
 
 const service = new ArchitectureService(repo);
@@ -255,5 +256,24 @@ describe("ArchitectureService.update", () => {
     await expect(service.update(uuid, { name: "X" })).rejects.toThrow(
       "update failed",
     );
+  });
+});
+
+describe("ArchitectureService.delete", () => {
+  it("delegates the id to the repository", async () => {
+    vi.mocked(repo.delete).mockResolvedValue(existingArchitecture);
+
+    const result = await service.delete(uuid);
+
+    expect(repo.delete).toHaveBeenCalledWith(uuid);
+    expect(repo.delete).toHaveBeenCalledOnce();
+    expect(result).toEqual(existingArchitecture);
+  });
+
+  it("propagates repository errors", async () => {
+    const error = new Error("delete failed");
+    vi.mocked(repo.delete).mockRejectedValue(error);
+
+    await expect(service.delete(uuid)).rejects.toThrow("delete failed");
   });
 });

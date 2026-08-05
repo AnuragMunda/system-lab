@@ -3,6 +3,8 @@ import { resetDb, getTestDatabaseUrl } from "../helpers/db.js";
 import { createProject, validArchitecture } from "../helpers/fixtures.js";
 import { ArchitectureRepository } from "../../../src/modules/architecture/architecture.repository.js";
 import { ApiError } from "../../../src/lib/apiError.js";
+import db from "../../../src/infrastructure/database/db.js";
+import { scenariosTable } from "../../../src/infrastructure/database/schema/scenarios.js";
 
 const describeDb = process.env.TEST_DB_UNAVAILABLE ? describe.skip : describe;
 
@@ -168,6 +170,55 @@ describeDb("ArchitectureRepository", () => {
         statusCode: 404,
         code: "NOT_FOUND",
       });
+    });
+  });
+
+  describe("delete", () => {
+    it("deletes the architecture and returns it", async () => {
+      const project = await createProject();
+      const created = await repo.create({
+        projectId: project.id,
+        name: "To Delete",
+        graph: { nodes: [], edges: [] },
+      });
+
+      const deleted = await repo.delete(created.id);
+
+      expect(deleted.id).toBe(created.id);
+      expect(deleted.name).toBe("To Delete");
+      await expect(repo.findById(created.id)).rejects.toMatchObject({
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    });
+
+    it("throws NotFoundError for a missing id", async () => {
+      const promise = repo.delete("5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91");
+
+      await expect(promise).rejects.toMatchObject({
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    });
+
+    it("cascades deletion to the architecture's scenarios", async () => {
+      const project = await createProject();
+      const created = await repo.create({
+        projectId: project.id,
+        name: "To Delete",
+        graph: { nodes: [], edges: [] },
+      });
+
+      await db.insert(scenariosTable).values({
+        architectureId: created.id,
+        name: "Traffic Spike",
+        events: [],
+      });
+
+      await repo.delete(created.id);
+
+      const scenarios = await db.select().from(scenariosTable);
+      expect(scenarios).toEqual([]);
     });
   });
 });

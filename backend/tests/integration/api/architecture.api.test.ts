@@ -294,6 +294,49 @@ describeDb("Architectures API", () => {
     });
   });
 
+  describe("DELETE /api/v1/architectures/:id", () => {
+    it("deletes the architecture and responds with 200", async () => {
+      const project = await createProject();
+      const body = validArchitecture(project.id);
+      const created = await request(app)
+        .post("/api/v1/architectures")
+        .send(body)
+        .expect(201);
+
+      const res = await request(app).delete(
+        `/api/v1/architectures/${created.body.data.id}`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toBe("Architecture deleted successfully");
+      expect(res.body.data.id).toBe(created.body.data.id);
+
+      await expect(repo.findById(created.body.data.id)).rejects.toMatchObject({
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    });
+
+    it("returns 400 for a non-uuid id", async () => {
+      const res = await request(app).delete(
+        "/api/v1/architectures/not-a-uuid",
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
+    });
+
+    it("returns 404 for a valid uuid that does not exist", async () => {
+      const res = await request(app).delete(
+        "/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
+      );
+
+      expect(res.status).toBe(404);
+      expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
+    });
+  });
+
   describe("GET /api/v1/architectures/:id", () => {
     it("returns 404 because the route is not implemented", async () => {
       const res = await request(app).get(
