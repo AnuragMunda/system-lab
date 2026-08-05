@@ -10,6 +10,13 @@ import {
 const testUrl = getTestDatabaseUrl();
 
 if (!(await isDbAvailable(getOriginalDatabaseUrl()))) {
+  if (process.env.CI) {
+    throw new Error(
+      `[integration] PostgreSQL is required in CI but is not reachable at "${getOriginalDatabaseUrl()}". ` +
+        "Integration tests would be silently skipped otherwise.",
+    );
+  }
+
   process.env.TEST_DB_UNAVAILABLE = "1";
   console.warn(
     `\n[integration] PostgreSQL is not reachable at "${getOriginalDatabaseUrl()}".\n` +
