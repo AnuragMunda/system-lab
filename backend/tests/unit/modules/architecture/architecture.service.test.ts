@@ -5,7 +5,9 @@ import { ApiError, NotFoundError } from "../../../../src/lib/index.js";
 
 const uuid = "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91";
 
-const existingArchitecture = {
+type ArchitectureRow = Awaited<ReturnType<ArchitectureRepository["findById"]>>;
+
+const existingArchitecture: ArchitectureRow = {
   id: uuid,
   projectId: "p-1",
   name: "Old Name",

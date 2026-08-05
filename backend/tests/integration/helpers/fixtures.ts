@@ -35,14 +35,14 @@ export function validArchitecture(projectId: string) {
     nodes: [
       {
         id: "client-1",
-        type: "client",
+        type: "client" as const,
         name: "Web Client",
         position: { x: 0, y: 0 },
         config: {},
       },
       {
         id: "api-1",
-        type: "api",
+        type: "api" as const,
         name: "API Gateway",
         position: { x: 100, y: 50 },
         config: { latencyMs: 10, capacity: 1000, errorRate: 0.01 },
