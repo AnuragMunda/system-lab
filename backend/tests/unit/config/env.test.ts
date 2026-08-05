@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
+import "dotenv/config";
 
 const MISSING_ENV_FILE = "/tmp/opencode/nonexistent-dotenv.env";
 
