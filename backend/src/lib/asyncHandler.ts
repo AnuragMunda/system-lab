@@ -14,5 +14,7 @@ type AsyncFn = (
 
 export const asyncHandler =
   (fn: AsyncFn) => (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve()
+      .then(() => fn(req, res, next))
+      .catch(next);
   };

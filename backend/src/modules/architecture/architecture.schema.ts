@@ -16,10 +16,10 @@ const positionSchema = z.object({
 });
 
 const componentConfig = z.object({
-  latencyMs: z.number().optional(),
-  capacity: z.number().optional(),
-  concurrency: z.number().optional(),
-  errorRate: z.number().optional(),
+  latencyMs: z.number().nonnegative().optional(),
+  capacity: z.number().positive().optional(),
+  concurrency: z.number().nonnegative().optional(),
+  errorRate: z.number().min(0).max(1).optional(),
 });
 
 const connectionConfig = z.object({
