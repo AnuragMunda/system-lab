@@ -5,6 +5,7 @@ import {
   UpdateArchitectureRecord,
 } from "./architecture.dto.js";
 import {
+  ConflictError,
   InternalServerError,
   NotFoundError,
 } from "@/lib/apiError.js";
@@ -13,16 +14,20 @@ import { eq } from "drizzle-orm";
 export class ArchitectureRepository {
   async create(data: CreateArchitectureRecord) {
     // Implementation for saving architecture
-    const [architecture] = await db
-      .insert(architecturesTable)
-      .values(data)
-      .returning();
+    try {
+      const [architecture] = await db
+        .insert(architecturesTable)
+        .values(data)
+        .returning();
 
-    if (!architecture) {
-      throw InternalServerError("Failed to create architecture.");
+      if (!architecture) {
+        throw InternalServerError("Failed to create architecture.");
+      }
+
+      return architecture;
+    } catch (error) {
+      throw this.mapDbError(error);
     }
-
-    return architecture;
   }
 
   async findAll() {
@@ -43,16 +48,44 @@ export class ArchitectureRepository {
   }
 
   async update(id: string, data: UpdateArchitectureRecord) {
-    const [architecture] = await db
-      .update(architecturesTable)
-      .set(data)
-      .where(eq(architecturesTable.id, id))
-      .returning();
+    try {
+      const [architecture] = await db
+        .update(architecturesTable)
+        .set(data)
+        .where(eq(architecturesTable.id, id))
+        .returning();
 
-    if (!architecture) {
-      throw NotFoundError();
+      if (!architecture) {
+        throw NotFoundError();
+      }
+
+      return architecture;
+    } catch (error) {
+      throw this.mapDbError(error);
+    }
+  }
+
+  private mapDbError(error: unknown) {
+    if (this.isUniqueViolation(error)) {
+      return ConflictError();
     }
 
-    return architecture;
+    return error;
+  }
+
+  private isUniqueViolation(error: unknown): boolean {
+    let current: unknown = error;
+
+    while (typeof current === "object" && current !== null) {
+      const candidate = current as { code?: unknown; cause?: unknown };
+
+      if (candidate.code === "23505") {
+        return true;
+      }
+
+      current = candidate.cause;
+    }
+
+    return false;
   }
 }
