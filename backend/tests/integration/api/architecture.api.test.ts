@@ -133,15 +133,18 @@ describeDb("Architectures API", () => {
   });
 
   describe("GET /api/v1/architectures", () => {
-    it("returns an empty list when no architectures exist", async () => {
+    it("returns an empty paginated list when no architectures exist", async () => {
       const res = await request(app).get("/api/v1/architectures");
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toEqual([]);
+      expect(res.body.data).toEqual({
+        items: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      });
     });
 
-    it("returns the created architectures", async () => {
+    it("returns the created architectures with default pagination", async () => {
       const project = await createProject();
       const body = validArchitecture(project.id);
 
@@ -150,11 +153,91 @@ describeDb("Architectures API", () => {
       const res = await request(app).get("/api/v1/architectures");
 
       expect(res.status).toBe(200);
-      expect(res.body.data).toHaveLength(1);
-      expect(res.body.data[0]).toMatchObject({
+      expect(res.body.data.items).toHaveLength(1);
+      expect(res.body.data.items[0]).toMatchObject({
         projectId: project.id,
         name: body.name,
       });
+      expect(res.body.data.pagination).toEqual({
+        page: 1,
+        limit: 20,
+        total: 1,
+        totalPages: 1,
+      });
+    });
+
+    it("paginates across pages", async () => {
+      const project = await createProject();
+
+      for (let i = 0; i < 3; i += 1) {
+        await request(app)
+          .post("/api/v1/architectures")
+          .send({
+            ...validArchitecture(project.id),
+            name: `Arch ${i}`,
+          })
+          .expect(201);
+      }
+
+      const page1 = await request(app)
+        .get("/api/v1/architectures")
+        .query({ page: 1, limit: 2 });
+
+      expect(page1.body.data.items).toHaveLength(2);
+      expect(page1.body.data.pagination).toEqual({
+        page: 1,
+        limit: 2,
+        total: 3,
+        totalPages: 2,
+      });
+
+      const page2 = await request(app)
+        .get("/api/v1/architectures")
+        .query({ page: 2, limit: 2 });
+
+      expect(page2.body.data.items).toHaveLength(1);
+      expect(page2.body.data.pagination.page).toBe(2);
+    });
+
+    it("filters by projectId", async () => {
+      const projectA = await createProject();
+      const projectB = await createProject();
+
+      await request(app)
+        .post("/api/v1/architectures")
+        .send({ ...validArchitecture(projectA.id), name: "A-Arch" })
+        .expect(201);
+      await request(app)
+        .post("/api/v1/architectures")
+        .send({ ...validArchitecture(projectB.id), name: "B-Arch" })
+        .expect(201);
+
+      const res = await request(app)
+        .get("/api/v1/architectures")
+        .query({ projectId: projectA.id });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.items).toHaveLength(1);
+      expect(res.body.data.items[0].name).toBe("A-Arch");
+      expect(res.body.data.pagination.total).toBe(1);
+    });
+
+    it("returns 400 for an invalid projectId", async () => {
+      const res = await request(app)
+        .get("/api/v1/architectures")
+        .query({ projectId: "not-a-uuid" });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
+    });
+
+    it("returns 400 for invalid pagination query params", async () => {
+      const res = await request(app)
+        .get("/api/v1/architectures")
+        .query({ page: 0, limit: 101 });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
     });
   });
 
@@ -338,12 +421,42 @@ describeDb("Architectures API", () => {
   });
 
   describe("GET /api/v1/architectures/:id", () => {
-    it("returns 404 because the route is not implemented", async () => {
+    it("returns the architecture", async () => {
+      const project = await createProject();
+      const body = validArchitecture(project.id);
+      const created = await request(app)
+        .post("/api/v1/architectures")
+        .send(body)
+        .expect(201);
+
+      const res = await request(app).get(
+        `/api/v1/architectures/${created.body.data.id}`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toMatchObject({
+        id: created.body.data.id,
+        projectId: project.id,
+        name: body.name,
+        graph: { nodes: body.nodes, edges: body.edges },
+      });
+    });
+
+    it("returns 400 for a non-uuid id", async () => {
+      const res = await request(app).get("/api/v1/architectures/not-a-uuid");
+
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
+    });
+
+    it("returns 404 for a valid uuid that does not exist", async () => {
       const res = await request(app).get(
         "/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
       );
 
       expect(res.status).toBe(404);
+      expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
     });
   });
 });

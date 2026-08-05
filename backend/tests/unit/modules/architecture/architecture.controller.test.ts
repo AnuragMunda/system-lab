@@ -5,6 +5,7 @@ vi.mock("@/modules/architecture/index.js", () => ({
   architectureService: {
     create: vi.fn(),
     getAllArchitectures: vi.fn(),
+    findById: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
   },
@@ -16,6 +17,7 @@ const { architectureService } = await import(
 const {
   createArchitecture,
   getAllArchitectures,
+  getArchitectureById,
   updateArchitecture,
   deleteArchitecture,
 } = await import("../../../../src/modules/architecture/architecture.controller.js");
@@ -106,29 +108,72 @@ describe("createArchitecture", () => {
 });
 
 describe("getAllArchitectures", () => {
-  it("responds with 200 and the list of architectures", async () => {
-    const req = {} as Request;
+  it("responds with 200 and the paginated result using default query values", async () => {
+    const req = { query: {} } as Request;
     const res = mockRes();
     const next = mockNext();
 
-    const list = [{ id: uuid, name: "A" }];
+    const result = {
+      items: [{ id: uuid, name: "A" }],
+      pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+    };
     vi.mocked(architectureService.getAllArchitectures).mockResolvedValue(
-      list as never,
+      result as never,
     );
 
     await getAllArchitectures(req, res, next);
     await flush();
 
+    expect(architectureService.getAllArchitectures).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+    });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
       message: "Request successful",
-      data: list,
+      data: result,
+    });
+  });
+
+  it("passes the projectId, page and limit query params to the service", async () => {
+    const req = { query: { projectId: uuid, page: "2", limit: "10" } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    vi.mocked(architectureService.getAllArchitectures).mockResolvedValue({
+      items: [],
+      pagination: { page: 2, limit: 10, total: 0, totalPages: 0 },
+    } as never);
+
+    await getAllArchitectures(req, res, next);
+    await flush();
+
+    expect(architectureService.getAllArchitectures).toHaveBeenCalledWith({
+      projectId: uuid,
+      page: 2,
+      limit: 10,
+    });
+  });
+
+  it("passes a BadRequestError to next for an invalid query", async () => {
+    const req = { query: { page: "0" } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await getAllArchitectures(req, res, next);
+    await flush();
+
+    expect(architectureService.getAllArchitectures).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 400,
+      code: "BAD_REQUEST",
     });
   });
 
   it("passes a service error to next", async () => {
-    const req = {} as Request;
+    const req = { query: {} } as Request;
     const res = mockRes();
     const next = mockNext();
 
@@ -138,6 +183,59 @@ describe("getAllArchitectures", () => {
     );
 
     await getAllArchitectures(req, res, next);
+    await flush();
+
+    await vi.waitFor(() => expect(next).toHaveBeenCalledWith(error));
+  });
+});
+
+describe("getArchitectureById", () => {
+  it("responds with 200 and the architecture", async () => {
+    const req = { params: { id: uuid } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    const found = { id: uuid, name: "Payment Service" };
+    vi.mocked(architectureService.findById).mockResolvedValue(found as never);
+
+    await getArchitectureById(req, res, next);
+    await flush();
+
+    expect(architectureService.findById).toHaveBeenCalledWith(uuid);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: "Request successful",
+      data: found,
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("passes a BadRequestError to next for an invalid id", async () => {
+    const req = { params: { id: "not-a-uuid" } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await getArchitectureById(req, res, next);
+    await flush();
+
+    expect(architectureService.findById).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 400,
+      code: "BAD_REQUEST",
+    });
+  });
+
+  it("passes a service error to next", async () => {
+    const req = { params: { id: uuid } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    const error = new Error("db down");
+    vi.mocked(architectureService.findById).mockRejectedValue(error as never);
+
+    await getArchitectureById(req, res, next);
     await flush();
 
     await vi.waitFor(() => expect(next).toHaveBeenCalledWith(error));

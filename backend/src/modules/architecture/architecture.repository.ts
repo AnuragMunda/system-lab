@@ -5,7 +5,7 @@ import {
   UpdateArchitectureRecord,
 } from "./architecture.dto.js";
 import { InternalServerError, NotFoundError } from "@/lib/apiError.js";
-import { eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { mapDbError } from "@/lib/utils.js";
 
 export class ArchitectureRepository {
@@ -27,8 +27,40 @@ export class ArchitectureRepository {
     }
   }
 
-  async findAll() {
-    return db.select().from(architecturesTable);
+  async findPaginated(filters: {
+    projectId?: string;
+    page: number;
+    limit: number;
+  }) {
+    const offset = (filters.page - 1) * filters.limit;
+
+    return db
+      .select()
+      .from(architecturesTable)
+      .where(
+        filters.projectId
+          ? eq(architecturesTable.projectId, filters.projectId)
+          : undefined,
+      )
+      .orderBy(
+        desc(architecturesTable.createdAt),
+        desc(architecturesTable.id),
+      )
+      .limit(filters.limit)
+      .offset(offset);
+  }
+
+  async count(filters: { projectId?: string }): Promise<number> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(architecturesTable)
+      .where(
+        filters.projectId
+          ? eq(architecturesTable.projectId, filters.projectId)
+          : undefined,
+      );
+
+    return Number(result?.count ?? 0);
   }
 
   async findById(id: string) {

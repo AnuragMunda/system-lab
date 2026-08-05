@@ -73,12 +73,13 @@ describeDb("ArchitectureRepository", () => {
     });
   });
 
-  describe("findAll", () => {
+  describe("findPaginated", () => {
     it("returns an empty list when the table is empty", async () => {
-      await expect(repo.findAll()).resolves.toEqual([]);
+      const rows = await repo.findPaginated({ page: 1, limit: 20 });
+      expect(rows).toEqual([]);
     });
 
-    it("returns all created architectures", async () => {
+    it("returns all created architectures ordered by newest first", async () => {
       const project = await createProject();
 
       await repo.create({
@@ -92,9 +93,92 @@ describeDb("ArchitectureRepository", () => {
         graph: { nodes: [], edges: [] },
       });
 
-      const rows = await repo.findAll();
+      const rows = await repo.findPaginated({ page: 1, limit: 20 });
       expect(rows).toHaveLength(2);
-      expect(rows.map((r: { name: string }) => r.name).sort()).toEqual(["A", "B"]);
+      expect(rows.map((r: { name: string }) => r.name)).toEqual(["B", "A"]);
+    });
+
+    it("paginates with limit and offset", async () => {
+      const project = await createProject();
+
+      for (let i = 0; i < 3; i += 1) {
+        await repo.create({
+          projectId: project.id,
+          name: `Arch ${i}`,
+          graph: { nodes: [], edges: [] },
+        });
+      }
+
+      const page1 = await repo.findPaginated({ page: 1, limit: 2 });
+      expect(page1).toHaveLength(2);
+
+      const page2 = await repo.findPaginated({ page: 2, limit: 2 });
+      expect(page2).toHaveLength(1);
+
+      const names = [...page1, ...page2].map((r: { name: string }) => r.name);
+      expect(names).toHaveLength(3);
+    });
+
+    it("filters by projectId", async () => {
+      const projectA = await createProject();
+      const projectB = await createProject();
+
+      await repo.create({
+        projectId: projectA.id,
+        name: "A-Arch",
+        graph: { nodes: [], edges: [] },
+      });
+      await repo.create({
+        projectId: projectB.id,
+        name: "B-Arch",
+        graph: { nodes: [], edges: [] },
+      });
+
+      const rows = await repo.findPaginated({
+        projectId: projectA.id,
+        page: 1,
+        limit: 20,
+      });
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0]!.name).toBe("A-Arch");
+    });
+  });
+
+  describe("count", () => {
+    it("counts all rows", async () => {
+      const project = await createProject();
+
+      await repo.create({
+        projectId: project.id,
+        name: "A",
+        graph: { nodes: [], edges: [] },
+      });
+      await repo.create({
+        projectId: project.id,
+        name: "B",
+        graph: { nodes: [], edges: [] },
+      });
+
+      await expect(repo.count({})).resolves.toBe(2);
+    });
+
+    it("counts rows for a specific project", async () => {
+      const projectA = await createProject();
+      const projectB = await createProject();
+
+      await repo.create({
+        projectId: projectA.id,
+        name: "A-Arch",
+        graph: { nodes: [], edges: [] },
+      });
+      await repo.create({
+        projectId: projectB.id,
+        name: "B-Arch",
+        graph: { nodes: [], edges: [] },
+      });
+
+      await expect(repo.count({ projectId: projectA.id })).resolves.toBe(1);
     });
   });
 

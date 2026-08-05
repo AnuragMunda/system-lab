@@ -1,6 +1,8 @@
 import { ArchitectureRepository } from "./architecture.repository.js";
 import {
   CreateArchitectureDto,
+  ListArchitecturesQueryDto,
+  PaginatedResult,
   UpdateArchitectureDto,
 } from "./architecture.dto.js";
 import { Architecture } from "@/domain/architecture/architecture.types.js";
@@ -23,8 +25,29 @@ export class ArchitectureService {
     return architecture;
   }
 
-  async getAllArchitectures(): Promise<Architecture[]> {
-    return this.repository.findAll();
+  async getAllArchitectures(
+    query: ListArchitecturesQueryDto,
+  ): Promise<PaginatedResult<Architecture>> {
+    const { projectId, page, limit } = query;
+
+    const [items, total] = await Promise.all([
+      this.repository.findPaginated({ projectId, page, limit }),
+      this.repository.count({ projectId }),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async findById(id: string): Promise<Architecture> {
+    return this.repository.findById(id);
   }
 
   async update(id: string, data: UpdateArchitectureDto): Promise<Architecture> {

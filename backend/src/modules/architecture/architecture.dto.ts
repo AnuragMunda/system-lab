@@ -2,12 +2,26 @@ import { ArchitectureNode } from "@/domain/architecture/component.types.js";
 import { ArchitectureEdge } from "@/domain/architecture/connection.types.js";
 import {
   architectureSchema,
+  listArchitecturesQuerySchema,
   updateArchitectureSchema,
 } from "./architecture.schema.js";
 import { z } from "zod";
 
 export type CreateArchitectureDto = z.infer<typeof architectureSchema>;
 export type UpdateArchitectureDto = z.infer<typeof updateArchitectureSchema>;
+export type ListArchitecturesQueryDto = z.infer<
+  typeof listArchitecturesQuerySchema
+>;
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export interface CreateArchitectureRecord {
   projectId: string;

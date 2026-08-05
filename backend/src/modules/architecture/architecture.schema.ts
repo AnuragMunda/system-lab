@@ -55,6 +55,12 @@ export const idParamSchema = z.object({
   id: z.uuid(),
 });
 
+export const listArchitecturesQuerySchema = z.object({
+  projectId: z.uuid().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
 export const updateArchitectureSchema = architectureSchema
   .omit({ projectId: true })
   .partial();

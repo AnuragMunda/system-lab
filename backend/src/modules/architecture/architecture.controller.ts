@@ -3,6 +3,7 @@ import { ApiResponse, asyncHandler, BadRequestError } from "@/lib/index.js";
 import {
   architectureSchema,
   idParamSchema,
+  listArchitecturesQuerySchema,
   updateArchitectureSchema,
 } from "./architecture.schema.js";
 import { architectureService } from "./index.js";
@@ -26,10 +27,30 @@ export const createArchitecture = asyncHandler(
 );
 
 export const getAllArchitectures = asyncHandler(
-  async (_req: Request, res: Response) => {
-    const architectures = await architectureService.getAllArchitectures();
+  async (req: Request, res: Response) => {
+    const query = listArchitecturesQuerySchema.safeParse(req.query);
 
-    return ApiResponse.ok(res, architectures);
+    if (!query.success) {
+      throw BadRequestError(query.error.message);
+    }
+
+    const result = await architectureService.getAllArchitectures(query.data);
+
+    return ApiResponse.ok(res, result);
+  },
+);
+
+export const getArchitectureById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const params = idParamSchema.safeParse(req.params);
+
+    if (!params.success) {
+      throw BadRequestError(params.error.message);
+    }
+
+    const architecture = await architectureService.findById(params.data.id);
+
+    return ApiResponse.ok(res, architecture);
   },
 );
 

@@ -30,7 +30,8 @@ const existingArchitecture: ArchitectureRow = {
 
 const repo = {
   create: vi.fn(),
-  findAll: vi.fn(),
+  findPaginated: vi.fn(),
+  count: vi.fn(),
   findById: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
@@ -100,13 +101,75 @@ describe("ArchitectureService.create", () => {
 });
 
 describe("ArchitectureService.getAllArchitectures", () => {
-  it("returns the repository findAll result", async () => {
-    vi.mocked(repo.findAll).mockResolvedValue([existingArchitecture]);
+  it("returns a paginated result built from findPaginated and count", async () => {
+    vi.mocked(repo.findPaginated).mockResolvedValue([existingArchitecture]);
+    vi.mocked(repo.count).mockResolvedValue(5);
 
-    const result = await service.getAllArchitectures();
+    const result = await service.getAllArchitectures({
+      page: 2,
+      limit: 2,
+    });
 
-    expect(repo.findAll).toHaveBeenCalledOnce();
-    expect(result).toEqual([existingArchitecture]);
+    expect(repo.findPaginated).toHaveBeenCalledWith({
+      projectId: undefined,
+      page: 2,
+      limit: 2,
+    });
+    expect(repo.count).toHaveBeenCalledWith({ projectId: undefined });
+    expect(result).toEqual({
+      items: [existingArchitecture],
+      pagination: { page: 2, limit: 2, total: 5, totalPages: 3 },
+    });
+  });
+
+  it("forwards an optional projectId filter to the repository", async () => {
+    vi.mocked(repo.findPaginated).mockResolvedValue([]);
+    vi.mocked(repo.count).mockResolvedValue(0);
+
+    await service.getAllArchitectures({
+      projectId: "p-1",
+      page: 1,
+      limit: 20,
+    });
+
+    expect(repo.findPaginated).toHaveBeenCalledWith({
+      projectId: "p-1",
+      page: 1,
+      limit: 20,
+    });
+    expect(repo.count).toHaveBeenCalledWith({ projectId: "p-1" });
+  });
+
+  it("propagates repository errors", async () => {
+    const error = new Error("db down");
+    vi.mocked(repo.findPaginated).mockRejectedValue(error);
+
+    await expect(service.getAllArchitectures({ page: 1, limit: 20 })).rejects.toThrow(
+      "db down",
+    );
+  });
+});
+
+describe("ArchitectureService.findById", () => {
+  it("delegates the id to the repository", async () => {
+    vi.mocked(repo.findById).mockResolvedValue(existingArchitecture);
+
+    const result = await service.findById(uuid);
+
+    expect(repo.findById).toHaveBeenCalledWith(uuid);
+    expect(repo.findById).toHaveBeenCalledOnce();
+    expect(result).toEqual(existingArchitecture);
+  });
+
+  it("propagates NotFoundError when the architecture does not exist", async () => {
+    vi.mocked(repo.findById).mockRejectedValue(NotFoundError());
+
+    const promise = service.findById(uuid);
+    await expect(promise).rejects.toBeInstanceOf(ApiError);
+    await expect(promise).rejects.toMatchObject({
+      statusCode: 404,
+      code: "NOT_FOUND",
+    });
   });
 });
 
