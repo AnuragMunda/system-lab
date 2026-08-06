@@ -6,7 +6,7 @@ import {
 } from "./architecture.dto.js";
 import { InternalServerError, NotFoundError } from "@/lib/apiError.js";
 import { count, desc, eq } from "drizzle-orm";
-import { mapDbError } from "@/lib/utils.js";
+import { mapDbError } from "@/lib/index.js";
 
 export class ArchitectureRepository {
   async create(data: CreateArchitectureRecord) {
@@ -42,10 +42,7 @@ export class ArchitectureRepository {
           ? eq(architecturesTable.projectId, filters.projectId)
           : undefined,
       )
-      .orderBy(
-        desc(architecturesTable.createdAt),
-        desc(architecturesTable.id),
-      )
+      .orderBy(desc(architecturesTable.createdAt), desc(architecturesTable.id))
       .limit(filters.limit)
       .offset(offset);
   }
