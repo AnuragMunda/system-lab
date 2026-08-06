@@ -1,3 +1,10 @@
+/**
+ * @file architecture.schema.test.ts
+ *
+ * @description Unit tests for the architecture Zod schemas, covering valid and
+ * invalid payloads for create, update, and the id param schema.
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   architectureSchema,
@@ -5,6 +12,7 @@ import {
   updateArchitectureSchema,
 } from "../../../../src/modules/architecture/architecture.schema.js";
 
+/** A fully valid architecture payload used as the baseline for tests. */
 const validArchitecture = {
   projectId: "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
   name: "Payment Service",

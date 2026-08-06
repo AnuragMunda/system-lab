@@ -1,3 +1,10 @@
+/**
+ * @file cascade.test.ts
+ *
+ * @description Integration tests for foreign-key cascade behavior: deleting a
+ * parent row (user/project) cascades to its children (projects/architectures).
+ */
+
 import { describe, it, expect, beforeEach } from "vitest";
 import db from "../../../src/infrastructure/database/db.js";
 import { usersTable } from "../../../src/infrastructure/database/schema/users.js";

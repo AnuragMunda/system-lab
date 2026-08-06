@@ -1,3 +1,10 @@
+/**
+ * @file apiError.test.ts
+ *
+ * @description Unit tests for the ApiError class and its factory helpers,
+ * verifying status codes, machine-readable codes, and error metadata.
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   ApiError,

@@ -1,3 +1,10 @@
+/**
+ * @file architecture.repository.test.ts
+ *
+ * @description Integration tests for ArchitectureRepository against a real
+ * PostgreSQL test database, covering CRUD, pagination, filtering, and counts.
+ */
+
 import { describe, it, expect, beforeEach } from "vitest";
 import { resetDb, getTestDatabaseUrl } from "../helpers/db.js";
 import { createProject, validArchitecture } from "../helpers/fixtures.js";

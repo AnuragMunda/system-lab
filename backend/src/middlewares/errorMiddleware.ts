@@ -1,3 +1,12 @@
+/**
+ * @file errorMiddleware.ts
+ *
+ * @description Global error handler registered last in the Express pipeline.
+ * Converts any thrown error into a JSON response. ApiErrors keep their status
+ * code and code; anything else becomes a 500. Stack traces are only included
+ * in development.
+ */
+
 import type { Request, Response, NextFunction } from "express";
 import { HttpStatus, ApiMessages } from "@/config/constants/index.js";
 import { ApiError } from "@/lib/index.js";

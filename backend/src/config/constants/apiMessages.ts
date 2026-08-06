@@ -1,4 +1,13 @@
+/**
+ * @file apiMessages.ts
+ *
+ * @description Centralized API response and error message strings grouped by
+ * outcome (success, client error, server error). Using these constants keeps
+ * messages consistent across the API and avoids magic strings.
+ */
+
 export const ApiMessages = Object.freeze({
+  /** Messages for successful responses. */
   SUCCESS: {
     OK: "Request successful",
     CREATED: "Resource created successfully",
@@ -7,6 +16,7 @@ export const ApiMessages = Object.freeze({
     FETCHED: "Resource fetched successfully",
   },
 
+  /** Messages for client-side request errors (e.g. invalid or missing data). */
   CLIENT_ERROR: {
     BAD_REQUEST: "Invalid request data",
     UNAUTHORIZED: "Authentication required",
@@ -16,6 +26,7 @@ export const ApiMessages = Object.freeze({
     VALIDATION_FAILED: "Validation failed",
   },
 
+  /** Messages for server-side failures. */
   SERVER_ERROR: {
     INTERNAL_ERROR: "Something went wrong on the server",
     NOT_IMPLEMENTED: "Feature not implemented",

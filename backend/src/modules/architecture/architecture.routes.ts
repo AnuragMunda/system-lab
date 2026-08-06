@@ -1,3 +1,10 @@
+/**
+ * @file architecture.routes.ts
+ *
+ * @description Express router mounting the architecture module's endpoints
+ * under a single router, composed into the app by the root router.
+ */
+
 import { Router } from "express";
 import {
   createArchitecture,

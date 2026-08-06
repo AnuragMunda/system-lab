@@ -1,3 +1,10 @@
+/**
+ * @author Anurag Munda
+ *
+ * @file server.ts
+ * @description The underlying HTTP server instance created that handles incoming network requests, binds to a port, and manages the actual HTTP protocol.
+ */
+
 import app from "./app.js";
 import { env } from "./config/env.js";
 

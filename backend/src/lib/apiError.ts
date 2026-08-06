@@ -1,3 +1,11 @@
+/**
+ * @file apiError.ts
+ *
+ * @description Defines the ApiError class and factory helpers for creating
+ * standardized HTTP errors. Errors carry a status code and machine-readable
+ * code so the global error middleware can produce consistent responses.
+ */
+
 import { ApiMessages, HttpStatus } from "@/config/constants/index.js";
 
 class ApiError extends Error {
@@ -23,6 +31,7 @@ class ApiError extends Error {
   }
 }
 
+/** 400 error for invalid request data. Accepts optional validation details. */
 export const BadRequestError = (details?: unknown) =>
   new ApiError(
     ApiMessages.CLIENT_ERROR.BAD_REQUEST,
@@ -31,6 +40,7 @@ export const BadRequestError = (details?: unknown) =>
     details,
   );
 
+/** 401 error for missing or invalid authentication. */
 export const UnauthorizedError = () =>
   new ApiError(
     ApiMessages.CLIENT_ERROR.UNAUTHORIZED,
@@ -38,6 +48,7 @@ export const UnauthorizedError = () =>
     "UNAUTHORIZED",
   );
 
+/** 403 error when the user is not allowed to access the resource. */
 export const ForbiddenError = () =>
   new ApiError(
     ApiMessages.CLIENT_ERROR.FORBIDDEN,
@@ -45,6 +56,7 @@ export const ForbiddenError = () =>
     "FORBIDDEN",
   );
 
+/** 404 error when the requested resource does not exist. */
 export const NotFoundError = () =>
   new ApiError(
     ApiMessages.CLIENT_ERROR.NOT_FOUND,
@@ -52,6 +64,7 @@ export const NotFoundError = () =>
     "NOT_FOUND",
   );
 
+/** 409 error when a resource conflicts with existing data (e.g. unique constraint). */
 export const ConflictError = () =>
   new ApiError(
     ApiMessages.CLIENT_ERROR.CONFLICT,
@@ -59,6 +72,7 @@ export const ConflictError = () =>
     "CONFLICT",
   );
 
+/** 500 error for unexpected server failures. Accepts an optional custom message. */
 export const InternalServerError = (
   message: string = ApiMessages.SERVER_ERROR.INTERNAL_ERROR,
 ) => new ApiError(message, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR");

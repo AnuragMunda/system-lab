@@ -1,6 +1,8 @@
 /**
- * This file defines the database schema for the "projects" table.
- * The table stores information about different projects in the system.
+ * @file projects.ts
+ *
+ * @description Drizzle schema for the "projects" table. Projects are the
+ * top-level containers that own architectures.
  */
 
 import {
@@ -14,12 +16,14 @@ import {
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
+/** Who is allowed to see a project. */
 export const projectVisibilityEnum = pgEnum("project_visibility", [
   "PRIVATE",
   "PUBLIC",
   "UNLISTED",
 ]);
 
+/** Projects table. Each project belongs to a user and owns architectures. */
 export const projectsTable = pgTable(
   "projects",
   {

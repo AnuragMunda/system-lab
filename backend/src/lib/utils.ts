@@ -1,5 +1,16 @@
+/**
+ * @file utils.ts
+ *
+ * @description Small shared helpers used across repositories and services.
+ * Currently provides database-error translation.
+ */
+
 import { ConflictError } from "./apiError.js";
 
+/**
+ * Translates known database errors into API errors. Unknown errors are passed
+ * through unchanged so they surface as unexpected failures.
+ */
 export const mapDbError = (error: unknown) => {
   if (isUniqueViolation(error)) {
     return ConflictError();
@@ -8,6 +19,10 @@ export const mapDbError = (error: unknown) => {
   return error;
 };
 
+/**
+ * Checks whether an error is a PostgreSQL unique constraint violation
+ * (SQLSTATE 23505). Walks nested `cause` chains to support wrapped drivers.
+ */
 const isUniqueViolation = (error: unknown): boolean => {
   let current: unknown = error;
 

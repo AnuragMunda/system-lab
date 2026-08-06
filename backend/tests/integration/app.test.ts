@@ -1,3 +1,10 @@
+/**
+ * @file app.test.ts
+ *
+ * @description Integration tests for the app's default routes (welcome,
+ * health) and unmatched-route behavior.
+ */
+
 import request from "supertest";
 import { describe, it, expect } from "vitest";
 import app from "../../src/app.js";

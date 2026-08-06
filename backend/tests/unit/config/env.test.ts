@@ -1,3 +1,10 @@
+/**
+ * @file env.test.ts
+ *
+ * @description Unit tests for env configuration parsing, verifying defaults,
+ * required variables, and validation failures for invalid values.
+ */
+
 import { describe, it, expect, afterEach, vi } from "vitest";
 
 const MISSING_ENV_FILE = "/tmp/opencode/nonexistent-dotenv.env";
@@ -7,6 +14,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+/**
+ * Loads the env module in isolation with a controlled set of environment
+ * variables, restoring the original process.env afterwards.
+ */
 async function loadEnv(overrides: Record<string, string | undefined>) {
   const saved = { ...process.env };
 

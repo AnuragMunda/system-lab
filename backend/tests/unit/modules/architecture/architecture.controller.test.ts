@@ -1,3 +1,11 @@
+/**
+ * @file architecture.controller.test.ts
+ *
+ * @description Unit tests for the architecture HTTP handlers. The service is
+ * mocked so each handler's validation, status codes, and error forwarding can
+ * be exercised in isolation.
+ */
+
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import type { Request, Response, NextFunction } from "express";
 
@@ -25,6 +33,7 @@ import { ApiError } from "../../../../src/lib/index.js";
 
 const uuid = "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91";
 
+/** Returns a fake Express response with chainable status/json mocks. */
 function mockRes() {
   const res = {
     status: vi.fn().mockReturnThis(),
@@ -33,10 +42,12 @@ function mockRes() {
   return res;
 }
 
+/** Returns a mocked Express next function. */
 function mockNext() {
   return vi.fn() as unknown as NextFunction;
 }
 
+/** Waits for the microtask queue so async handler promises settle. */
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 beforeEach(() => {

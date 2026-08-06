@@ -1,11 +1,14 @@
 /**
- * This file defines the database schema for the "sessions" table.
- * The table stores information about user sessions in the system.
+ * @file sessions.ts
+ *
+ * @description Drizzle schema for the "sessions" table, storing refresh-token
+ * sessions for authenticated users.
  */
 
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
+/** User authentication sessions, keyed by a hashed refresh token. */
 export const sessionsTable = pgTable("sessions", {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid("user_id")

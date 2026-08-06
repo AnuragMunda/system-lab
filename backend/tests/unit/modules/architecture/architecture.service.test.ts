@@ -1,3 +1,11 @@
+/**
+ * @file architecture.service.test.ts
+ *
+ * @description Unit tests for ArchitectureService. The repository is mocked, so
+ * the tests focus on how DTOs are mapped and how business rules (empty updates,
+ * graph merging, pagination) behave.
+ */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ArchitectureService } from "../../../../src/modules/architecture/architecture.service.js";
 import { ArchitectureRepository } from "../../../../src/modules/architecture/architecture.repository.js";
@@ -7,6 +15,7 @@ const uuid = "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91";
 
 type ArchitectureRow = Awaited<ReturnType<ArchitectureRepository["findById"]>>;
 
+/** A representative architecture row used as both input and expected output. */
 const existingArchitecture: ArchitectureRow = {
   id: uuid,
   projectId: "p-1",
@@ -28,6 +37,7 @@ const existingArchitecture: ArchitectureRow = {
   updatedAt: new Date(),
 };
 
+/** Mock repository injected into the service under test. */
 const repo = {
   create: vi.fn(),
   findPaginated: vi.fn(),

@@ -1,7 +1,12 @@
 /**
- * This file defines the types and interfaces related to simulation metrics in the system.
+ * @file metric.types.ts
+ *
+ * @description Domain types describing the performance metrics collected at a
+ * point in time while a simulation is running. Metrics can be aggregated
+ * globally or broken down per node.
  */
 
+/** A snapshot of performance measurements at a given simulation timestamp. */
 export interface SimulationMetric {
   id: string;
   simulationId: string;

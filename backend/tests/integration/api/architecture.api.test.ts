@@ -1,3 +1,10 @@
+/**
+ * @file architecture.api.test.ts
+ *
+ * @description Integration tests for the architecture HTTP endpoints, exercised
+ * through supertest against the real app and database.
+ */
+
 import request from "supertest";
 import { describe, it, expect, beforeEach } from "vitest";
 import app from "../../../src/app.js";

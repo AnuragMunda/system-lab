@@ -1,5 +1,8 @@
 /**
- * This file sets up a logger using the Pino logging library.
+ * @file logger.ts
+ *
+ * @description Configures the application-wide logger using Pino, with
+ * human-friendly output via the pino-pretty transport during development.
  */
 
 import pino from "pino";

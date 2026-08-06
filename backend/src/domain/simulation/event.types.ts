@@ -1,7 +1,12 @@
 /**
- * This file defines the types and interfaces related to simulation events in the system.
+ * @file event.types.ts
+ *
+ * @description Domain types describing the discrete events a simulation emits
+ * as it processes requests through an architecture. Events are recorded for
+ * replay and visualization of how the system behaved over time.
  */
 
+/** The set of events a simulation can emit as it processes requests. */
 export type SimulationEventType =
   | "request.created"
   | "request.routed"
@@ -17,6 +22,7 @@ export type SimulationEventType =
   | "component.failed"
   | "component.recovered";
 
+/** A single timestamped event produced while running a simulation. */
 export interface SimulationEvent {
   id: string;
   simulationId: string;

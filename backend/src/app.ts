@@ -1,3 +1,10 @@
+/**
+ * @author Anurag Munda
+ *
+ * @file app.ts
+ * @description Application instance responsible for defining routes, middlewares, and application logic.
+ */
+
 import express, { type Response } from "express";
 import cors from "cors";
 import { pinoHttp } from "pino-http";

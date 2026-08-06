@@ -1,7 +1,13 @@
 /**
- * This file defines the types and interfaces related to architecture connections in the system.
+ * @file connection.types.ts
+ *
+ * @description This file defines the types and interfaces related to architecture connections in the system.
  */
 
+/**
+ * A directed connection between two nodes in an architecture graph,
+ * carrying the tunable network configuration used during simulation.
+ */
 export interface ArchitectureEdge {
   id: string;
 
@@ -11,6 +17,7 @@ export interface ArchitectureEdge {
   config: ConnectionConfig;
 }
 
+/** Network behavior tuning for a connection. All fields are optional. */
 interface ConnectionConfig {
   latencyMs?: number; // Average latency in milliseconds
   bandwidthMbps?: number; // Maximum bandwidth in megabits per second

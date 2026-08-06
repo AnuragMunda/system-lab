@@ -1,9 +1,17 @@
+/**
+ * @file db.ts
+ *
+ * @description Test database helpers: resolve the test DB URL, detect/ensure
+ * availability, apply schema, and reset tables between integration tests.
+ */
+
 import "dotenv/config";
 import { execSync } from "node:child_process";
 import { Pool } from "pg";
 
 const TEST_DB_NAME = "systemlab_test";
 
+/** The original DATABASE_URL (or an explicit TEST_DATABASE_URL) to connect to. */
 export function getOriginalDatabaseUrl(): string {
   const url = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
   if (!url) {
@@ -14,6 +22,7 @@ export function getOriginalDatabaseUrl(): string {
   return url;
 }
 
+/** The URL of the dedicated test database, derived from the original if not set. */
 export function getTestDatabaseUrl(): string {
   const url = process.env.TEST_DATABASE_URL;
   if (url) {
@@ -27,6 +36,7 @@ export function getTestDatabaseUrl(): string {
   return parsed.toString();
 }
 
+/** Returns true if a PostgreSQL server is reachable at the given URL. */
 export async function isDbAvailable(url: string): Promise<boolean> {
   const pool = new Pool({ connectionString: url, connectionTimeoutMillis: 2000 });
   try {
@@ -39,6 +49,7 @@ export async function isDbAvailable(url: string): Promise<boolean> {
   }
 }
 
+/** Creates the dedicated test database if it does not already exist. */
 export async function ensureTestDatabase(): Promise<void> {
   const pool = new Pool({ connectionString: getOriginalDatabaseUrl() });
   const client = await pool.connect();
@@ -57,6 +68,7 @@ export async function ensureTestDatabase(): Promise<void> {
   }
 }
 
+/** Applies migration files to the given test database URL. */
 export function applyMigrations(testUrl: string): void {
   execSync("pnpm exec drizzle-kit migrate", {
     cwd: process.cwd(),
@@ -68,6 +80,7 @@ export function applyMigrations(testUrl: string): void {
   });
 }
 
+/** Pushes the current schema to the given test database URL. */
 export function applySchema(testUrl: string): void {
   execSync("pnpm exec drizzle-kit push", {
     cwd: process.cwd(),
@@ -79,6 +92,7 @@ export function applySchema(testUrl: string): void {
   });
 }
 
+/** Truncates all tables so each test starts from a clean database. */
 export async function resetDb(testUrl: string): Promise<void> {
   const pool = new Pool({ connectionString: testUrl });
 

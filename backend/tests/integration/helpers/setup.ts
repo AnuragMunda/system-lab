@@ -1,3 +1,11 @@
+/**
+ * @file setup.ts
+ *
+ * @description Vitest global setup for integration tests. Detects whether
+ * PostgreSQL is available, provisions the test database, applies schema, and
+ * signals test files to skip when the database is unreachable.
+ */
+
 import {
   applyMigrations,
   applySchema,

@@ -1,7 +1,15 @@
+/**
+ * @file apiResponse.test.ts
+ *
+ * @description Unit tests for the ApiResponse success envelope helpers,
+ * verifying status codes and the shape of the JSON response body.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import type { Response } from "express";
 import { ApiResponse } from "../../../src/lib/index.js";
 
+/** Creates a minimal fake Express response with mocked status/json. */
 function mockRes() {
   return {
     status: vi.fn().mockReturnThis(),

@@ -1,7 +1,16 @@
+/**
+ * @file asyncHandler.test.ts
+ *
+ * @description Unit tests for asyncHandler, verifying that resolved handlers
+ * pass req/res/next through and that rejected or synchronously-thrown errors
+ * are forwarded to next.
+ */
+
 import { describe, it, expect, vi } from "vitest";
 import type { NextFunction, Request, Response } from "express";
 import { asyncHandler } from "../../../src/lib/index.js";
 
+/** Returns a mocked Express next function. */
 const makeNext = () => vi.fn() as unknown as NextFunction;
 
 describe("asyncHandler", () => {

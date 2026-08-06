@@ -1,8 +1,9 @@
 /**
- * This file defines the database schema for the "simulations", "simulation_events", and "metrics" tables.
- * The "simulations" table stores information about different simulations associated with architectures.
- * The "simulation_events" table stores events that occur during simulations.
- * The "metrics" table stores performance metrics collected during simulations.
+ * @file simulations.ts
+ *
+ * @description Drizzle schemas for the "simulations", "simulation_events", and
+ * "metrics" tables. Simulations track a run against an architecture, while
+ * events and metrics capture what happened during the run.
  */
 
 import {
@@ -20,6 +21,7 @@ import {
 import { architecturesTable } from "./architectures.js";
 import { ArchitectureGraph, SimulationConfig } from "./types/types.js";
 
+/** The lifecycle states a simulation can be in, stored in the database. */
 export const simulationStatusEnum = pgEnum("simulation_status", [
   "PENDING",
   "RUNNING",
@@ -29,6 +31,7 @@ export const simulationStatusEnum = pgEnum("simulation_status", [
   "CANCELLED",
 ]);
 
+/** Simulations table. A simulation belongs to an architecture and records config + status. */
 export const simulationsTable = pgTable(
   "simulations",
   {
@@ -47,6 +50,7 @@ export const simulationsTable = pgTable(
   ],
 );
 
+/** Events emitted during a simulation, stored for replay and visualization. */
 export const simulationEventsTable = pgTable(
   "simulation_events",
   {
@@ -66,6 +70,7 @@ export const simulationEventsTable = pgTable(
   ],
 );
 
+/** Performance metrics sampled during a simulation, indexed by time. */
 export const metricsTable = pgTable(
   "metrics",
   {

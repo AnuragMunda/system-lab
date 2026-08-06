@@ -1,9 +1,17 @@
+/**
+ * @file fixtures.ts
+ *
+ * @description Shared fixtures for integration tests: helpers to seed a user +
+ * project in the database and build valid architecture payloads.
+ */
+
 import db from "../../../src/infrastructure/database/db.js";
 import { usersTable } from "../../../src/infrastructure/database/schema/users.js";
 import { projectsTable } from "../../../src/infrastructure/database/schema/projects.js";
 
 let counter = 0;
 
+/** Creates and returns a project (with an owning user) in the test database. */
 export async function createProject() {
   counter += 1;
 
@@ -27,6 +35,7 @@ export async function createProject() {
   return project!;
 }
 
+/** Returns a valid architecture create payload scoped to the given project. */
 export function validArchitecture(projectId: string) {
   return {
     projectId,

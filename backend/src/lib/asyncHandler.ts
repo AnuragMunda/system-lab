@@ -1,11 +1,14 @@
 /**
- * This file defines an asynchronous handler function for Express.js routes.
- * It wraps an asynchronous function and handles any errors that may occur during its execution.
- * If an error occurs, it passes the error to the next middleware for centralized error handling.
+ * @file asyncHandler.ts
+ *
+ * @description Wraps an async Express route handler so that any rejected promise
+ * is forwarded to the next middleware for centralized error handling. This lets
+ * controllers use `throw` and `await` freely without try/catch boilerplate.
  */
 
 import { NextFunction, Request, Response } from "express";
 
+/** Signature of an Express route handler. */
 type AsyncFn = (
   req: Request,
   res: Response,

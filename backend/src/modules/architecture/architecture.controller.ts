@@ -1,3 +1,12 @@
+/**
+ * @file architecture.controller.ts
+ *
+ * @description HTTP handlers for the architecture module. Each handler
+ * validates its input with a Zod schema, delegates to the service, and sends a
+ * standardized ApiResponse. Errors are thrown and handled by the global
+ * middleware via asyncHandler.
+ */
+
 import { Request, Response } from "express";
 import { ApiResponse, asyncHandler, BadRequestError } from "@/lib/index.js";
 import {
@@ -8,6 +17,7 @@ import {
 } from "./architecture.schema.js";
 import { architectureService } from "./index.js";
 
+/** POST /api/v1/architectures — creates a new architecture (201). */
 export const createArchitecture = asyncHandler(
   async (req: Request, res: Response) => {
     const { success, error, data } = architectureSchema.safeParse(req.body);
@@ -26,6 +36,7 @@ export const createArchitecture = asyncHandler(
   },
 );
 
+/** GET /api/v1/architectures — paginated list, optionally filtered by projectId. */
 export const getAllArchitectures = asyncHandler(
   async (req: Request, res: Response) => {
     const query = listArchitecturesQuerySchema.safeParse(req.query);
@@ -40,6 +51,7 @@ export const getAllArchitectures = asyncHandler(
   },
 );
 
+/** GET /api/v1/architectures/:id — fetches a single architecture. */
 export const getArchitectureById = asyncHandler(
   async (req: Request, res: Response) => {
     const params = idParamSchema.safeParse(req.params);
@@ -54,6 +66,7 @@ export const getArchitectureById = asyncHandler(
   },
 );
 
+/** PATCH /api/v1/architectures/:id — partially updates an architecture. */
 export const updateArchitecture = asyncHandler(
   async (req: Request, res: Response) => {
     const params = idParamSchema.safeParse(req.params);
@@ -81,6 +94,7 @@ export const updateArchitecture = asyncHandler(
   },
 );
 
+/** DELETE /api/v1/architectures/:id — deletes an architecture and its scenarios. */
 export const deleteArchitecture = asyncHandler(
   async (req: Request, res: Response) => {
     const params = idParamSchema.safeParse(req.params);

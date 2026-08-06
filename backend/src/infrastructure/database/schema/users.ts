@@ -1,6 +1,8 @@
 /**
- * This file defines the database schema for the "users" table.
- * The table stores information about users in the system.
+ * @file users.ts
+ *
+ * @description Drizzle schema for the "users" table, storing account
+ * information for people who use the platform.
  */
 
 import {
@@ -12,6 +14,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+/** User accounts table. Emails are unique and used for authentication. */
 export const usersTable = pgTable("users", {
   id: uuid().primaryKey().defaultRandom(),
   name: varchar({ length: 100 }).notNull(),

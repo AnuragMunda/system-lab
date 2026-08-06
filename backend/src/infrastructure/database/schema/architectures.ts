@@ -1,6 +1,8 @@
 /**
- * This file defines the database schema for the "architectures" table.
- * The table stores information about different architectures associated with projects.
+ * @file architectures.ts
+ *
+ * @description Drizzle schema for the "architectures" table. An architecture
+ * stores a project's software system graph (nodes and edges) as JSONB.
  */
 
 import {
@@ -16,6 +18,10 @@ import {
 import { projectsTable } from "./projects.js";
 import { ArchitectureGraph } from "./types/types.js";
 
+/**
+ * Architectures table. A (projectId, name) pair is unique; deleting a project
+ * cascades to its architectures.
+ */
 export const architecturesTable = pgTable(
   "architectures",
   {

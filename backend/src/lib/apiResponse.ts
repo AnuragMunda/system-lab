@@ -1,3 +1,11 @@
+/**
+ * @file apiResponse.ts
+ *
+ * @description Provides the standard success-response envelope used by all
+ * controllers. Every response is shaped as `{ success: true, message, data? }`
+ * with a matching HTTP status code.
+ */
+
 import type { Response } from "express";
 import { ApiMessages, HttpStatus } from "@/config/constants/index.js";
 
