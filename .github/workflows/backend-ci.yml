@@ -68,6 +68,10 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      JWT_ACCESS_SECRET: ci-access-0123456789abcdefghijklmnopqrstuv
+      JWT_REFRESH_SECRET: ci-refresh-0123456789abcdefghijklmnopqrstuv
+      REFRESH_TOKEN_COOKIE_NAME: refreshToken
+      REFRESH_TOKEN_MAX_AGE: 2592000000
 
     defaults:
       run:
