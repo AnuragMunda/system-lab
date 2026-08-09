@@ -8,6 +8,7 @@
 import express, { type Response } from "express";
 import cors from "cors";
 import { pinoHttp } from "pino-http";
+import cookieParser from "cookie-parser";
 
 import { logger } from "./lib/logger.js";
 import router from "./routes/index.js";
@@ -20,6 +21,7 @@ const httpLogger = pinoHttp({ logger });
 app.use(express.json());
 app.use(cors());
 app.use(httpLogger);
+app.use(cookieParser());
 
 // Version:1 Routes
 app.use("/api/v1", router);
