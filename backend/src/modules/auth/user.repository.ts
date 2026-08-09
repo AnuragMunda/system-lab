@@ -17,7 +17,7 @@ export class UserRepository {
         .returning();
 
       if (!user) {
-        throw InternalServerError("Failed to create architecture.");
+        throw InternalServerError("Failed to create user.");
       }
 
       return user;

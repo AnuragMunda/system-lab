@@ -29,7 +29,7 @@ describeDb("FK cascade behavior", () => {
       .values({
         name: "Owner",
         email: `cascade-${Date.now()}@test.local`,
-        password_hash: "hashed-password",
+        passwordHash: "hashed-password",
       })
       .returning();
 
@@ -59,7 +59,7 @@ describeDb("FK cascade behavior", () => {
       .values({
         name: "Owner",
         email: `cascade-${Date.now()}@test.local`,
-        password_hash: "hashed-password",
+        passwordHash: "hashed-password",
       })
       .returning();
 

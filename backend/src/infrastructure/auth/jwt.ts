@@ -86,7 +86,8 @@ function verifyToken(
   } catch (error) {
     if (
       error instanceof jwt.TokenExpiredError ||
-      error instanceof jwt.JsonWebTokenError
+      error instanceof jwt.JsonWebTokenError ||
+      error instanceof z.ZodError
     ) {
       throw UnauthorizedError(errorMsg);
     }

@@ -71,6 +71,8 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
   }
   const response = await authService.logout(req.user.id);
 
+  clearRefreshTokenCookie(res);
+
   return ApiResponse.ok(res, response, "Logged out from all devices.");
 });
 

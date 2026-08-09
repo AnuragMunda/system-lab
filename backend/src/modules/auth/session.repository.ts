@@ -17,7 +17,7 @@ export class SessionRepository {
         .returning();
 
       if (!session) {
-        throw InternalServerError("Failed to create architecture.");
+        throw InternalServerError("Failed to create session.");
       }
 
       return session;

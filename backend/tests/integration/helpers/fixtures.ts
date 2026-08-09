@@ -20,7 +20,7 @@ export async function createProject() {
     .values({
       name: `Owner ${counter}`,
       email: `owner-${counter}-${Date.now()}@test.local`,
-      password_hash: "hashed-password",
+      passwordHash: "hashed-password",
     })
     .returning();
 

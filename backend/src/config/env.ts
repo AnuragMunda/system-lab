@@ -26,10 +26,7 @@ const envSchema = z.object({
 
   BCRYPT_SALT_ROUNDS: z.coerce.number().int().positive().default(12),
 
-  ACCESS_TOKEN_COOKIE_NAME: z.string().min(2),
   REFRESH_TOKEN_COOKIE_NAME: z.string().min(2),
-
-  ACCESS_TOKEN_MAX_AGE: z.coerce.number().int().positive(),
   REFRESH_TOKEN_MAX_AGE: z.coerce.number().int().positive(),
 });
 

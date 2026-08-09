@@ -45,7 +45,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.userRepository.findUserByEmail(dto.email);
 
-    if (!user) throw UnauthorizedError("Invalid email or Password");
+    if (!user) throw UnauthorizedError("Invalid email or password");
 
     const validPassword = await verifyData(dto.password, user.passwordHash);
 
@@ -84,6 +84,11 @@ export class AuthService {
     const session = await this.sessionRepository.findSessionById(payload.sid);
 
     if (!session) throw UnauthorizedError();
+
+    if (session.revokedAt) throw UnauthorizedError("Session revoked.");
+
+    if (session.expiresAt <= new Date())
+      throw UnauthorizedError("Session expired.");
 
     const valid = await verifyData(refreshToken, session.refreshTokenHash);
 

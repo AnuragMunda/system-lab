@@ -9,6 +9,25 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 
 const MISSING_ENV_FILE = "/tmp/opencode/nonexistent-dotenv.env";
 
+const VALID_AUTH_ENV = {
+  JWT_ACCESS_SECRET: "A".repeat(32),
+  JWT_REFRESH_SECRET: "B".repeat(32),
+  REFRESH_TOKEN_COOKIE_NAME: "refreshToken",
+  REFRESH_TOKEN_MAX_AGE: "2592000000",
+};
+
+async function expectInvalidEnv(
+  overrides: Record<string, string>,
+  expectedPattern: RegExp,
+) {
+  const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+  await expect(loadEnv(overrides)).rejects.toThrow();
+
+  expect(errorSpy).toHaveBeenCalledTimes(1);
+  expect(JSON.stringify(errorSpy.mock.calls[0]?.[1])).toMatch(expectedPattern);
+}
+
 afterEach(() => {
   vi.resetModules();
   vi.restoreAllMocks();
@@ -54,6 +73,7 @@ describe("env", () => {
     const env = await loadEnv({
       DATABASE_URL: "postgres://localhost:5432/systemlab",
       REDIS_URL: "redis://localhost:6379",
+      ...VALID_AUTH_ENV,
     });
 
     expect(env).toMatchObject({
@@ -65,17 +85,20 @@ describe("env", () => {
   });
 
   it("throws when DATABASE_URL is missing", async () => {
-    await expect(
-      loadEnv({ REDIS_URL: "redis://localhost:6379" }),
-    ).rejects.toThrow(/DATABASE_URL/);
+    await expectInvalidEnv(
+      { REDIS_URL: "redis://localhost:6379", ...VALID_AUTH_ENV },
+      /DATABASE_URL/,
+    );
   });
 
   it("throws for an invalid NODE_ENV", async () => {
-    await expect(
-      loadEnv({
+    await expectInvalidEnv(
+      {
         DATABASE_URL: "postgres://localhost:5432/systemlab",
         NODE_ENV: "staging",
-      }),
-    ).rejects.toThrow(/NODE_ENV/);
+        ...VALID_AUTH_ENV,
+      },
+      /NODE_ENV/,
+    );
   });
 });
