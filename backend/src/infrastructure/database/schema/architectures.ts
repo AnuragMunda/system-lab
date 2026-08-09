@@ -17,6 +17,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { projectsTable } from "./projects.js";
 import { ArchitectureGraph } from "./types/types.js";
+import { NAME_LENGTH } from "@/config/constants/index.js";
 
 /**
  * Architectures table. A (projectId, name) pair is unique; deleting a project
@@ -29,7 +30,7 @@ export const architecturesTable = pgTable(
     projectId: uuid("project_id")
       .notNull()
       .references(() => projectsTable.id, { onDelete: "cascade" }),
-    name: varchar({ length: 150 }).notNull(),
+    name: varchar({ length: NAME_LENGTH }).notNull(),
     description: text("description"),
     graph: jsonb("graph").$type<ArchitectureGraph>().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

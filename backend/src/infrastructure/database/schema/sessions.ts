@@ -15,7 +15,10 @@ export const sessionsTable = pgTable("sessions", {
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
   refreshTokenHash: text("refresh_token_hash").notNull(),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastUsedAt: timestamp("last_used_at"),
   revokedAt: timestamp("revoked_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });

@@ -41,12 +41,9 @@ export const BadRequestError = (details?: unknown) =>
   );
 
 /** 401 error for missing or invalid authentication. */
-export const UnauthorizedError = () =>
-  new ApiError(
-    ApiMessages.CLIENT_ERROR.UNAUTHORIZED,
-    HttpStatus.UNAUTHORIZED,
-    "UNAUTHORIZED",
-  );
+export const UnauthorizedError = (
+  message: string = ApiMessages.CLIENT_ERROR.UNAUTHORIZED,
+) => new ApiError(message, HttpStatus.UNAUTHORIZED, "UNAUTHORIZED");
 
 /** 403 error when the user is not allowed to access the resource. */
 export const ForbiddenError = () =>
@@ -65,12 +62,9 @@ export const NotFoundError = () =>
   );
 
 /** 409 error when a resource conflicts with existing data (e.g. unique constraint). */
-export const ConflictError = () =>
-  new ApiError(
-    ApiMessages.CLIENT_ERROR.CONFLICT,
-    HttpStatus.CONFLICT,
-    "CONFLICT",
-  );
+export const ConflictError = (
+  message: string = ApiMessages.CLIENT_ERROR.CONFLICT,
+) => new ApiError(message, HttpStatus.CONFLICT, "CONFLICT");
 
 /** 500 error for unexpected server failures. Accepts an optional custom message. */
 export const InternalServerError = (

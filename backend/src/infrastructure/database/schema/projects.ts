@@ -15,6 +15,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
+import { NAME_LENGTH } from "@/config/constants/index.js";
 
 /** Who is allowed to see a project. */
 export const projectVisibilityEnum = pgEnum("project_visibility", [
@@ -31,7 +32,7 @@ export const projectsTable = pgTable(
     ownerId: uuid("owner_id")
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
-    name: varchar({ length: 150 }).notNull(),
+    name: varchar({ length: NAME_LENGTH }).notNull(),
     description: text("description"),
     visibility: projectVisibilityEnum("visibility")
       .notNull()
