@@ -54,12 +54,14 @@ import {
 } from "../../../../src/modules/auth/auth.utils.js";
 import { ApiError, UnauthorizedError } from "../../../../src/lib/apiError.js";
 
+/** Mock user repository injected into the service under test. */
 const userRepository = {
   findUserByEmail: vi.fn(),
   createUser: vi.fn(),
   findUserById: vi.fn(),
 } as unknown as UserRepository;
 
+/** Mock session repository injected into the service under test. */
 const sessionRepository = {
   createSession: vi.fn(),
   findSessionById: vi.fn(),
@@ -72,6 +74,7 @@ const service = new AuthService(userRepository, sessionRepository);
 
 const uuid = "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91";
 
+/** A representative existing user row returned by the mocked repository. */
 const existingUser = {
   id: uuid,
   name: "Ada Lovelace",
@@ -83,6 +86,7 @@ const existingUser = {
   updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 };
 
+/** A representative non-revoked session row returned by the mocked repository. */
 const existingSession = {
   id: "5e6f7g8h-1111-4e40-a1c5-4d2d5bce0f91",
   userId: uuid,

@@ -1,3 +1,11 @@
+/**
+ * @file jwt.ts
+ *
+ * @description Access and refresh token signing/verification. Refresh tokens
+ * carry a unique `jti` so every issuance is distinct, which keeps rotation
+ * effective even when tokens are signed within the same second.
+ */
+
 import { randomUUID } from "node:crypto";
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 
@@ -5,6 +13,7 @@ import { env } from "@/config/env.js";
 import { UnauthorizedError } from "@/lib/apiError.js";
 import z from "zod";
 
+/** Claims embedded in every signed token. */
 export interface CustomJwtPayload {
   sub: string;
   email: string;
@@ -26,12 +35,14 @@ const jwtConfig = {
  * Access Token
  */
 
+/** Signs a short-lived access token. */
 export const signAccessToken = (payload: CustomJwtPayload): string => {
   return signToken(payload, jwtConfig.access.secret, {
     expiresIn: jwtConfig.access.expiresIn,
   });
 };
 
+/** Verifies an access token, throwing UnauthorizedError when invalid. */
 export const verifyAccessToken = (token: string): CustomJwtPayload => {
   return verifyToken(
     token,
@@ -44,6 +55,10 @@ export const verifyAccessToken = (token: string): CustomJwtPayload => {
  * Refresh Token
  */
 
+/**
+ * Signs a refresh token with a unique `jti`, guaranteeing two tokens issued in
+ * the same second (same iat) still differ.
+ */
 export const signRefreshToken = (payload: CustomJwtPayload): string => {
   return signToken(payload, jwtConfig.refresh.secret, {
     expiresIn: jwtConfig.refresh.expiresIn,
@@ -51,6 +66,7 @@ export const signRefreshToken = (payload: CustomJwtPayload): string => {
   });
 };
 
+/** Verifies a refresh token, throwing UnauthorizedError when invalid. */
 export const verifyRefreshToken = (token: string): CustomJwtPayload => {
   return verifyToken(
     token,
@@ -69,6 +85,7 @@ const jwtPayloadSchema = z.object({
   sid: z.string(),
 });
 
+/** Low-level signing helper shared by access and refresh tokens. */
 function signToken(
   payload: CustomJwtPayload,
   secret: Secret,
@@ -77,6 +94,10 @@ function signToken(
   return jwt.sign(payload, secret, options);
 }
 
+/**
+ * Verifies a token's signature and shape, mapping expired/invalid/parse errors
+ * to an UnauthorizedError.
+ */
 function verifyToken(
   token: string,
   secret: Secret,

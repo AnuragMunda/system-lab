@@ -28,6 +28,7 @@ import { UserResponseDto } from "../../../../src/modules/auth/auth.dto.js";
 import { env } from "../../../../src/config/env.js";
 import type { MockedObject } from "vitest";
 
+/** A representative persisted user row for the DTO mapping tests. */
 const user: User = {
   id: "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
   name: "Ada Lovelace",

@@ -1,3 +1,11 @@
+/**
+ * @file authenticate.ts
+ *
+ * @description Express middleware that authenticates requests by parsing the
+ * Bearer access token, verifying its signature, and populating `req.user` for
+ * downstream handlers. Authentication failures are forwarded via `next`.
+ */
+
 import { verifyAccessToken } from "@/infrastructure/auth/jwt.js";
 import { UnauthorizedError } from "@/lib/apiError.js";
 import type { NextFunction, Request, Response } from "express";

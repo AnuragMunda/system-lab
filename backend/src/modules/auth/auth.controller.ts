@@ -1,3 +1,12 @@
+/**
+ * @file auth.controller.ts
+ *
+ * @description HTTP handlers for the auth module. Each handler parses input,
+ * delegates to the singleton AuthService, and shapes the ApiResponse envelope.
+ * Handlers behind `authenticate` use the `req.user` payload populated by the
+ * middleware.
+ */
+
 import { asyncHandler } from "@/lib/asyncHandler.js";
 import { loginSchema, registerSchema } from "./auth.schema.js";
 import { BadRequestError, UnauthorizedError } from "@/lib/apiError.js";
@@ -9,6 +18,7 @@ import {
   setRefreshTokenCookie,
 } from "@/infrastructure/auth/cookies.js";
 
+/** Registers a new user and responds with 201 Created. */
 export const registerUser = asyncHandler(
   async (req: Request, res: Response) => {
     const { success, error, data } = registerSchema.safeParse(req.body);
@@ -23,6 +33,7 @@ export const registerUser = asyncHandler(
   },
 );
 
+/** Authenticates a user and sets the refresh token as an HttpOnly cookie. */
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { success, error, data } = loginSchema.safeParse(req.body);
 
@@ -40,6 +51,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   );
 });
 
+/** Rotates the refresh token from the cookie and issues a new access token. */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
 
@@ -53,6 +65,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   return ApiResponse.ok(res, { accessToken: tokens.accessToken });
 });
 
+/** Revokes the current session and clears the refresh token cookie. */
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) {
     throw UnauthorizedError();
@@ -65,6 +78,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   return ApiResponse.ok(res, response, "Logged out successfully.");
 });
 
+/** Revokes every session belonging to the user and clears the cookie. */
 export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) {
     throw UnauthorizedError();
@@ -76,6 +90,7 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
   return ApiResponse.ok(res, response, "Logged out from all devices.");
 });
 
+/** Returns the profile of the currently authenticated user. */
 export const me = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) {
     throw UnauthorizedError();

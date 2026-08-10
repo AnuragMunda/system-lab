@@ -1,3 +1,12 @@
+/**
+ * @file auth.service.ts
+ *
+ * @description Business logic layer for authentication: registration, login,
+ * refresh-token rotation, session revocation, and current-user lookup. Passwords
+ * are bcrypt-hashed directly; refresh tokens are SHA-256 pre-hashed before
+ * bcrypt so token rotation stays effective.
+ */
+
 import {
   ConflictError,
   NotFoundError,
@@ -24,12 +33,14 @@ import {
 } from "@/infrastructure/auth/jwt.js";
 import { calculateExpiry, toUserResponseDto } from "./auth.utils.js";
 
+/** Coordinates auth operations with the user and session repositories. */
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly sessionRepository: SessionRepository,
   ) {}
 
+  /** Registers a user, rejecting duplicate emails and hashing the password. */
   async register(dto: RegisterDto): Promise<UserResponseDto> {
     const existingUser = await this.userRepository.findUserByEmail(dto.email);
 
@@ -47,6 +58,10 @@ export class AuthService {
     return toUserResponseDto(res);
   }
 
+  /**
+   * Verifies credentials, creates a session, and signs access + refresh tokens,
+   * persisting the hashed refresh token with the session.
+   */
   async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.userRepository.findUserByEmail(dto.email);
 
@@ -83,6 +98,10 @@ export class AuthService {
     };
   }
 
+  /**
+   * Validates a refresh token against its session and rotates it, updating the
+   * stored hash so a previously issued (reused) token is rejected.
+   */
   async refresh(refreshToken: string) {
     const payload = verifyRefreshToken(refreshToken);
 
@@ -114,14 +133,17 @@ export class AuthService {
     };
   }
 
+  /** Revokes the session for the given session id. */
   async logout(sessionId: string) {
     await this.sessionRepository.revokeSession(sessionId);
   }
 
+  /** Revokes every session belonging to the given user id. */
   async logoutAll(userId: string) {
     await this.sessionRepository.revokeAllUserSessions(userId);
   }
 
+  /** Fetches a user by id, propagating NotFoundError when missing. */
   async getCurrentUser(userId: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findUserById(userId);
 

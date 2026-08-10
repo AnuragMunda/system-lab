@@ -1,3 +1,10 @@
+/**
+ * @file session.repository.ts
+ *
+ * @description Data access layer for the sessions table, managing refresh-token
+ * sessions: creation, lookup, hash rotation, and revocation.
+ */
+
 import db from "@/infrastructure/database/db.js";
 import { InternalServerError, NotFoundError } from "@/lib/apiError.js";
 import { eq, lt } from "drizzle-orm";
@@ -6,9 +13,11 @@ import { SessionRecord } from "./auth.dto.js";
 import { Session } from "@/domain/auth/session.types.js";
 import { mapDbError } from "@/lib/utils.js";
 
+/** Data access for the sessions table. */
 export class SessionRepository {
   constructor(private readonly database = db) {}
 
+  /** Creates a session and returns the persisted row. */
   async createSession(data: SessionRecord): Promise<Session> {
     try {
       const [session] = await this.database
@@ -26,6 +35,7 @@ export class SessionRepository {
     }
   }
 
+  /** Finds a session by id, or null when no match exists. */
   async findSessionById(id: string): Promise<Session | null> {
     const [session] = await this.database
       .select()
@@ -35,6 +45,7 @@ export class SessionRepository {
     return session ?? null;
   }
 
+  /** Updates session fields, returning the persisted row. */
   async updateSession(
     id: string,
     data: Partial<SessionRecord>,
@@ -56,6 +67,7 @@ export class SessionRepository {
     }
   }
 
+  /** Marks a single session as revoked. */
   async revokeSession(id: string) {
     try {
       await this.database
@@ -67,6 +79,7 @@ export class SessionRepository {
     }
   }
 
+  /** Marks every session belonging to a user as revoked (logout-all). */
   async revokeAllUserSessions(userId: string) {
     try {
       await this.database
@@ -80,6 +93,7 @@ export class SessionRepository {
     }
   }
 
+  /** Deletes sessions whose expiry has passed. */
   async deleteExpiredSessions() {
     try {
       await this.database

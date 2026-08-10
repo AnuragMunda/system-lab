@@ -1,3 +1,11 @@
+/**
+ * @file auth.routes.ts
+ *
+ * @description Express router for auth endpoints. Token-issuing endpoints
+ * (register/login/refresh) are public; session endpoints are protected by the
+ * `authenticate` middleware.
+ */
+
 import { Router } from "express";
 
 import {
@@ -13,6 +21,7 @@ import { authenticate } from "@/middlewares/authenticate.js";
 import { loginSchema, registerSchema } from "./auth.schema.js";
 import { validate } from "@/middlewares/validate.js";
 
+/** Router wiring the auth controllers, validators, and auth middleware. */
 const authRouter: Router = Router();
 
 authRouter.post("/register", validate(registerSchema), registerUser);
