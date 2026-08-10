@@ -8,8 +8,35 @@
 import db from "../../../src/infrastructure/database/db.js";
 import { usersTable } from "../../../src/infrastructure/database/schema/users.js";
 import { projectsTable } from "../../../src/infrastructure/database/schema/projects.js";
+import { hashData } from "../../../src/infrastructure/auth/bcrypt.js";
 
 let counter = 0;
+
+/** A test user alongside the plaintext password used to create it. */
+export interface TestUser {
+  user: typeof usersTable.$inferSelect;
+  password: string;
+}
+
+/**
+ * Creates and returns a user whose password is known, so login flows can be
+ * exercised through the real API.
+ */
+export async function createUser(): Promise<TestUser> {
+  counter += 1;
+
+  const password = "password123";
+  const [user] = await db
+    .insert(usersTable)
+    .values({
+      name: `User ${counter}`,
+      email: `user-${counter}-${Date.now()}@test.local`,
+      passwordHash: await hashData(password),
+    })
+    .returning();
+
+  return { user: user!, password };
+}
 
 /** Creates and returns a project (with an owning user) in the test database. */
 export async function createProject() {
