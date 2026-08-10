@@ -13,7 +13,4 @@ const userRepository = new UserRepository();
 const sessionRepository = new SessionRepository();
 
 /** Application-wide singleton AuthService instance. */
-export const authService = new AuthService(
-  userRepository,
-  sessionRepository,
-);
+export const authService = new AuthService(userRepository, sessionRepository);

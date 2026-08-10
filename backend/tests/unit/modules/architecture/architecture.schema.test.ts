@@ -30,7 +30,12 @@ const validArchitecture = {
       type: "api",
       name: "API Gateway",
       position: { x: 100, y: 50 },
-      config: { latencyMs: 10, capacity: 1000, concurrency: 200, errorRate: 0.01 },
+      config: {
+        latencyMs: 10,
+        capacity: 1000,
+        concurrency: 200,
+        errorRate: 0.01,
+      },
     },
   ],
   edges: [
@@ -119,9 +124,7 @@ describe("architectureSchema", () => {
   it("rejects a non-numeric position", () => {
     const invalid = {
       ...validArchitecture,
-      nodes: [
-        { ...validArchitecture.nodes[0]!, position: { x: "0", y: 0 } },
-      ],
+      nodes: [{ ...validArchitecture.nodes[0]!, position: { x: "0", y: 0 } }],
     };
     expect(architectureSchema.safeParse(invalid).success).toBe(false);
   });
@@ -191,9 +194,7 @@ describe("architectureSchema", () => {
   it("rejects a negative connection latencyMs", () => {
     const invalid = {
       ...validArchitecture,
-      edges: [
-        { ...validArchitecture.edges[0]!, config: { latencyMs: -1 } },
-      ],
+      edges: [{ ...validArchitecture.edges[0]!, config: { latencyMs: -1 } }],
     };
     expect(architectureSchema.safeParse(invalid).success).toBe(false);
   });
@@ -231,9 +232,9 @@ describe("updateArchitectureSchema", () => {
   });
 
   it("accepts only a name", () => {
-    expect(updateArchitectureSchema.safeParse({ name: "New Name" }).success).toBe(
-      true,
-    );
+    expect(
+      updateArchitectureSchema.safeParse({ name: "New Name" }).success,
+    ).toBe(true);
   });
 
   it("accepts only a description", () => {
@@ -264,7 +265,9 @@ describe("updateArchitectureSchema", () => {
   });
 
   it("rejects an invalid field value", () => {
-    expect(updateArchitectureSchema.safeParse({ name: "" }).success).toBe(false);
+    expect(updateArchitectureSchema.safeParse({ name: "" }).success).toBe(
+      false,
+    );
   });
 
   it("still validates nodes when present", () => {

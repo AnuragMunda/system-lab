@@ -1,6 +1,6 @@
 /**
  * @file component.types.ts
- * 
+ *
  * @description This file defines the types and interfaces related to architecture components in the system.
  */
 

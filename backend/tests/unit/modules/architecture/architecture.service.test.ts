@@ -154,9 +154,9 @@ describe("ArchitectureService.getAllArchitectures", () => {
     const error = new Error("db down");
     vi.mocked(repo.findPaginated).mockRejectedValue(error);
 
-    await expect(service.getAllArchitectures({ page: 1, limit: 20 })).rejects.toThrow(
-      "db down",
-    );
+    await expect(
+      service.getAllArchitectures({ page: 1, limit: 20 }),
+    ).rejects.toThrow("db down");
   });
 });
 

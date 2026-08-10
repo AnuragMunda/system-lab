@@ -38,7 +38,10 @@ export function getTestDatabaseUrl(): string {
 
 /** Returns true if a PostgreSQL server is reachable at the given URL. */
 export async function isDbAvailable(url: string): Promise<boolean> {
-  const pool = new Pool({ connectionString: url, connectionTimeoutMillis: 2000 });
+  const pool = new Pool({
+    connectionString: url,
+    connectionTimeoutMillis: 2000,
+  });
   try {
     await pool.query("SELECT 1");
     return true;
@@ -55,9 +58,10 @@ export async function ensureTestDatabase(): Promise<void> {
   const client = await pool.connect();
 
   try {
-    const result = await client.query("SELECT 1 FROM pg_database WHERE datname = $1", [
-      TEST_DB_NAME,
-    ]);
+    const result = await client.query(
+      "SELECT 1 FROM pg_database WHERE datname = $1",
+      [TEST_DB_NAME],
+    );
 
     if (result.rowCount === 0) {
       await client.query(`CREATE DATABASE ${TEST_DB_NAME}`);

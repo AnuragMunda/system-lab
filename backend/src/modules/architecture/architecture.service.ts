@@ -74,7 +74,11 @@ export class ArchitectureService {
 
     const { nodes, edges, ...fields } = data;
 
-    if (Object.keys(fields).length === 0 && nodes === undefined && edges === undefined) {
+    if (
+      Object.keys(fields).length === 0 &&
+      nodes === undefined &&
+      edges === undefined
+    ) {
       throw BadRequestError("No fields provided to update.");
     }
 

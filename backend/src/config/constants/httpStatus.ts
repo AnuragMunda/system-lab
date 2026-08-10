@@ -1,6 +1,6 @@
 /**
  * @file httpStatus.ts
- * 
+ *
  * @description HTTP Status Code Constants. Standard HTTP status codes for consistent API response
  */
 export const HttpStatus = Object.freeze({

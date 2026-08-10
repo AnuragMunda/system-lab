@@ -8,12 +8,7 @@
 
 /** The lifecycle states a simulation can move through. */
 export type SimulationStatus =
-  | "pending"
-  | "running"
-  | "paused"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "running" | "paused" | "completed" | "failed" | "cancelled";
 
 /** Configuration controlling how a simulation generates and plays back load. */
 export interface SimulationConfig {

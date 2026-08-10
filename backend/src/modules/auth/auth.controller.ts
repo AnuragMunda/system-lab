@@ -28,7 +28,6 @@ export const registerUser = asyncHandler(
 
 /** Authenticates a user and sets the refresh token as an HttpOnly cookie. */
 export const login = asyncHandler(async (req: Request, res: Response) => {
-
   const response = await authService.login(req.body);
   setRefreshTokenCookie(res, response.refreshToken);
 
