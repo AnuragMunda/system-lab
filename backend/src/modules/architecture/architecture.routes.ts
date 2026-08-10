@@ -13,14 +13,24 @@ import {
   getArchitectureById,
   updateArchitecture,
 } from "./architecture.controller.js";
+import { validate } from "@/middlewares/validate.js";
+import { authenticate } from "@/middlewares/authenticate.js";
+import {
+  architectureSchema,
+  updateArchitectureSchema,
+} from "./architecture.schema.js";
 
 const architectureRouter: Router = Router();
 
-architectureRouter.route("/").get(getAllArchitectures).post(createArchitecture);
+architectureRouter
+  .route("/")
+  .get(getAllArchitectures)
+  .post(authenticate, validate(architectureSchema), createArchitecture);
+
 architectureRouter
   .route("/:id")
   .get(getArchitectureById)
-  .patch(updateArchitecture)
-  .delete(deleteArchitecture);
+  .patch(authenticate, validate(updateArchitectureSchema), updateArchitecture)
+  .delete(authenticate, deleteArchitecture);
 
 export default architectureRouter;

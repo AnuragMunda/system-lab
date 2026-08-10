@@ -90,22 +90,6 @@ describe("registerUser", () => {
     });
     expect(next).not.toHaveBeenCalled();
   });
-
-  it("passes a BadRequestError to next for an invalid body", async () => {
-    const req = { body: { name: "", email: "nope", password: "x" } } as Request;
-    const res = mockRes();
-    const next = mockNext();
-
-    await registerUser(req, res, next);
-    await flush();
-
-    expect(authService.register).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
-      statusCode: 400,
-      code: "BAD_REQUEST",
-    });
-  });
 });
 
 describe("login", () => {
@@ -136,22 +120,6 @@ describe("login", () => {
       success: true,
       message: "Logged in successfully.",
       data: { accessToken: "access-token", user: registeredUser },
-    });
-  });
-
-  it("passes a BadRequestError to next for an invalid body", async () => {
-    const req = { body: { email: "not-an-email" } } as Request;
-    const res = mockRes();
-    const next = mockNext();
-
-    await login(req, res, next);
-    await flush();
-
-    expect(authService.login).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
-      statusCode: 400,
-      code: "BAD_REQUEST",
     });
   });
 

@@ -8,8 +8,7 @@
  */
 
 import { asyncHandler } from "@/lib/asyncHandler.js";
-import { loginSchema, registerSchema } from "./auth.schema.js";
-import { BadRequestError, UnauthorizedError } from "@/lib/apiError.js";
+import { UnauthorizedError } from "@/lib/apiError.js";
 import { type Request, type Response } from "express";
 import { authService } from "./index.js";
 import { ApiResponse } from "@/lib/apiResponse.js";
@@ -21,13 +20,7 @@ import {
 /** Registers a new user and responds with 201 Created. */
 export const registerUser = asyncHandler(
   async (req: Request, res: Response) => {
-    const { success, error, data } = registerSchema.safeParse(req.body);
-
-    if (!success) {
-      throw BadRequestError(error.message);
-    }
-
-    const response = await authService.register(data);
+    const response = await authService.register(req.body);
 
     return ApiResponse.created(res, response, "User registered successfully.");
   },
@@ -35,13 +28,8 @@ export const registerUser = asyncHandler(
 
 /** Authenticates a user and sets the refresh token as an HttpOnly cookie. */
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { success, error, data } = loginSchema.safeParse(req.body);
 
-  if (!success) {
-    throw BadRequestError(error.message);
-  }
-
-  const response = await authService.login(data);
+  const response = await authService.login(req.body);
   setRefreshTokenCookie(res, response.refreshToken);
 
   return ApiResponse.ok(

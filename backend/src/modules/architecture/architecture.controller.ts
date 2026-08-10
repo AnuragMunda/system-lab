@@ -10,23 +10,15 @@
 import { Request, Response } from "express";
 import { ApiResponse, asyncHandler, BadRequestError } from "@/lib/index.js";
 import {
-  architectureSchema,
   idParamSchema,
   listArchitecturesQuerySchema,
-  updateArchitectureSchema,
 } from "./architecture.schema.js";
 import { architectureService } from "./index.js";
 
 /** POST /api/v1/architectures — creates a new architecture (201). */
 export const createArchitecture = asyncHandler(
   async (req: Request, res: Response) => {
-    const { success, error, data } = architectureSchema.safeParse(req.body);
-
-    if (!success) {
-      throw BadRequestError(error.message);
-    }
-
-    const architecture = await architectureService.create(data);
+    const architecture = await architectureService.create(req.body);
 
     return ApiResponse.created(
       res,
@@ -75,15 +67,9 @@ export const updateArchitecture = asyncHandler(
       throw BadRequestError(params.error.message);
     }
 
-    const body = updateArchitectureSchema.safeParse(req.body);
-
-    if (!body.success) {
-      throw BadRequestError(body.error.message);
-    }
-
     const architecture = await architectureService.update(
       params.data.id,
-      body.data,
+      req.body,
     );
 
     return ApiResponse.ok(

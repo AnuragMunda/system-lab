@@ -9,16 +9,38 @@ import request from "supertest";
 import { describe, it, expect, beforeEach } from "vitest";
 import app from "../../../src/app.js";
 import { resetDb, getTestDatabaseUrl } from "../helpers/db.js";
-import { createProject, validArchitecture } from "../helpers/fixtures.js";
+import {
+  createProject,
+  createUser,
+  validArchitecture,
+} from "../helpers/fixtures.js";
 import { ArchitectureRepository } from "../../../src/modules/architecture/architecture.repository.js";
 
 const describeDb = process.env.TEST_DB_UNAVAILABLE ? describe.skip : describe;
 
 const repo = new ArchitectureRepository();
 
+/** Bearer token for authenticated POST/PATCH/DELETE requests. */
+let accessToken = "";
+
+/** Logs in a fresh test user and stores an access token for the test. */
+async function loginForTest() {
+  const { user, password } = await createUser();
+  const res = await request(app)
+    .post("/api/v1/auth/login")
+    .send({ email: user.email, password });
+  accessToken = res.body.data.accessToken as string;
+}
+
+/** The auth header attached to mutations on the protected architecture routes. */
+function authHeader() {
+  return ["Authorization", `Bearer ${accessToken}`] as const;
+}
+
 describeDb("Architectures API", () => {
   beforeEach(async () => {
     await resetDb(getTestDatabaseUrl());
+    await loginForTest();
   });
 
   describe("POST /api/v1/architectures", () => {
@@ -26,7 +48,10 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const body = validArchitecture(project.id);
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -46,7 +71,10 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const body = validArchitecture(project.id);
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       const found = await repo.findById(res.body.data.id);
       expect(found.name).toBe(body.name);
@@ -58,7 +86,10 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const { name: _name, ...body } = validArchitecture(project.id);
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
@@ -68,7 +99,10 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const body = { ...validArchitecture(project.id), name: "" };
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
@@ -82,7 +116,10 @@ describeDb("Architectures API", () => {
         nodes: [{ ...valid.nodes[0]!, type: "banana" }],
       };
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
@@ -96,7 +133,10 @@ describeDb("Architectures API", () => {
         nodes: [{ ...valid.nodes[1]!, config: { latencyMs: -1 } }],
       };
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
@@ -110,7 +150,10 @@ describeDb("Architectures API", () => {
         nodes: [{ ...valid.nodes[1]!, config: { errorRate: 1.5 } }],
       };
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
@@ -120,7 +163,10 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const body = { ...validArchitecture(project.id), description: null };
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
@@ -130,12 +176,30 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const body = validArchitecture(project.id);
 
-      await request(app).post("/api/v1/architectures").send(body).expect(201);
+      await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body)
+        .expect(201);
 
-      const res = await request(app).post("/api/v1/architectures").send(body);
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body);
 
       expect(res.status).toBe(409);
       expect(res.body).toMatchObject({ success: false, code: "CONFLICT" });
+    });
+
+    it("returns 401 without an access token", async () => {
+      const project = await createProject();
+
+      const res = await request(app)
+        .post("/api/v1/architectures")
+        .send(validArchitecture(project.id));
+
+      expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({ success: false, code: "UNAUTHORIZED" });
     });
   });
 
@@ -155,7 +219,11 @@ describeDb("Architectures API", () => {
       const project = await createProject();
       const body = validArchitecture(project.id);
 
-      await request(app).post("/api/v1/architectures").send(body).expect(201);
+      await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(body)
+        .expect(201);
 
       const res = await request(app).get("/api/v1/architectures");
 
@@ -179,6 +247,7 @@ describeDb("Architectures API", () => {
       for (let i = 0; i < 3; i += 1) {
         await request(app)
           .post("/api/v1/architectures")
+          .set(...authHeader())
           .send({
             ...validArchitecture(project.id),
             name: `Arch ${i}`,
@@ -212,10 +281,12 @@ describeDb("Architectures API", () => {
 
       await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send({ ...validArchitecture(projectA.id), name: "A-Arch" })
         .expect(201);
       await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send({ ...validArchitecture(projectB.id), name: "B-Arch" })
         .expect(201);
 
@@ -254,17 +325,22 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader())
         .send({ name: "Renamed" });
 
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Architecture updated successfully");
       expect(res.body.data.name).toBe("Renamed");
-      expect(res.body.data.graph).toEqual({ nodes: body.nodes, edges: body.edges });
+      expect(res.body.data.graph).toEqual({
+        nodes: body.nodes,
+        edges: body.edges,
+      });
     });
 
     it("merges existing nodes when only edges are provided", async () => {
@@ -272,13 +348,17 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 
-      const newEdges = [{ id: "e-2", source: "api-1", target: "db-1", config: {} }];
+      const newEdges = [
+        { id: "e-2", source: "api-1", target: "db-1", config: {} },
+      ];
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader())
         .send({ edges: newEdges });
 
       expect(res.status).toBe(200);
@@ -291,16 +371,26 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 
       const newNodes = [
-        { id: "n-1", type: "database", name: "DB", position: { x: 5, y: 5 }, config: {} },
+        {
+          id: "n-1",
+          type: "database",
+          name: "DB",
+          position: { x: 5, y: 5 },
+          config: {},
+        },
       ];
-      const newEdges = [{ id: "e-9", source: "n-1", target: "n-1", config: {} }];
+      const newEdges = [
+        { id: "e-9", source: "n-1", target: "n-1", config: {} },
+      ];
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader())
         .send({ nodes: newNodes, edges: newEdges });
 
       expect(res.status).toBe(200);
@@ -313,11 +403,13 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader())
         .send({ projectId: otherProject.id, name: "Renamed" });
 
       expect(res.status).toBe(200);
@@ -332,11 +424,13 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader())
         .send({});
 
       expect(res.status).toBe(400);
@@ -346,6 +440,7 @@ describeDb("Architectures API", () => {
     it("returns 404 for a valid uuid that does not exist", async () => {
       const res = await request(app)
         .patch("/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91")
+        .set(...authHeader())
         .send({ name: "Renamed" });
 
       expect(res.status).toBe(404);
@@ -355,6 +450,7 @@ describeDb("Architectures API", () => {
     it("returns 400 for a non-uuid id", async () => {
       const res = await request(app)
         .patch("/api/v1/architectures/not-a-uuid")
+        .set(...authHeader())
         .send({ name: "Renamed" });
 
       expect(res.status).toBe(400);
@@ -371,12 +467,18 @@ describeDb("Architectures API", () => {
 
       const createdFirst = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(first)
         .expect(201);
-      await request(app).post("/api/v1/architectures").send(second).expect(201);
+      await request(app)
+        .post("/api/v1/architectures")
+        .set(...authHeader())
+        .send(second)
+        .expect(201);
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${createdFirst.body.data.id}`)
+        .set(...authHeader())
         .send({ name: "Second Service" });
 
       expect(res.status).toBe(409);
@@ -390,12 +492,13 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 
-      const res = await request(app).delete(
-        `/api/v1/architectures/${created.body.data.id}`,
-      );
+      const res = await request(app)
+        .delete(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader());
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -409,18 +512,18 @@ describeDb("Architectures API", () => {
     });
 
     it("returns 400 for a non-uuid id", async () => {
-      const res = await request(app).delete(
-        "/api/v1/architectures/not-a-uuid",
-      );
+      const res = await request(app)
+        .delete("/api/v1/architectures/not-a-uuid")
+        .set(...authHeader());
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
     });
 
     it("returns 404 for a valid uuid that does not exist", async () => {
-      const res = await request(app).delete(
-        "/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
-      );
+      const res = await request(app)
+        .delete("/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91")
+        .set(...authHeader());
 
       expect(res.status).toBe(404);
       expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
@@ -433,6 +536,7 @@ describeDb("Architectures API", () => {
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
+        .set(...authHeader())
         .send(body)
         .expect(201);
 

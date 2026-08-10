@@ -19,16 +19,16 @@ vi.mock("@/modules/architecture/index.js", () => ({
   },
 }));
 
-const { architectureService } = await import(
-  "../../../../src/modules/architecture/index.js"
-);
+const { architectureService } =
+  await import("../../../../src/modules/architecture/index.js");
 const {
   createArchitecture,
   getAllArchitectures,
   getArchitectureById,
   updateArchitecture,
   deleteArchitecture,
-} = await import("../../../../src/modules/architecture/architecture.controller.js");
+} =
+  await import("../../../../src/modules/architecture/architecture.controller.js");
 import { ApiError } from "../../../../src/lib/index.js";
 
 const uuid = "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91";
@@ -59,7 +59,13 @@ describe("createArchitecture", () => {
     projectId: "p-1",
     name: "Payment Service",
     nodes: [
-      { id: "c-1", type: "client", name: "Client", position: { x: 0, y: 0 }, config: {} },
+      {
+        id: "c-1",
+        type: "client",
+        name: "Client",
+        position: { x: 0, y: 0 },
+        config: {},
+      },
     ],
     edges: [],
   };
@@ -83,23 +89,6 @@ describe("createArchitecture", () => {
       data: created,
     });
     expect(next).not.toHaveBeenCalled();
-  });
-
-  it("passes a BadRequestError to next for an invalid body", async () => {
-    const req = { body: { name: "" } } as Request;
-    const res = mockRes();
-    const next = mockNext();
-
-    await createArchitecture(req, res, next);
-    await flush();
-
-    expect(architectureService.create).not.toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
-      statusCode: 400,
-      code: "BAD_REQUEST",
-    });
   });
 
   it("passes a service error to next", async () => {
@@ -148,7 +137,9 @@ describe("getAllArchitectures", () => {
   });
 
   it("passes the projectId, page and limit query params to the service", async () => {
-    const req = { query: { projectId: uuid, page: "2", limit: "10" } } as unknown as Request;
+    const req = {
+      query: { projectId: uuid, page: "2", limit: "10" },
+    } as unknown as Request;
     const res = mockRes();
     const next = mockNext();
 
@@ -296,41 +287,6 @@ describe("updateArchitecture", () => {
     expect((next as Mock).mock.calls[0]![0]).toMatchObject({
       statusCode: 400,
       code: "BAD_REQUEST",
-    });
-  });
-
-  it("passes a BadRequestError to next for an invalid body", async () => {
-    const req = {
-      params: { id: uuid },
-      body: { name: "" },
-    } as unknown as Request;
-    const res = mockRes();
-    const next = mockNext();
-
-    await updateArchitecture(req, res, next);
-    await flush();
-
-    expect(architectureService.update).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
-      statusCode: 400,
-      code: "BAD_REQUEST",
-    });
-  });
-
-  it("strips projectId before calling the service", async () => {
-    const req = {
-      params: { id: uuid },
-      body: { projectId: "p-999", name: "Renamed" },
-    } as unknown as Request;
-    const res = mockRes();
-    const next = mockNext();
-
-    await updateArchitecture(req, res, next);
-    await flush();
-
-    expect(architectureService.update).toHaveBeenCalledWith(uuid, {
-      name: "Renamed",
     });
   });
 
