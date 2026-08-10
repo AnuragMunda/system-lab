@@ -5,7 +5,12 @@ import {
 } from "@/lib/apiError.js";
 import { SessionRepository } from "./session.repository.js";
 import { UserRepository } from "./user.repository.js";
-import { hashData, verifyData } from "@/infrastructure/auth/bcrypt.js";
+import {
+  hashData,
+  hashTokenData,
+  verifyData,
+  verifyTokenData,
+} from "@/infrastructure/auth/bcrypt.js";
 import {
   AuthResponseDto,
   LoginDto,
@@ -49,7 +54,7 @@ export class AuthService {
 
     const validPassword = await verifyData(dto.password, user.passwordHash);
 
-    if (!validPassword) throw UnauthorizedError("Invalid email or Password");
+    if (!validPassword) throw UnauthorizedError("Invalid email or password");
 
     const session = await this.sessionRepository.createSession({
       userId: user.id,
@@ -65,7 +70,7 @@ export class AuthService {
 
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken(payload);
-    const refreshTokenHash = await hashData(refreshToken);
+    const refreshTokenHash = await hashTokenData(refreshToken);
 
     await this.sessionRepository.updateSession(session.id, {
       refreshTokenHash,
@@ -90,14 +95,14 @@ export class AuthService {
     if (session.expiresAt <= new Date())
       throw UnauthorizedError("Session expired.");
 
-    const valid = await verifyData(refreshToken, session.refreshTokenHash);
+    const valid = await verifyTokenData(refreshToken, session.refreshTokenHash);
 
     if (!valid) throw UnauthorizedError();
 
     // Rotate refresh token
     const accessToken = signAccessToken(payload);
     const newRefreshToken = signRefreshToken(payload);
-    const newRefreshTokenHash = await hashData(newRefreshToken);
+    const newRefreshTokenHash = await hashTokenData(newRefreshToken);
 
     await this.sessionRepository.updateSession(session.id, {
       refreshTokenHash: newRefreshTokenHash,

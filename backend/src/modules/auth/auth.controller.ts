@@ -69,7 +69,7 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) {
     throw UnauthorizedError();
   }
-  const response = await authService.logout(req.user.id);
+  const response = await authService.logoutAll(req.user.id);
 
   clearRefreshTokenCookie(res);
 
