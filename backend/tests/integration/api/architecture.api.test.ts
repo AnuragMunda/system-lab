@@ -2,7 +2,9 @@
  * @file architecture.api.test.ts
  *
  * @description Integration tests for the architecture HTTP endpoints, exercised
- * through supertest against the real app and database.
+ * through supertest against the real app and database: CRUD, ownership rules for
+ * writes, an owner-scoped list, and reads that inherit the parent project's
+ * visibility.
  */
 
 import request from "supertest";
@@ -10,7 +12,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import app from "../../../src/app.js";
 import { resetDb, getTestDatabaseUrl } from "../helpers/db.js";
 import {
-  createProject,
+  createProjectForUser,
   createUser,
   validArchitecture,
 } from "../helpers/fixtures.js";
@@ -20,32 +22,62 @@ const describeDb = process.env.TEST_DB_UNAVAILABLE ? describe.skip : describe;
 
 const repo = new ArchitectureRepository();
 
-/** Bearer token for authenticated POST/PATCH/DELETE requests. */
+/** Identity and access token of the test's primary (logged-in) user. */
+let ownerId = "";
 let accessToken = "";
 
-/** Logs in a fresh test user and stores an access token for the test. */
-async function loginForTest() {
+/**
+ * Creates a user, logs them in, and returns their id plus an access token.
+ * The primary user is also captured for the current test.
+ */
+async function createAuthenticatedUser() {
   const { user, password } = await createUser();
   const res = await request(app)
     .post("/api/v1/auth/login")
     .send({ email: user.email, password });
-  accessToken = res.body.data.accessToken as string;
+
+  const created = {
+    id: user.id,
+    accessToken: res.body.data.accessToken as string,
+  };
+
+  if (!ownerId) {
+    ownerId = created.id;
+    accessToken = created.accessToken;
+  }
+
+  return created;
 }
 
-/** The auth header attached to mutations on the protected architecture routes. */
+/** The auth header attached to requests acting as the primary user. */
 function authHeader() {
   return ["Authorization", `Bearer ${accessToken}`] as const;
+}
+
+/** Creates a project owned by the current primary user. */
+async function createOwnerProject(overrides: object = {}) {
+  return createProjectForUser(ownerId, overrides);
+}
+
+/** Creates an architecture through the API as the caller. */
+function createArchitectureAs(token: string, projectId: string, overrides: object = {}) {
+  return request(app)
+    .post("/api/v1/architectures")
+    .set("Authorization", `Bearer ${token}`)
+    .send({ ...validArchitecture(projectId), ...overrides });
 }
 
 describeDb("Architectures API", () => {
   beforeEach(async () => {
     await resetDb(getTestDatabaseUrl());
-    await loginForTest();
+    ownerId = "";
+    accessToken = "";
+    await createAuthenticatedUser();
   });
 
   describe("POST /api/v1/architectures", () => {
-    it("creates an architecture and responds with 201", async () => {
-      const project = await createProject();
+    it("creates an architecture in the caller's project and responds with 201", async () => {
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
 
       const res = await request(app)
@@ -68,7 +100,7 @@ describeDb("Architectures API", () => {
     });
 
     it("persists the architecture so it can be fetched from the repository", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
 
       const res = await request(app)
@@ -82,8 +114,31 @@ describeDb("Architectures API", () => {
       expect(found.graph).toEqual({ nodes: body.nodes, edges: body.edges });
     });
 
+    it("rejects creating in a project owned by another user", async () => {
+      const other = await createAuthenticatedUser();
+      const otherProject = await createProjectForUser(other.id);
+
+      const res = await createArchitectureAs(
+        accessToken,
+        otherProject.id,
+      );
+
+      expect(res.status).toBe(403);
+      expect(res.body).toMatchObject({ success: false, code: "FORBIDDEN" });
+    });
+
+    it("returns 404 when the project does not exist", async () => {
+      const res = await createArchitectureAs(
+        accessToken,
+        "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
+      );
+
+      expect(res.status).toBe(404);
+      expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
+    });
+
     it("rejects a payload missing the name", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const { name: _name, ...body } = validArchitecture(project.id);
 
       const res = await request(app)
@@ -96,7 +151,7 @@ describeDb("Architectures API", () => {
     });
 
     it("rejects an empty name", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = { ...validArchitecture(project.id), name: "" };
 
       const res = await request(app)
@@ -109,7 +164,7 @@ describeDb("Architectures API", () => {
     });
 
     it("rejects an unknown node type", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const valid = validArchitecture(project.id);
       const body = {
         ...valid,
@@ -126,7 +181,7 @@ describeDb("Architectures API", () => {
     });
 
     it("rejects a negative component latency", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const valid = validArchitecture(project.id);
       const body = {
         ...valid,
@@ -143,7 +198,7 @@ describeDb("Architectures API", () => {
     });
 
     it("rejects an errorRate above 1", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const valid = validArchitecture(project.id);
       const body = {
         ...valid,
@@ -160,7 +215,7 @@ describeDb("Architectures API", () => {
     });
 
     it("rejects a null description", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = { ...validArchitecture(project.id), description: null };
 
       const res = await request(app)
@@ -173,7 +228,7 @@ describeDb("Architectures API", () => {
     });
 
     it("returns 409 for a duplicate (projectId, name)", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
 
       await request(app)
@@ -192,7 +247,7 @@ describeDb("Architectures API", () => {
     });
 
     it("returns 401 without an access token", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
 
       const res = await request(app)
         .post("/api/v1/architectures")
@@ -205,7 +260,9 @@ describeDb("Architectures API", () => {
 
   describe("GET /api/v1/architectures", () => {
     it("returns an empty paginated list when no architectures exist", async () => {
-      const res = await request(app).get("/api/v1/architectures");
+      const res = await request(app)
+        .get("/api/v1/architectures")
+        .set(...authHeader());
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -216,7 +273,7 @@ describeDb("Architectures API", () => {
     });
 
     it("returns the created architectures with default pagination", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
 
       await request(app)
@@ -225,7 +282,9 @@ describeDb("Architectures API", () => {
         .send(body)
         .expect(201);
 
-      const res = await request(app).get("/api/v1/architectures");
+      const res = await request(app)
+        .get("/api/v1/architectures")
+        .set(...authHeader());
 
       expect(res.status).toBe(200);
       expect(res.body.data.items).toHaveLength(1);
@@ -241,8 +300,23 @@ describeDb("Architectures API", () => {
       });
     });
 
+    it("does not list architectures from other users' projects", async () => {
+      const other = await createAuthenticatedUser();
+      const otherProject = await createProjectForUser(other.id);
+
+      await createArchitectureAs(other.accessToken, otherProject.id).expect(201);
+
+      const res = await request(app)
+        .get("/api/v1/architectures")
+        .set(...authHeader());
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.items).toEqual([]);
+      expect(res.body.data.pagination.total).toBe(0);
+    });
+
     it("paginates across pages", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
 
       for (let i = 0; i < 3; i += 1) {
         await request(app)
@@ -257,6 +331,7 @@ describeDb("Architectures API", () => {
 
       const page1 = await request(app)
         .get("/api/v1/architectures")
+        .set(...authHeader())
         .query({ page: 1, limit: 2 });
 
       expect(page1.body.data.items).toHaveLength(2);
@@ -269,6 +344,7 @@ describeDb("Architectures API", () => {
 
       const page2 = await request(app)
         .get("/api/v1/architectures")
+        .set(...authHeader())
         .query({ page: 2, limit: 2 });
 
       expect(page2.body.data.items).toHaveLength(1);
@@ -276,8 +352,8 @@ describeDb("Architectures API", () => {
     });
 
     it("filters by projectId", async () => {
-      const projectA = await createProject();
-      const projectB = await createProject();
+      const projectA = await createOwnerProject();
+      const projectB = await createOwnerProject();
 
       await request(app)
         .post("/api/v1/architectures")
@@ -292,6 +368,7 @@ describeDb("Architectures API", () => {
 
       const res = await request(app)
         .get("/api/v1/architectures")
+        .set(...authHeader())
         .query({ projectId: projectA.id });
 
       expect(res.status).toBe(200);
@@ -303,6 +380,7 @@ describeDb("Architectures API", () => {
     it("returns 400 for an invalid projectId", async () => {
       const res = await request(app)
         .get("/api/v1/architectures")
+        .set(...authHeader())
         .query({ projectId: "not-a-uuid" });
 
       expect(res.status).toBe(400);
@@ -312,16 +390,24 @@ describeDb("Architectures API", () => {
     it("returns 400 for invalid pagination query params", async () => {
       const res = await request(app)
         .get("/api/v1/architectures")
+        .set(...authHeader())
         .query({ page: 0, limit: 101 });
 
       expect(res.status).toBe(400);
       expect(res.body).toMatchObject({ success: false, code: "BAD_REQUEST" });
     });
+
+    it("returns 401 without an access token", async () => {
+      const res = await request(app).get("/api/v1/architectures");
+
+      expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({ success: false, code: "UNAUTHORIZED" });
+    });
   });
 
   describe("PATCH /api/v1/architectures/:id", () => {
     it("updates the name without touching the graph", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -344,7 +430,7 @@ describeDb("Architectures API", () => {
     });
 
     it("merges existing nodes when only edges are provided", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -367,7 +453,7 @@ describeDb("Architectures API", () => {
     });
 
     it("replaces the full graph when both nodes and edges are provided", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -384,9 +470,7 @@ describeDb("Architectures API", () => {
           config: {},
         },
       ];
-      const newEdges = [
-        { id: "e-9", source: "n-1", target: "n-1", config: {} },
-      ];
+      const newEdges = [{ id: "e-9", source: "n-1", target: "n-1", config: {} }];
 
       const res = await request(app)
         .patch(`/api/v1/architectures/${created.body.data.id}`)
@@ -398,8 +482,8 @@ describeDb("Architectures API", () => {
     });
 
     it("ignores a projectId sent in the body", async () => {
-      const project = await createProject();
-      const otherProject = await createProject();
+      const project = await createOwnerProject();
+      const otherProject = await createOwnerProject();
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -419,8 +503,24 @@ describeDb("Architectures API", () => {
       expect(found.projectId).toBe(project.id);
     });
 
+    it("rejects updates from a non-owner", async () => {
+      const other = await createAuthenticatedUser();
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app)
+        .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .set("Authorization", `Bearer ${other.accessToken}`)
+        .send({ name: "Hijacked" });
+
+      expect(res.status).toBe(403);
+      expect(res.body).toMatchObject({ success: false, code: "FORBIDDEN" });
+    });
+
     it("returns 400 for an empty body", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -439,7 +539,9 @@ describeDb("Architectures API", () => {
 
     it("returns 404 for a valid uuid that does not exist", async () => {
       const res = await request(app)
-        .patch("/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91")
+        .patch(
+          "/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
+        )
         .set(...authHeader())
         .send({ name: "Renamed" });
 
@@ -458,7 +560,7 @@ describeDb("Architectures API", () => {
     });
 
     it("returns 409 when renaming to a conflicting name", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const first = validArchitecture(project.id);
       const second = {
         ...validArchitecture(project.id),
@@ -484,11 +586,25 @@ describeDb("Architectures API", () => {
       expect(res.status).toBe(409);
       expect(res.body).toMatchObject({ success: false, code: "CONFLICT" });
     });
+
+    it("returns 401 without an access token", async () => {
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app)
+        .patch(`/api/v1/architectures/${created.body.data.id}`)
+        .send({ name: "Renamed" });
+
+      expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({ success: false, code: "UNAUTHORIZED" });
+    });
   });
 
   describe("DELETE /api/v1/architectures/:id", () => {
     it("deletes the architecture and responds with 200", async () => {
-      const project = await createProject();
+      const project = await createOwnerProject();
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -511,6 +627,21 @@ describeDb("Architectures API", () => {
       });
     });
 
+    it("rejects deletion from a non-owner", async () => {
+      const other = await createAuthenticatedUser();
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app)
+        .delete(`/api/v1/architectures/${created.body.data.id}`)
+        .set("Authorization", `Bearer ${other.accessToken}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body).toMatchObject({ success: false, code: "FORBIDDEN" });
+    });
+
     it("returns 400 for a non-uuid id", async () => {
       const res = await request(app)
         .delete("/api/v1/architectures/not-a-uuid")
@@ -522,17 +653,94 @@ describeDb("Architectures API", () => {
 
     it("returns 404 for a valid uuid that does not exist", async () => {
       const res = await request(app)
-        .delete("/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91")
+        .delete(
+          "/api/v1/architectures/5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
+        )
         .set(...authHeader());
 
       expect(res.status).toBe(404);
       expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
     });
+
+    it("returns 401 without an access token", async () => {
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app).delete(
+        `/api/v1/architectures/${created.body.data.id}`,
+      );
+
+      expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({ success: false, code: "UNAUTHORIZED" });
+    });
   });
 
   describe("GET /api/v1/architectures/:id", () => {
-    it("returns the architecture", async () => {
-      const project = await createProject();
+    it("allows the owner to read an architecture in a PRIVATE project", async () => {
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app)
+        .get(`/api/v1/architectures/${created.body.data.id}`)
+        .set(...authHeader());
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toMatchObject({
+        id: created.body.data.id,
+        projectId: project.id,
+      });
+    });
+
+    it("hides an architecture in a PRIVATE project from an anonymous caller", async () => {
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app).get(
+        `/api/v1/architectures/${created.body.data.id}`,
+      );
+
+      expect(res.status).toBe(404);
+      expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
+    });
+
+    it("hides an architecture in a PRIVATE project from another user", async () => {
+      const other = await createAuthenticatedUser();
+      const project = await createOwnerProject();
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app)
+        .get(`/api/v1/architectures/${created.body.data.id}`)
+        .set("Authorization", `Bearer ${other.accessToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body).toMatchObject({ success: false, code: "NOT_FOUND" });
+    });
+
+    it("allows an anonymous caller to read an architecture in an UNLISTED project", async () => {
+      const project = await createOwnerProject({ visibility: "UNLISTED" });
+      const created = await createArchitectureAs(accessToken, project.id).expect(
+        201,
+      );
+
+      const res = await request(app).get(
+        `/api/v1/architectures/${created.body.data.id}`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.id).toBe(created.body.data.id);
+    });
+
+    it("allows an anonymous caller to read an architecture in a PUBLIC project", async () => {
+      const project = await createOwnerProject({ visibility: "PUBLIC" });
       const body = validArchitecture(project.id);
       const created = await request(app)
         .post("/api/v1/architectures")
@@ -545,7 +753,6 @@ describeDb("Architectures API", () => {
       );
 
       expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
       expect(res.body.data).toMatchObject({
         id: created.body.data.id,
         projectId: project.id,

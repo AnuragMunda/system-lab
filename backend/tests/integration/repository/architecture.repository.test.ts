@@ -2,12 +2,17 @@
  * @file architecture.repository.test.ts
  *
  * @description Integration tests for ArchitectureRepository against a real
- * PostgreSQL test database, covering CRUD, pagination, filtering, and counts.
+ * PostgreSQL test database, covering CRUD, owner-scoped pagination and counts,
+ * and filtering.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { resetDb, getTestDatabaseUrl } from "../helpers/db.js";
-import { createProject, validArchitecture } from "../helpers/fixtures.js";
+import {
+  createProjectForUser,
+  createUser,
+  validArchitecture,
+} from "../helpers/fixtures.js";
 import { ArchitectureRepository } from "../../../src/modules/architecture/architecture.repository.js";
 import { ApiError } from "../../../src/lib/apiError.js";
 import db from "../../../src/infrastructure/database/db.js";
@@ -17,6 +22,13 @@ const describeDb = process.env.TEST_DB_UNAVAILABLE ? describe.skip : describe;
 
 const repo = new ArchitectureRepository();
 
+/** Creates a user and a project owned by them. */
+async function createOwnerWithProject() {
+  const { user } = await createUser();
+  const project = await createProjectForUser(user.id);
+  return { user, project };
+}
+
 describeDb("ArchitectureRepository", () => {
   beforeEach(async () => {
     await resetDb(getTestDatabaseUrl());
@@ -24,7 +36,7 @@ describeDb("ArchitectureRepository", () => {
 
   describe("create", () => {
     it("creates a row with a generated id and timestamps", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const body = validArchitecture(project.id);
 
       const created = await repo.create({
@@ -42,7 +54,7 @@ describeDb("ArchitectureRepository", () => {
     });
 
     it("round-trips the graph exactly through jsonb", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const body = validArchitecture(project.id);
       const graph = { nodes: body.nodes, edges: body.edges };
 
@@ -57,7 +69,7 @@ describeDb("ArchitectureRepository", () => {
     });
 
     it("throws ConflictError for a duplicate (projectId, name)", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const body = validArchitecture(project.id);
 
       await repo.create({
@@ -81,13 +93,15 @@ describeDb("ArchitectureRepository", () => {
   });
 
   describe("findPaginated", () => {
-    it("returns an empty list when the table is empty", async () => {
-      const rows = await repo.findPaginated({ page: 1, limit: 20 });
+    it("returns an empty list when the owner has no projects", async () => {
+      const { user } = await createUser();
+
+      const rows = await repo.findPaginated({ ownerId: user.id, page: 1, limit: 20 });
       expect(rows).toEqual([]);
     });
 
-    it("returns all created architectures ordered by newest first", async () => {
-      const project = await createProject();
+    it("returns only the owner's architectures ordered by newest first", async () => {
+      const { user, project } = await createOwnerWithProject();
 
       await repo.create({
         projectId: project.id,
@@ -100,13 +114,36 @@ describeDb("ArchitectureRepository", () => {
         graph: { nodes: [], edges: [] },
       });
 
-      const rows = await repo.findPaginated({ page: 1, limit: 20 });
+      const rows = await repo.findPaginated({ ownerId: user.id, page: 1, limit: 20 });
       expect(rows).toHaveLength(2);
       expect(rows.map((r: { name: string }) => r.name)).toEqual(["B", "A"]);
     });
 
+    it("does not leak architectures from projects owned by other users", async () => {
+      const { user: ownerA } = await createUser();
+      const { user: ownerB } = await createUser();
+      const projectA = await createProjectForUser(ownerA.id);
+      const projectB = await createProjectForUser(ownerB.id);
+
+      await repo.create({
+        projectId: projectA.id,
+        name: "A-Arch",
+        graph: { nodes: [], edges: [] },
+      });
+      await repo.create({
+        projectId: projectB.id,
+        name: "B-Arch",
+        graph: { nodes: [], edges: [] },
+      });
+
+      const rows = await repo.findPaginated({ ownerId: ownerA.id, page: 1, limit: 20 });
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0]!.name).toBe("A-Arch");
+    });
+
     it("paginates with limit and offset", async () => {
-      const project = await createProject();
+      const { user, project } = await createOwnerWithProject();
 
       for (let i = 0; i < 3; i += 1) {
         await repo.create({
@@ -116,19 +153,20 @@ describeDb("ArchitectureRepository", () => {
         });
       }
 
-      const page1 = await repo.findPaginated({ page: 1, limit: 2 });
+      const page1 = await repo.findPaginated({ ownerId: user.id, page: 1, limit: 2 });
       expect(page1).toHaveLength(2);
 
-      const page2 = await repo.findPaginated({ page: 2, limit: 2 });
+      const page2 = await repo.findPaginated({ ownerId: user.id, page: 2, limit: 2 });
       expect(page2).toHaveLength(1);
 
       const names = [...page1, ...page2].map((r: { name: string }) => r.name);
       expect(names).toHaveLength(3);
     });
 
-    it("filters by projectId", async () => {
-      const projectA = await createProject();
-      const projectB = await createProject();
+    it("filters by projectId within the owner's projects", async () => {
+      const { user } = await createUser();
+      const projectA = await createProjectForUser(user.id);
+      const projectB = await createProjectForUser(user.id);
 
       await repo.create({
         projectId: projectA.id,
@@ -142,6 +180,7 @@ describeDb("ArchitectureRepository", () => {
       });
 
       const rows = await repo.findPaginated({
+        ownerId: user.id,
         projectId: projectA.id,
         page: 1,
         limit: 20,
@@ -153,26 +192,36 @@ describeDb("ArchitectureRepository", () => {
   });
 
   describe("count", () => {
-    it("counts all rows", async () => {
-      const project = await createProject();
+    it("counts only architectures in the owner's projects", async () => {
+      const { user: ownerA } = await createUser();
+      const { user: ownerB } = await createUser();
+      const projectA = await createProjectForUser(ownerA.id);
+      const projectB = await createProjectForUser(ownerB.id);
 
       await repo.create({
-        projectId: project.id,
-        name: "A",
+        projectId: projectA.id,
+        name: "A-1",
         graph: { nodes: [], edges: [] },
       });
       await repo.create({
-        projectId: project.id,
-        name: "B",
+        projectId: projectA.id,
+        name: "A-2",
+        graph: { nodes: [], edges: [] },
+      });
+      await repo.create({
+        projectId: projectB.id,
+        name: "B-1",
         graph: { nodes: [], edges: [] },
       });
 
-      await expect(repo.count({})).resolves.toBe(2);
+      await expect(repo.count({ ownerId: ownerA.id })).resolves.toBe(2);
+      await expect(repo.count({ ownerId: ownerB.id })).resolves.toBe(1);
     });
 
-    it("counts rows for a specific project", async () => {
-      const projectA = await createProject();
-      const projectB = await createProject();
+    it("counts rows for a specific owned project", async () => {
+      const { user } = await createUser();
+      const projectA = await createProjectForUser(user.id);
+      const projectB = await createProjectForUser(user.id);
 
       await repo.create({
         projectId: projectA.id,
@@ -185,13 +234,15 @@ describeDb("ArchitectureRepository", () => {
         graph: { nodes: [], edges: [] },
       });
 
-      await expect(repo.count({ projectId: projectA.id })).resolves.toBe(1);
+      await expect(
+        repo.count({ ownerId: user.id, projectId: projectA.id }),
+      ).resolves.toBe(1);
     });
   });
 
   describe("findById", () => {
     it("returns the matching architecture", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const created = await repo.create({
         projectId: project.id,
         name: "Found",
@@ -216,7 +267,7 @@ describeDb("ArchitectureRepository", () => {
 
   describe("update", () => {
     it("updates fields and bumps updatedAt", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const created = await repo.create({
         projectId: project.id,
         name: "Before",
@@ -238,7 +289,7 @@ describeDb("ArchitectureRepository", () => {
     });
 
     it("updates the graph when provided", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const created = await repo.create({
         projectId: project.id,
         name: "Before",
@@ -266,7 +317,7 @@ describeDb("ArchitectureRepository", () => {
 
   describe("delete", () => {
     it("deletes the architecture and returns it", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const created = await repo.create({
         projectId: project.id,
         name: "To Delete",
@@ -293,7 +344,7 @@ describeDb("ArchitectureRepository", () => {
     });
 
     it("cascades deletion to the architecture's scenarios", async () => {
-      const project = await createProject();
+      const { project } = await createOwnerWithProject();
       const created = await repo.create({
         projectId: project.id,
         name: "To Delete",

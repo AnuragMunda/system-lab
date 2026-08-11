@@ -14,7 +14,10 @@ import {
   updateArchitecture,
 } from "./architecture.controller.js";
 import { validate } from "@/middlewares/validate.js";
-import { authenticate } from "@/middlewares/authenticate.js";
+import {
+  authenticate,
+  authenticateOptional,
+} from "@/middlewares/authenticate.js";
 import {
   architectureSchema,
   updateArchitectureSchema,
@@ -24,12 +27,12 @@ const architectureRouter: Router = Router();
 
 architectureRouter
   .route("/")
-  .get(getAllArchitectures)
+  .get(authenticate, getAllArchitectures)
   .post(authenticate, validate(architectureSchema), createArchitecture);
 
 architectureRouter
   .route("/:id")
-  .get(getArchitectureById)
+  .get(authenticateOptional, getArchitectureById)
   .patch(authenticate, validate(updateArchitectureSchema), updateArchitecture)
   .delete(authenticate, deleteArchitecture);
 

@@ -7,12 +7,13 @@
 
 import db from "@/infrastructure/database/db.js";
 import { architecturesTable } from "@/infrastructure/database/schema/architectures.js";
+import { projectsTable } from "@/infrastructure/database/schema/projects.js";
 import {
   CreateArchitectureRecord,
   UpdateArchitectureRecord,
 } from "./architecture.dto.js";
 import { InternalServerError, NotFoundError } from "@/lib/apiError.js";
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { mapDbError } from "@/lib/index.js";
 
 /** Data access for the architectures table. */
@@ -37,10 +38,12 @@ export class ArchitectureRepository {
   }
 
   /**
-   * Returns a page of architectures, newest first. Optionally scoped to a
-   * single project. Reads are not wrapped because they don't mutate data.
+   * Returns a page of architectures, newest first. Restricted to the projects
+   * owned by `ownerId`; an optional `projectId` filter narrows within that
+   * scope. Reads are not wrapped because they don't mutate data.
    */
   async findPaginated(filters: {
+    ownerId: string;
     projectId?: string;
     page: number;
     limit: number;
@@ -51,9 +54,12 @@ export class ArchitectureRepository {
       .select()
       .from(architecturesTable)
       .where(
-        filters.projectId
-          ? eq(architecturesTable.projectId, filters.projectId)
-          : undefined,
+        and(
+          inArray(architecturesTable.projectId, this.ownedProjects(filters.ownerId)),
+          filters.projectId
+            ? eq(architecturesTable.projectId, filters.projectId)
+            : undefined,
+        ),
       )
       .orderBy(desc(architecturesTable.createdAt), desc(architecturesTable.id))
       .limit(filters.limit)
@@ -61,17 +67,28 @@ export class ArchitectureRepository {
   }
 
   /** Counts architectures, optionally scoped to a single project. */
-  async count(filters: { projectId?: string }): Promise<number> {
+  async count(filters: { ownerId: string; projectId?: string }): Promise<number> {
     const [result] = await db
       .select({ count: count() })
       .from(architecturesTable)
       .where(
-        filters.projectId
-          ? eq(architecturesTable.projectId, filters.projectId)
-          : undefined,
+        and(
+          inArray(architecturesTable.projectId, this.ownedProjects(filters.ownerId)),
+          filters.projectId
+            ? eq(architecturesTable.projectId, filters.projectId)
+            : undefined,
+        ),
       );
 
     return Number(result?.count ?? 0);
+  }
+
+  /** Subquery selecting the ids of projects owned by the given user. */
+  private ownedProjects(ownerId: string) {
+    return db
+      .select({ id: projectsTable.id })
+      .from(projectsTable)
+      .where(eq(projectsTable.ownerId, ownerId));
   }
 
   /** Finds a single architecture by id, throwing NotFoundError if missing. */

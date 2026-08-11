@@ -3,10 +3,13 @@
  *
  * @description Business logic layer for the architecture module. Maps callers'
  * DTOs into repository records and enforces rules the repository doesn't (e.g.
- * empty update payloads, graph merge behavior).
+ * empty update payloads, graph merge behavior). Architectures inherit their
+ * permissions from the parent project: writes require owning that project, and
+ * reads mirror the project's visibility rules.
  */
 
 import { ArchitectureRepository } from "./architecture.repository.js";
+import { ProjectRepository } from "../project/project.repository.js";
 import {
   CreateArchitectureDto,
   ListArchitecturesQueryDto,
@@ -14,15 +17,30 @@ import {
   UpdateArchitectureDto,
 } from "./architecture.dto.js";
 import { Architecture } from "@/domain/architecture/architecture.types.js";
-import { BadRequestError } from "@/lib/apiError.js";
+import { Project } from "@/domain/project/project.types.js";
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from "@/lib/apiError.js";
 
 /** Coordinates architecture domain operations with the repository. */
 export class ArchitectureService {
-  constructor(private readonly repository: ArchitectureRepository) {}
+  constructor(
+    private readonly repository: ArchitectureRepository,
+    private readonly projectRepository: ProjectRepository,
+  ) {}
 
-  /** Creates an architecture, grouping node/edge data into a single graph. */
-  async create(data: CreateArchitectureDto): Promise<Architecture> {
-    const architecture = this.repository.create({
+  /** Creates an architecture, requiring the caller to own the target project. */
+  async create(
+    userId: string,
+    data: CreateArchitectureDto,
+  ): Promise<Architecture> {
+    const project = await this.projectRepository.findById(data.projectId);
+
+    this.assertOwner(project, userId);
+
+    return this.repository.create({
       projectId: data.projectId,
       name: data.name,
       description: data.description,
@@ -31,22 +49,21 @@ export class ArchitectureService {
         edges: data.edges,
       },
     });
-
-    return architecture;
   }
 
   /**
-   * Returns a page of architectures, optionally filtered by project, along with
-   * pagination metadata.
+   * Returns a page of architectures in the caller's own projects, optionally
+   * scoped to a single project, along with pagination metadata.
    */
   async getAllArchitectures(
+    userId: string,
     query: ListArchitecturesQueryDto,
   ): Promise<PaginatedResult<Architecture>> {
     const { projectId, page, limit } = query;
 
     const [items, total] = await Promise.all([
-      this.repository.findPaginated({ projectId, page, limit }),
-      this.repository.count({ projectId }),
+      this.repository.findPaginated({ ownerId: userId, projectId, page, limit }),
+      this.repository.count({ ownerId: userId, projectId }),
     ]);
 
     return {
@@ -60,17 +77,36 @@ export class ArchitectureService {
     };
   }
 
-  /** Fetches a single architecture, propagating NotFoundError when missing. */
-  async findById(id: string): Promise<Architecture> {
-    return this.repository.findById(id);
+  /**
+   * Fetches a single architecture. Access is inherited from the parent project:
+   * PUBLIC and UNLISTED are viewable by anyone; PRIVATE only by its owner.
+   * Non-owners are met with a 404 so the architecture's existence stays hidden.
+   */
+  async findById(id: string, userId?: string): Promise<Architecture> {
+    const architecture = await this.repository.findById(id);
+    const project = await this.projectRepository.findById(
+      architecture.projectId,
+    );
+
+    this.assertCanRead(project, userId);
+
+    return architecture;
   }
 
   /**
-   * Updates an architecture. Merges provided nodes/edges with the existing
-   * graph, and rejects empty payloads.
+   * Updates an architecture. Rejects updates by anyone who doesn't own the
+   * parent project, merges provided nodes/edges with the existing graph, and
+   * rejects empty payloads.
    */
-  async update(id: string, data: UpdateArchitectureDto): Promise<Architecture> {
+  async update(
+    id: string,
+    userId: string,
+    data: UpdateArchitectureDto,
+  ): Promise<Architecture> {
     const existing = await this.repository.findById(id);
+    const project = await this.projectRepository.findById(existing.projectId);
+
+    this.assertOwner(project, userId);
 
     const { nodes, edges, ...fields } = data;
 
@@ -97,8 +133,30 @@ export class ArchitectureService {
     return this.repository.update(id, record);
   }
 
-  /** Deletes an architecture, propagating NotFoundError when missing. */
-  async delete(id: string): Promise<Architecture> {
+  /** Deletes an architecture, rejecting callers who don't own its project. */
+  async delete(id: string, userId: string): Promise<Architecture> {
+    const existing = await this.repository.findById(id);
+    const project = await this.projectRepository.findById(existing.projectId);
+
+    this.assertOwner(project, userId);
+
     return this.repository.delete(id);
+  }
+
+  /** Throws ForbiddenError unless the user owns the given project. */
+  private assertOwner(project: Project, userId: string): void {
+    if (project.ownerId !== userId) {
+      throw ForbiddenError();
+    }
+  }
+
+  /**
+   * Throws NotFoundError when a non-owner tries to read an architecture whose
+   * project is PRIVATE, so its existence is not revealed.
+   */
+  private assertCanRead(project: Project, userId?: string): void {
+    if (project.ownerId !== userId && project.visibility === "PRIVATE") {
+      throw NotFoundError();
+    }
   }
 }

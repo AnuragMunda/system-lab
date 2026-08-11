@@ -2,8 +2,8 @@
  * @file architecture.controller.test.ts
  *
  * @description Unit tests for the architecture HTTP handlers. The service is
- * mocked so each handler's validation, status codes, and error forwarding can
- * be exercised in isolation.
+ * mocked so each handler's auth gate, validation, status codes, and error
+ * forwarding can be exercised in isolation.
  */
 
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
@@ -32,6 +32,7 @@ const {
 import { ApiError } from "../../../../src/lib/index.js";
 
 const uuid = "5b47bb24-2f9b-4e40-a1c5-4d2d5bce0f91";
+const userId = uuid;
 
 /** Returns a fake Express response with chainable status/json mocks. */
 function mockRes() {
@@ -47,6 +48,14 @@ function mockNext() {
   return vi.fn() as unknown as NextFunction;
 }
 
+/** Returns an authenticated request carrying the fixture user. */
+function mockAuthReq(partial: Partial<Request> = {}): Request {
+  return {
+    user: { id: userId, email: "owner@test.local", sessionId: uuid },
+    ...partial,
+  } as unknown as Request;
+}
+
 /** Waits for the microtask queue so async handler promises settle. */
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -56,22 +65,14 @@ beforeEach(() => {
 
 describe("createArchitecture", () => {
   const validBody = {
-    projectId: "p-1",
+    projectId: "7c69bb24-2f9b-4e40-a1c5-4d2d5bce0f91",
     name: "Payment Service",
-    nodes: [
-      {
-        id: "c-1",
-        type: "client",
-        name: "Client",
-        position: { x: 0, y: 0 },
-        config: {},
-      },
-    ],
+    nodes: [],
     edges: [],
   };
 
-  it("creates an architecture and responds with 201", async () => {
-    const req = { body: validBody } as Request;
+  it("creates an architecture on behalf of the caller and responds with 201", async () => {
+    const req = mockAuthReq({ body: validBody });
     const res = mockRes();
     const next = mockNext();
 
@@ -81,7 +82,10 @@ describe("createArchitecture", () => {
     await createArchitecture(req, res, next);
     await flush();
 
-    expect(architectureService.create).toHaveBeenCalledWith(validBody);
+    expect(architectureService.create).toHaveBeenCalledWith(
+      userId,
+      validBody,
+    );
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -91,8 +95,23 @@ describe("createArchitecture", () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it("passes a service error to next", async () => {
+  it("passes an UnauthorizedError to next when there is no user", async () => {
     const req = { body: validBody } as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await createArchitecture(req, res, next);
+    await flush();
+
+    expect(architectureService.create).not.toHaveBeenCalled();
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 401,
+      code: "UNAUTHORIZED",
+    });
+  });
+
+  it("passes a service error to next", async () => {
+    const req = mockAuthReq({ body: validBody });
     const res = mockRes();
     const next = mockNext();
 
@@ -108,8 +127,8 @@ describe("createArchitecture", () => {
 });
 
 describe("getAllArchitectures", () => {
-  it("responds with 200 and the paginated result using default query values", async () => {
-    const req = { query: {} } as Request;
+  it("responds with 200 and the caller's paginated result using default query values", async () => {
+    const req = mockAuthReq({ query: {} });
     const res = mockRes();
     const next = mockNext();
 
@@ -124,10 +143,10 @@ describe("getAllArchitectures", () => {
     await getAllArchitectures(req, res, next);
     await flush();
 
-    expect(architectureService.getAllArchitectures).toHaveBeenCalledWith({
-      page: 1,
-      limit: 20,
-    });
+    expect(architectureService.getAllArchitectures).toHaveBeenCalledWith(
+      userId,
+      { page: 1, limit: 20 },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -137,9 +156,9 @@ describe("getAllArchitectures", () => {
   });
 
   it("passes the projectId, page and limit query params to the service", async () => {
-    const req = {
+    const req = mockAuthReq({
       query: { projectId: uuid, page: "2", limit: "10" },
-    } as unknown as Request;
+    });
     const res = mockRes();
     const next = mockNext();
 
@@ -151,15 +170,14 @@ describe("getAllArchitectures", () => {
     await getAllArchitectures(req, res, next);
     await flush();
 
-    expect(architectureService.getAllArchitectures).toHaveBeenCalledWith({
-      projectId: uuid,
-      page: 2,
-      limit: 10,
-    });
+    expect(architectureService.getAllArchitectures).toHaveBeenCalledWith(
+      userId,
+      { projectId: uuid, page: 2, limit: 10 },
+    );
   });
 
   it("passes a BadRequestError to next for an invalid query", async () => {
-    const req = { query: { page: "0" } } as unknown as Request;
+    const req = mockAuthReq({ query: { page: "0" } });
     const res = mockRes();
     const next = mockNext();
 
@@ -174,8 +192,23 @@ describe("getAllArchitectures", () => {
     });
   });
 
-  it("passes a service error to next", async () => {
+  it("passes an UnauthorizedError to next when there is no user", async () => {
     const req = { query: {} } as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await getAllArchitectures(req, res, next);
+    await flush();
+
+    expect(architectureService.getAllArchitectures).not.toHaveBeenCalled();
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 401,
+      code: "UNAUTHORIZED",
+    });
+  });
+
+  it("passes a service error to next", async () => {
+    const req = mockAuthReq({ query: {} });
     const res = mockRes();
     const next = mockNext();
 
@@ -192,7 +225,28 @@ describe("getAllArchitectures", () => {
 });
 
 describe("getArchitectureById", () => {
-  it("responds with 200 and the architecture", async () => {
+  it("fetches with the caller's id and responds with 200", async () => {
+    const req = mockAuthReq({ params: { id: uuid } });
+    const res = mockRes();
+    const next = mockNext();
+
+    const found = { id: uuid, name: "Payment Service" };
+    vi.mocked(architectureService.findById).mockResolvedValue(found as never);
+
+    await getArchitectureById(req, res, next);
+    await flush();
+
+    expect(architectureService.findById).toHaveBeenCalledWith(uuid, userId);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: "Request successful",
+      data: found,
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("fetches anonymously when no user is present", async () => {
     const req = { params: { id: uuid } } as unknown as Request;
     const res = mockRes();
     const next = mockNext();
@@ -203,18 +257,12 @@ describe("getArchitectureById", () => {
     await getArchitectureById(req, res, next);
     await flush();
 
-    expect(architectureService.findById).toHaveBeenCalledWith(uuid);
+    expect(architectureService.findById).toHaveBeenCalledWith(uuid, undefined);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      success: true,
-      message: "Request successful",
-      data: found,
-    });
-    expect(next).not.toHaveBeenCalled();
   });
 
   it("passes a BadRequestError to next for an invalid id", async () => {
-    const req = { params: { id: "not-a-uuid" } } as unknown as Request;
+    const req = mockAuthReq({ params: { id: "not-a-uuid" } });
     const res = mockRes();
     const next = mockNext();
 
@@ -230,7 +278,7 @@ describe("getArchitectureById", () => {
   });
 
   it("passes a service error to next", async () => {
-    const req = { params: { id: uuid } } as unknown as Request;
+    const req = mockAuthReq({ params: { id: uuid } });
     const res = mockRes();
     const next = mockNext();
 
@@ -246,10 +294,7 @@ describe("getArchitectureById", () => {
 
 describe("updateArchitecture", () => {
   it("updates an architecture and responds with 200", async () => {
-    const req = {
-      params: { id: uuid },
-      body: { name: "Renamed" },
-    } as unknown as Request;
+    const req = mockAuthReq({ params: { id: uuid }, body: { name: "Renamed" } });
     const res = mockRes();
     const next = mockNext();
 
@@ -259,9 +304,11 @@ describe("updateArchitecture", () => {
     await updateArchitecture(req, res, next);
     await flush();
 
-    expect(architectureService.update).toHaveBeenCalledWith(uuid, {
-      name: "Renamed",
-    });
+    expect(architectureService.update).toHaveBeenCalledWith(
+      uuid,
+      userId,
+      { name: "Renamed" },
+    );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -272,10 +319,10 @@ describe("updateArchitecture", () => {
   });
 
   it("passes a BadRequestError to next for an invalid id", async () => {
-    const req = {
+    const req = mockAuthReq({
       params: { id: "not-a-uuid" },
       body: { name: "Renamed" },
-    } as unknown as Request;
+    });
     const res = mockRes();
     const next = mockNext();
 
@@ -290,11 +337,26 @@ describe("updateArchitecture", () => {
     });
   });
 
-  it("passes a service error to next", async () => {
+  it("passes an UnauthorizedError to next when there is no user", async () => {
     const req = {
       params: { id: uuid },
       body: { name: "Renamed" },
     } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await updateArchitecture(req, res, next);
+    await flush();
+
+    expect(architectureService.update).not.toHaveBeenCalled();
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 401,
+      code: "UNAUTHORIZED",
+    });
+  });
+
+  it("passes a service error to next", async () => {
+    const req = mockAuthReq({ params: { id: uuid }, body: { name: "Renamed" } });
     const res = mockRes();
     const next = mockNext();
 
@@ -310,7 +372,7 @@ describe("updateArchitecture", () => {
 
 describe("deleteArchitecture", () => {
   it("deletes an architecture and responds with 200", async () => {
-    const req = { params: { id: uuid } } as unknown as Request;
+    const req = mockAuthReq({ params: { id: uuid } });
     const res = mockRes();
     const next = mockNext();
 
@@ -320,7 +382,7 @@ describe("deleteArchitecture", () => {
     await deleteArchitecture(req, res, next);
     await flush();
 
-    expect(architectureService.delete).toHaveBeenCalledWith(uuid);
+    expect(architectureService.delete).toHaveBeenCalledWith(uuid, userId);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -331,7 +393,7 @@ describe("deleteArchitecture", () => {
   });
 
   it("passes a BadRequestError to next for an invalid id", async () => {
-    const req = { params: { id: "not-a-uuid" } } as unknown as Request;
+    const req = mockAuthReq({ params: { id: "not-a-uuid" } });
     const res = mockRes();
     const next = mockNext();
 
@@ -346,8 +408,23 @@ describe("deleteArchitecture", () => {
     });
   });
 
-  it("passes a service error to next", async () => {
+  it("passes an UnauthorizedError to next when there is no user", async () => {
     const req = { params: { id: uuid } } as unknown as Request;
+    const res = mockRes();
+    const next = mockNext();
+
+    await deleteArchitecture(req, res, next);
+    await flush();
+
+    expect(architectureService.delete).not.toHaveBeenCalled();
+    expect((next as Mock).mock.calls[0]![0]).toMatchObject({
+      statusCode: 401,
+      code: "UNAUTHORIZED",
+    });
+  });
+
+  it("passes a service error to next", async () => {
+    const req = mockAuthReq({ params: { id: uuid } });
     const res = mockRes();
     const next = mockNext();
 
