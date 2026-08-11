@@ -62,6 +62,21 @@ export async function createProject() {
   return project!;
 }
 
+/** Creates and returns a project owned by the given user id. */
+export async function createProjectForUser(
+  ownerId: string,
+  overrides: Partial<typeof projectsTable.$inferInsert> = {},
+) {
+  counter += 1;
+
+  const [project] = await db
+    .insert(projectsTable)
+    .values({ ownerId, name: `Project ${counter}`, ...overrides })
+    .returning();
+
+  return project!;
+}
+
 /** Returns a valid architecture create payload scoped to the given project. */
 export function validArchitecture(projectId: string) {
   return {
