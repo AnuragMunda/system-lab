@@ -62,7 +62,12 @@ export class ArchitectureService {
     const { projectId, page, limit } = query;
 
     const [items, total] = await Promise.all([
-      this.repository.findPaginated({ ownerId: userId, projectId, page, limit }),
+      this.repository.findPaginated({
+        ownerId: userId,
+        projectId,
+        page,
+        limit,
+      }),
       this.repository.count({ ownerId: userId, projectId }),
     ]);
 

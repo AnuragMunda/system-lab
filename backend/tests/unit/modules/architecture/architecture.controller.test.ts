@@ -82,10 +82,7 @@ describe("createArchitecture", () => {
     await createArchitecture(req, res, next);
     await flush();
 
-    expect(architectureService.create).toHaveBeenCalledWith(
-      userId,
-      validBody,
-    );
+    expect(architectureService.create).toHaveBeenCalledWith(userId, validBody);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -294,7 +291,10 @@ describe("getArchitectureById", () => {
 
 describe("updateArchitecture", () => {
   it("updates an architecture and responds with 200", async () => {
-    const req = mockAuthReq({ params: { id: uuid }, body: { name: "Renamed" } });
+    const req = mockAuthReq({
+      params: { id: uuid },
+      body: { name: "Renamed" },
+    });
     const res = mockRes();
     const next = mockNext();
 
@@ -304,11 +304,9 @@ describe("updateArchitecture", () => {
     await updateArchitecture(req, res, next);
     await flush();
 
-    expect(architectureService.update).toHaveBeenCalledWith(
-      uuid,
-      userId,
-      { name: "Renamed" },
-    );
+    expect(architectureService.update).toHaveBeenCalledWith(uuid, userId, {
+      name: "Renamed",
+    });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -356,7 +354,10 @@ describe("updateArchitecture", () => {
   });
 
   it("passes a service error to next", async () => {
-    const req = mockAuthReq({ params: { id: uuid }, body: { name: "Renamed" } });
+    const req = mockAuthReq({
+      params: { id: uuid },
+      body: { name: "Renamed" },
+    });
     const res = mockRes();
     const next = mockNext();
 

@@ -7,10 +7,7 @@
 
 import db from "@/infrastructure/database/db.js";
 import { projectsTable } from "@/infrastructure/database/schema/projects.js";
-import {
-  CreateProjectRecord,
-  UpdateProjectRecord,
-} from "./project.dto.js";
+import { CreateProjectRecord, UpdateProjectRecord } from "./project.dto.js";
 import { InternalServerError, NotFoundError } from "@/lib/apiError.js";
 import { count, desc, eq } from "drizzle-orm";
 import { mapDbError } from "@/lib/index.js";
@@ -20,10 +17,7 @@ export class ProjectRepository {
   /** Inserts a new project and returns the created row. */
   async create(data: CreateProjectRecord) {
     try {
-      const [project] = await db
-        .insert(projectsTable)
-        .values(data)
-        .returning();
+      const [project] = await db.insert(projectsTable).values(data).returning();
 
       if (!project) {
         throw InternalServerError("Failed to create project.");

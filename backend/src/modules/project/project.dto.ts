@@ -41,6 +41,4 @@ export interface CreateProjectRecord {
 }
 
 /** Partial row shape accepted when updating a project. */
-export type UpdateProjectRecord = Partial<
-  Omit<CreateProjectRecord, "ownerId">
->;
+export type UpdateProjectRecord = Partial<Omit<CreateProjectRecord, "ownerId">>;

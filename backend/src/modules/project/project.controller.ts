@@ -38,21 +38,19 @@ export const createProject = asyncHandler(
 );
 
 /** GET /api/v1/projects — paginated list of the caller's projects. */
-export const getProjects = asyncHandler(
-  async (req: Request, res: Response) => {
-    const user = requireUser(req);
+export const getProjects = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
 
-    const query = listProjectsQuerySchema.safeParse(req.query);
+  const query = listProjectsQuerySchema.safeParse(req.query);
 
-    if (!query.success) {
-      throw BadRequestError(query.error.message);
-    }
+  if (!query.success) {
+    throw BadRequestError(query.error.message);
+  }
 
-    const result = await projectService.getPaginated(user.id, query.data);
+  const result = await projectService.getPaginated(user.id, query.data);
 
-    return ApiResponse.ok(res, result);
-  },
-);
+  return ApiResponse.ok(res, result);
+});
 
 /** GET /api/v1/projects/:id — fetches a single project. Access is governed by visibility. */
 export const getProjectById = asyncHandler(

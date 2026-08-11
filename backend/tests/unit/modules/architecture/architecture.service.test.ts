@@ -454,9 +454,9 @@ describe("ArchitectureService.update", () => {
     vi.mocked(projectRepo.findById).mockResolvedValue(existingProject);
     vi.mocked(archRepo.update).mockRejectedValue(error);
 
-    await expect(
-      service.update(uuid, ownerId, { name: "X" }),
-    ).rejects.toThrow("update failed");
+    await expect(service.update(uuid, ownerId, { name: "X" })).rejects.toThrow(
+      "update failed",
+    );
   });
 });
 
@@ -502,6 +502,8 @@ describe("ArchitectureService.delete", () => {
     vi.mocked(projectRepo.findById).mockResolvedValue(existingProject);
     vi.mocked(archRepo.delete).mockRejectedValue(error);
 
-    await expect(service.delete(uuid, ownerId)).rejects.toThrow("delete failed");
+    await expect(service.delete(uuid, ownerId)).rejects.toThrow(
+      "delete failed",
+    );
   });
 });

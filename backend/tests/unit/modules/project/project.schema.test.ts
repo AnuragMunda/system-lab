@@ -46,9 +46,9 @@ describe("createProjectSchema", () => {
   });
 
   it("accepts a missing description", () => {
-    expect(createProjectSchema.safeParse({ name: "No Description" }).success).toBe(
-      true,
-    );
+    expect(
+      createProjectSchema.safeParse({ name: "No Description" }).success,
+    ).toBe(true);
   });
 
   it("rejects when name is missing", () => {
@@ -60,15 +60,15 @@ describe("createProjectSchema", () => {
   });
 
   it("rejects a name that exceeds the length limit", () => {
-    expect(createProjectSchema.safeParse({ name: "x".repeat(151) }).success).toBe(
-      false,
-    );
+    expect(
+      createProjectSchema.safeParse({ name: "x".repeat(151) }).success,
+    ).toBe(false);
   });
 
   it("accepts a name exactly at the length limit", () => {
-    expect(createProjectSchema.safeParse({ name: "x".repeat(150) }).success).toBe(
-      true,
-    );
+    expect(
+      createProjectSchema.safeParse({ name: "x".repeat(150) }).success,
+    ).toBe(true);
   });
 
   it("rejects an unknown visibility value", () => {
@@ -103,7 +103,9 @@ describe("updateProjectSchema", () => {
   });
 
   it("accepts only a name", () => {
-    expect(updateProjectSchema.safeParse({ name: "Renamed" }).success).toBe(true);
+    expect(updateProjectSchema.safeParse({ name: "Renamed" }).success).toBe(
+      true,
+    );
   });
 
   it("accepts only a description", () => {
@@ -113,9 +115,9 @@ describe("updateProjectSchema", () => {
   });
 
   it("accepts only a visibility change", () => {
-    expect(updateProjectSchema.safeParse({ visibility: "PUBLIC" }).success).toBe(
-      true,
-    );
+    expect(
+      updateProjectSchema.safeParse({ visibility: "PUBLIC" }).success,
+    ).toBe(true);
   });
 
   it("accepts a combination of fields", () => {
@@ -132,9 +134,9 @@ describe("updateProjectSchema", () => {
   });
 
   it("rejects an invalid visibility value", () => {
-    expect(updateProjectSchema.safeParse({ visibility: "SECRET" }).success).toBe(
-      false,
-    );
+    expect(
+      updateProjectSchema.safeParse({ visibility: "SECRET" }).success,
+    ).toBe(false);
   });
 
   it("strips unknown keys such as ownerId from the parsed result", () => {
@@ -173,7 +175,10 @@ describe("listProjectsQuerySchema", () => {
   });
 
   it("coerces string page and limit values", () => {
-    const result = listProjectsQuerySchema.safeParse({ page: "2", limit: "50" });
+    const result = listProjectsQuerySchema.safeParse({
+      page: "2",
+      limit: "50",
+    });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data).toEqual({ page: 2, limit: 50 });
@@ -189,10 +194,14 @@ describe("listProjectsQuerySchema", () => {
   });
 
   it("rejects a limit above 100", () => {
-    expect(listProjectsQuerySchema.safeParse({ limit: 101 }).success).toBe(false);
+    expect(listProjectsQuerySchema.safeParse({ limit: 101 }).success).toBe(
+      false,
+    );
   });
 
   it("rejects a non-integer page", () => {
-    expect(listProjectsQuerySchema.safeParse({ page: 1.5 }).success).toBe(false);
+    expect(listProjectsQuerySchema.safeParse({ page: 1.5 }).success).toBe(
+      false,
+    );
   });
 });

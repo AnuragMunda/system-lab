@@ -96,7 +96,11 @@ describeDb("ArchitectureRepository", () => {
     it("returns an empty list when the owner has no projects", async () => {
       const { user } = await createUser();
 
-      const rows = await repo.findPaginated({ ownerId: user.id, page: 1, limit: 20 });
+      const rows = await repo.findPaginated({
+        ownerId: user.id,
+        page: 1,
+        limit: 20,
+      });
       expect(rows).toEqual([]);
     });
 
@@ -114,7 +118,11 @@ describeDb("ArchitectureRepository", () => {
         graph: { nodes: [], edges: [] },
       });
 
-      const rows = await repo.findPaginated({ ownerId: user.id, page: 1, limit: 20 });
+      const rows = await repo.findPaginated({
+        ownerId: user.id,
+        page: 1,
+        limit: 20,
+      });
       expect(rows).toHaveLength(2);
       expect(rows.map((r: { name: string }) => r.name)).toEqual(["B", "A"]);
     });
@@ -136,7 +144,11 @@ describeDb("ArchitectureRepository", () => {
         graph: { nodes: [], edges: [] },
       });
 
-      const rows = await repo.findPaginated({ ownerId: ownerA.id, page: 1, limit: 20 });
+      const rows = await repo.findPaginated({
+        ownerId: ownerA.id,
+        page: 1,
+        limit: 20,
+      });
 
       expect(rows).toHaveLength(1);
       expect(rows[0]!.name).toBe("A-Arch");
@@ -153,10 +165,18 @@ describeDb("ArchitectureRepository", () => {
         });
       }
 
-      const page1 = await repo.findPaginated({ ownerId: user.id, page: 1, limit: 2 });
+      const page1 = await repo.findPaginated({
+        ownerId: user.id,
+        page: 1,
+        limit: 2,
+      });
       expect(page1).toHaveLength(2);
 
-      const page2 = await repo.findPaginated({ ownerId: user.id, page: 2, limit: 2 });
+      const page2 = await repo.findPaginated({
+        ownerId: user.id,
+        page: 2,
+        limit: 2,
+      });
       expect(page2).toHaveLength(1);
 
       const names = [...page1, ...page2].map((r: { name: string }) => r.name);

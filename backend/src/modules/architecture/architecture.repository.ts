@@ -55,7 +55,10 @@ export class ArchitectureRepository {
       .from(architecturesTable)
       .where(
         and(
-          inArray(architecturesTable.projectId, this.ownedProjects(filters.ownerId)),
+          inArray(
+            architecturesTable.projectId,
+            this.ownedProjects(filters.ownerId),
+          ),
           filters.projectId
             ? eq(architecturesTable.projectId, filters.projectId)
             : undefined,
@@ -67,13 +70,19 @@ export class ArchitectureRepository {
   }
 
   /** Counts architectures, optionally scoped to a single project. */
-  async count(filters: { ownerId: string; projectId?: string }): Promise<number> {
+  async count(filters: {
+    ownerId: string;
+    projectId?: string;
+  }): Promise<number> {
     const [result] = await db
       .select({ count: count() })
       .from(architecturesTable)
       .where(
         and(
-          inArray(architecturesTable.projectId, this.ownedProjects(filters.ownerId)),
+          inArray(
+            architecturesTable.projectId,
+            this.ownedProjects(filters.ownerId),
+          ),
           filters.projectId
             ? eq(architecturesTable.projectId, filters.projectId)
             : undefined,

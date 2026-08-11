@@ -208,7 +208,9 @@ describeDb("ProjectRepository", () => {
   describe("delete", () => {
     it("deletes the project and returns it", async () => {
       const { user } = await createUser();
-      const created = await createProjectForUser(user.id, { name: "To Delete" });
+      const created = await createProjectForUser(user.id, {
+        name: "To Delete",
+      });
 
       const deleted = await repo.delete(created.id);
 

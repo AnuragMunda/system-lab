@@ -227,9 +227,9 @@ describe("ProjectService.update", () => {
     vi.mocked(repo.findById).mockResolvedValue(existingProject);
     vi.mocked(repo.update).mockRejectedValue(error);
 
-    await expect(
-      service.update(uuid, ownerId, { name: "X" }),
-    ).rejects.toThrow("update failed");
+    await expect(service.update(uuid, ownerId, { name: "X" })).rejects.toThrow(
+      "update failed",
+    );
   });
 });
 
@@ -272,6 +272,8 @@ describe("ProjectService.delete", () => {
     vi.mocked(repo.findById).mockResolvedValue(existingProject);
     vi.mocked(repo.delete).mockRejectedValue(error);
 
-    await expect(service.delete(uuid, ownerId)).rejects.toThrow("delete failed");
+    await expect(service.delete(uuid, ownerId)).rejects.toThrow(
+      "delete failed",
+    );
   });
 });

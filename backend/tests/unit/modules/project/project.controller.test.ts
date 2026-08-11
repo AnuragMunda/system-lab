@@ -19,7 +19,8 @@ vi.mock("@/modules/project/index.js", () => ({
   },
 }));
 
-const { projectService } = await import("../../../../src/modules/project/index.js");
+const { projectService } =
+  await import("../../../../src/modules/project/index.js");
 const {
   createProject,
   getProjects,
@@ -225,7 +226,9 @@ describe("getProjectById", () => {
     const res = mockRes();
     const next = mockNext();
 
-    vi.mocked(projectService.findById).mockResolvedValue(createdProject as never);
+    vi.mocked(projectService.findById).mockResolvedValue(
+      createdProject as never,
+    );
 
     await getProjectById(req, res, next);
     await flush();
@@ -245,7 +248,9 @@ describe("getProjectById", () => {
     const res = mockRes();
     const next = mockNext();
 
-    vi.mocked(projectService.findById).mockResolvedValue(createdProject as never);
+    vi.mocked(projectService.findById).mockResolvedValue(
+      createdProject as never,
+    );
 
     await getProjectById(req, res, next);
     await flush();
@@ -287,7 +292,10 @@ describe("getProjectById", () => {
 
 describe("updateProject", () => {
   it("updates a project and responds with 200", async () => {
-    const req = mockAuthReq({ params: { id: uuid }, body: { name: "Renamed" } });
+    const req = mockAuthReq({
+      params: { id: uuid },
+      body: { name: "Renamed" },
+    });
     const res = mockRes();
     const next = mockNext();
 
@@ -346,7 +354,10 @@ describe("updateProject", () => {
   });
 
   it("passes a service error to next", async () => {
-    const req = mockAuthReq({ params: { id: uuid }, body: { name: "Renamed" } });
+    const req = mockAuthReq({
+      params: { id: uuid },
+      body: { name: "Renamed" },
+    });
     const res = mockRes();
     const next = mockNext();
 
