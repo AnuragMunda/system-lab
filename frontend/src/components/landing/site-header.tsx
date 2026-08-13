@@ -41,10 +41,16 @@ export function SiteHeader() {
             <span className="font-mono">K</span>
           </button>
           <Link
-            href="#start"
+            href="/login"
+            className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline"
+          >
+            Sign In
+          </Link>
+          <Link
+            href="/signup"
             className="rounded-sm bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
           >
-            Start Building
+            Get Started
           </Link>
         </div>
       </div>

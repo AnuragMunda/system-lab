@@ -16,7 +16,7 @@ export function FinalCta() {
           simulation in minutes.
         </p>
         <Link
-          href="#"
+          href="/signup"
           className="mt-2 inline-flex items-center justify-center gap-2 rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
         >
           Enter the Lab
