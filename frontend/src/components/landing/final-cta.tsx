@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 export function FinalCta() {
   return (
     <section id="start" className="border-b border-border bg-grid">
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-6 py-24 sm:items-center sm:text-center">
+      <div className="mx-auto flex max-w-[1600px] flex-col items-start gap-6 px-6 py-24 sm:items-center sm:text-center">
         <span className="font-mono text-xs uppercase tracking-widest text-primary">
           Ready when you are
         </span>

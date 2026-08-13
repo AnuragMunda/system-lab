@@ -11,7 +11,7 @@ const NAV_LINKS = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
+      <div className="flex h-20 max-w-[1600px] mx-auto items-center justify-between px-10">
         <Link href="/" className="flex items-center gap-2">
           <Terminal className="size-4 text-primary" aria-hidden="true" />
           <span className="font-mono text-sm font-medium tracking-tight text-foreground">
@@ -31,7 +31,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-8">
           <button
             type="button"
             className="hidden items-center gap-2 rounded-sm border border-border bg-card px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground sm:flex"

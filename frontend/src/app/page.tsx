@@ -9,17 +9,17 @@ import { SiteFooter } from "@/components/landing/site-footer";
 
 export default function Home() {
   return (
-    <div className="flex flex-1 flex-col font-sans">
+    <main className="flex flex-1 flex-col font-sans">
       <SiteHeader />
-      <main className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col">
         <Hero />
         <Features />
         <HowItWorks />
         <ArchitecturePreview />
-        <Testimonials />
+        {/* <Testimonials /> */}
         <FinalCta />
-      </main>
+      </div>
       <SiteFooter />
-    </div>
+    </main>
   );
 }

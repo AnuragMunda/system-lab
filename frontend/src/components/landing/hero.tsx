@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { ArchitectureCanvas } from "./architecture-canvas";
+import { TelemetryStrip } from "./telemetry-strip";
 
 export function Hero() {
   return (
@@ -9,12 +10,12 @@ export function Hero() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 60% 45% at 50% 0%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent)",
+            "radial-gradient(ellipse 60% 45% at 50% 20%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 60%)",
         }}
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto max-w-7xl px-6 pb-20 pt-16 lg:pt-24">
+      <div className="relative mx-auto max-w-[1600px] px-6 pb-20 pt-16 lg:pt-24">
         <div className="animate-rise mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 font-mono text-xs text-muted-foreground">
           <span className="size-1.5 rounded-full bg-success animate-pulse-dot" />
           v0.9 — simulation engine now supports network partitions
@@ -24,7 +25,8 @@ export function Hero() {
           className="animate-rise max-w-3xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
           style={{ animationDelay: "0.05s" }}
         >
-          Build systems. <span className="text-primary text-glow">Break systems.</span>{" "}
+          Build systems.{" "}
+          <span className="text-primary text-glow">Break systems.</span>{" "}
           Understand systems.
         </h1>
 
@@ -51,15 +53,15 @@ export function Hero() {
             href="#demo"
             className="inline-flex items-center justify-center gap-2 rounded-sm border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-border-strong"
           >
-            <PlayCircle className="size-4 text-muted-foreground" aria-hidden="true" />
+            <PlayCircle
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
             Explore a Demo
           </Link>
         </div>
 
-        <div
-          className="animate-rise mt-14"
-          style={{ animationDelay: "0.2s" }}
-        >
+        <div className="animate-rise mt-14" style={{ animationDelay: "0.2s" }}>
           <div className="mb-3 flex items-center justify-between font-mono text-xs text-muted-foreground">
             <span>architecture.live · production-mirror</span>
             <span className="flex items-center gap-1.5">
@@ -68,6 +70,7 @@ export function Hero() {
             </span>
           </div>
           <ArchitectureCanvas />
+          <TelemetryStrip />
         </div>
       </div>
     </section>

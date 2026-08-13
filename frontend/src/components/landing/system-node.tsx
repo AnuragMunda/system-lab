@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { SystemFlowNode, SystemNodeKind } from "./architecture-data";
+import { HEALTH_STYLES } from "./architecture-data";
 
 const KIND_ICON: Record<SystemNodeKind, LucideIcon> = {
   gateway: Router,
@@ -21,10 +22,18 @@ const KIND_ICON: Record<SystemNodeKind, LucideIcon> = {
 
 export function SystemNode({ data }: NodeProps<SystemFlowNode>) {
   const Icon = KIND_ICON[data.kind];
-  const isHealthy = data.health === "healthy";
+  const styles = HEALTH_STYLES[data.health];
+  const healthLabel =
+    data.health === "healthy"
+      ? "Healthy"
+      : data.health === "critical"
+        ? "Critical"
+        : "Degraded";
 
   return (
-    <div className="w-[190px] rounded-md border border-border bg-card/95 shadow-[0_0_0_1px_rgba(0,0,0,0.2)]">
+    <div
+      className={`w-47.5 rounded-md border bg-card/95 shadow-[0_0_0_1px_rgba(0,0,0,0.2)] ${styles.border}`}
+    >
       <Handle
         type="target"
         position={Position.Left}
@@ -37,13 +46,13 @@ export function SystemNode({ data }: NodeProps<SystemFlowNode>) {
       />
 
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <Icon className="size-3.5 text-primary" aria-hidden="true" />
+        <Icon className={`size-3.5 ${styles.icon}`} aria-hidden="true" />
         <span className="flex-1 truncate text-xs font-medium text-foreground">
           {data.label}
         </span>
         <span
-          className={`size-1.5 rounded-full ${isHealthy ? "bg-success animate-pulse-dot" : "bg-accent animate-pulse-dot"}`}
-          aria-label={isHealthy ? "Healthy" : "Degraded"}
+          className={`size-1.5 rounded-full ${styles.dot} animate-pulse-dot`}
+          aria-label={healthLabel}
           role="status"
         />
       </div>
@@ -55,13 +64,11 @@ export function SystemNode({ data }: NodeProps<SystemFlowNode>) {
         </div>
         <div className="flex items-baseline justify-between">
           <span>p50</span>
-          <span className="text-foreground">{data.latencyMs}ms</span>
+          <span className={styles.value}>{data.latencyMs}ms</span>
         </div>
         <div className="flex items-baseline justify-between">
           <span>cpu</span>
-          <span className={data.cpu > 70 ? "text-accent" : "text-foreground"}>
-            {data.cpu}%
-          </span>
+          <span className={styles.value}>{data.cpu}%</span>
         </div>
         <div className="flex items-baseline justify-between">
           <span>repl</span>

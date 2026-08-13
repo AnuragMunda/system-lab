@@ -1,6 +1,6 @@
 import type { Node, Edge } from "@xyflow/react";
 
-export type NodeHealth = "healthy" | "degraded";
+export type NodeHealth = "healthy" | "degraded" | "critical";
 
 export type SystemNodeKind =
   | "gateway"
@@ -20,6 +20,35 @@ export interface SystemNodeData extends Record<string, unknown> {
 }
 
 export type SystemFlowNode = Node<SystemNodeData, "systemNode">;
+
+export type SystemFlowEdge = Edge<{ health?: NodeHealth }, "flow">;
+
+export const HEALTH_STYLES: Record<
+  NodeHealth,
+  { icon: string; value: string; dot: string; border: string; edgeVar: string }
+> = {
+  healthy: {
+    icon: "text-success",
+    value: "text-success",
+    dot: "bg-success",
+    border: "border-success/40",
+    edgeVar: "var(--color-success)",
+  },
+  degraded: {
+    icon: "text-accent",
+    value: "text-accent",
+    dot: "bg-accent",
+    border: "border-accent/40",
+    edgeVar: "var(--color-accent)",
+  },
+  critical: {
+    icon: "text-danger",
+    value: "text-danger",
+    dot: "bg-danger",
+    border: "border-danger/40",
+    edgeVar: "var(--color-danger)",
+  },
+};
 
 export const initialNodes: SystemFlowNode[] = [
   {
@@ -59,8 +88,8 @@ export const initialNodes: SystemFlowNode[] = [
       kind: "service",
       health: "degraded",
       rps: 1740,
-      latencyMs: 96,
-      cpu: 78,
+      latencyMs: 98,
+      cpu: 84,
       replicas: 6,
     },
   },
@@ -99,16 +128,16 @@ export const initialNodes: SystemFlowNode[] = [
     data: {
       label: "Primary DB",
       kind: "database",
-      health: "healthy",
+      health: "critical",
       rps: 1520,
-      latencyMs: 12,
-      cpu: 52,
+      latencyMs: 460,
+      cpu: 95,
       replicas: 3,
     },
   },
 ];
 
-export const initialEdges: Edge[] = [
+export const initialEdges: SystemFlowEdge[] = [
   { id: "e-gw-auth", source: "gateway", target: "svc-auth" },
   { id: "e-gw-orders", source: "gateway", target: "svc-orders" },
   { id: "e-auth-cache", source: "svc-auth", target: "cache" },

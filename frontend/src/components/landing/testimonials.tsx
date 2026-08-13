@@ -32,7 +32,7 @@ const TESTIMONIALS: Testimonial[] = [
 export function Testimonials() {
   return (
     <section className="border-b border-border">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <div className="mx-auto max-w-[1600px] px-6 py-20">
         <div className="mb-12 max-w-2xl">
           <span className="font-mono text-xs uppercase tracking-widest text-primary">
             In production
@@ -49,7 +49,9 @@ export function Testimonials() {
               className="flex flex-col justify-between rounded-md border border-border bg-card p-6"
             >
               <blockquote className="text-sm leading-relaxed text-foreground">
-                {"\u201C"}{testimonial.quote}{"\u201D"}
+                {"\u201C"}
+                {testimonial.quote}
+                {"\u201D"}
               </blockquote>
               <figcaption className="mt-6 flex items-center gap-3">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border-strong font-mono text-xs text-primary">

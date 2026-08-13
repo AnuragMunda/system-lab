@@ -56,14 +56,18 @@ const FEATURES: Feature[] = [
 export function Features() {
   return (
     <section id="features" className="border-b border-border">
-      <div className="mx-auto max-w-7xl px-6 py-20">
-        <div className="mb-12 max-w-2xl">
+      <div className="mx-auto max-w-[1600px] px-6 py-20">
+        <div className="mb-12 max-w-3xl">
           <span className="font-mono text-xs uppercase tracking-widest text-primary">
             Capabilities
           </span>
-          <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Everything you need to reason about a system
           </h2>
+          <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+            From first sketch to chaos engineering to optimization — one canvas,
+            one source of truth.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
@@ -84,7 +88,7 @@ export function Features() {
                 <h3 className="mt-4 text-sm font-medium text-foreground">
                   {feature.title}
                 </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-1.5 text-sm leading-relaxed text-accent/80">
                   {feature.description}
                 </p>
               </div>

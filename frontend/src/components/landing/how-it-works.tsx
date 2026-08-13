@@ -2,31 +2,51 @@ import { ArrowRight } from "lucide-react";
 
 const STEPS = [
   {
-    step: "Design",
-    description: "Drag together gateways, services, caches, queues, and databases on a live canvas.",
+    n: "01",
+    step: "DESIGN",
+    description:
+      "Drag nodes onto the canvas. Connect them. Configure each one — instance type, replicas, retry policies, connection pools, caching strategies.",
+    bullets: ["10+ node types", "Custom connections", "Config per node"],
+    accent: "#3dd68c",
   },
   {
-    step: "Simulate",
-    description: "Replay realistic traffic patterns against the architecture you just drew.",
+    n: "02",
+    step: "SIMULATE",
+    description:
+      "Generate traffic that mirrors reality. Steady-state, diurnal, flash-crowd, or your own custom distribution.",
+    bullets: ["Realistic load", "Geo distribution", "Custom patterns"],
+    accent: "#22d3ee",
   },
   {
-    step: "Break",
-    description: "Inject latency, partitions, and outages to see where it actually fails.",
+    n: "03",
+    step: "BREAK",
+    description:
+      "Inject chaos. Kill nodes, partition networks, saturate disks, add latency, drop packets. Watch failure cascade.",
+    bullets: ["Node failure", "Network partition", "Latency injection"],
+    accent: "#f59e0b",
   },
   {
-    step: "Observe",
-    description: "Trace requests end-to-end with per-node latency, throughput, and error telemetry.",
+    n: "04",
+    step: "OBSERVE",
+    description:
+      "Per-node metrics, distributed traces, service maps, flame graphs. See exactly where requests queue, retry, and fail.",
+    bullets: ["Live metrics", "Distributed traces", "Bottleneck analysis"],
+    accent: "#a78bfa",
   },
   {
-    step: "Optimize",
-    description: "Fork the design, rerun the same scenario, and diff the results side by side.",
+    n: "05",
+    step: "OPTIMIZE",
+    description:
+      "Compare architectures side by side. Run the same workload against two topologies. Let the optimizer suggest improvements.",
+    bullets: ["A/B comparison", "Cost analysis", "AI suggestions"],
+    accent: "#3dd68c",
   },
 ];
 
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="border-b border-border">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <div className="mx-auto max-w-[1600px] px-6 py-20">
         <div className="mb-12 max-w-2xl">
           <span className="font-mono text-xs uppercase tracking-widest text-primary">
             Workflow
@@ -34,27 +54,60 @@ export function HowItWorks() {
           <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             How it works
           </h2>
+          <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+            From sketch to simulation to certainty.
+          </p>
+        </div>
+
+        {/* flow diagram */}
+        <div className="flex items-center justify-center gap-2 mb-16 flex-wrap">
+          {STEPS.map((s, i) => (
+            <div key={s.n} className="flex items-center gap-2">
+              <div className="flex flex-col items-center gap-2">
+                <div
+                  className="w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-mono font-semibold"
+                  style={{
+                    borderColor: s.accent,
+                    color: s.accent,
+                    boxShadow: `0 0 12px -4px ${s.accent}`,
+                  }}
+                >
+                  {s.n}
+                </div>
+                <span className="text-[10px] font-mono text-ink-300">
+                  {s.step}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <ArrowRight className="w-5 h-4 text-[#5b5b6d]" />
+              )}
+            </div>
+          ))}
         </div>
 
         <ol className="flex flex-col gap-0 lg:flex-row lg:items-stretch lg:gap-0">
           {STEPS.map((item, index) => (
             <li key={item.step} className="flex flex-1 items-stretch">
-              <div className="flex flex-1 flex-col border border-border bg-card p-5">
-                <span className="font-mono text-xs text-muted-foreground">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="mt-3 font-mono text-sm font-medium uppercase tracking-wide text-foreground">
-                  {item.step}
-                </span>
+              <div className="flex flex-1 flex-col border border-border bg-card px-5 py-7">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: item.accent,
+                      boxShadow: `0 0 6px ${item.accent}`,
+                    }}
+                  />
+                  <span className="font-mono text-sm text-muted-foreground">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-mono text-sm font-medium uppercase tracking-wide text-foreground">
+                    {item.step}
+                  </span>
+                </div>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {item.description}
                 </p>
               </div>
-              {index < STEPS.length - 1 && (
-                <div className="hidden w-10 shrink-0 items-center justify-center lg:flex">
-                  <ArrowRight className="size-4 text-muted-foreground" aria-hidden="true" />
-                </div>
-              )}
             </li>
           ))}
         </ol>

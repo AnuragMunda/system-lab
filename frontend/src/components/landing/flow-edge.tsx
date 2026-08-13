@@ -1,6 +1,7 @@
 "use client";
 
 import { BaseEdge, getSmoothStepPath, type EdgeProps } from "@xyflow/react";
+import { HEALTH_STYLES } from "./architecture-data";
 
 export function FlowEdge({
   sourceX,
@@ -9,6 +10,7 @@ export function FlowEdge({
   targetY,
   sourcePosition,
   targetPosition,
+  data,
 }: EdgeProps) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -20,6 +22,9 @@ export function FlowEdge({
     borderRadius: 12,
   });
 
+  const flowColor =
+    HEALTH_STYLES[(data?.health as keyof typeof HEALTH_STYLES) ?? "healthy"].edgeVar;
+
   return (
     <>
       <BaseEdge
@@ -29,7 +34,7 @@ export function FlowEdge({
       <BaseEdge
         path={edgePath}
         className="animate-flow"
-        style={{ stroke: "var(--color-primary)", strokeWidth: 1.5 }}
+        style={{ stroke: flowColor, strokeWidth: 1.5 }}
       />
     </>
   );

@@ -2,7 +2,10 @@ import Link from "next/link";
 import { Terminal } from "lucide-react";
 
 const FOOTER_COLUMNS: { title: string; links: string[] }[] = [
-  { title: "Product", links: ["Editor", "Simulation Engine", "Pricing", "Changelog"] },
+  {
+    title: "Product",
+    links: ["Editor", "Simulation Engine", "Pricing", "Changelog"],
+  },
   { title: "Resources", links: ["Documentation", "GitHub", "Community"] },
   { title: "Company", links: ["Privacy", "Terms"] },
 ];
@@ -10,7 +13,7 @@ const FOOTER_COLUMNS: { title: string; links: string[] }[] = [
 export function SiteFooter() {
   return (
     <footer className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-14">
+      <div className="mx-auto max-w-[1600px] px-6 py-14">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2">
@@ -47,7 +50,9 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-border pt-6 font-mono text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} System Labs. All systems operational.</span>
+          <span>
+            © {new Date().getFullYear()} System Labs. All systems operational.
+          </span>
           <span className="flex items-center gap-1.5">
             <span className="size-1.5 rounded-full bg-success" />
             status: online

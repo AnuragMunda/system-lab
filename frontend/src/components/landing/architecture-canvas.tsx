@@ -17,13 +17,23 @@ const nodeTypes = { systemNode: SystemNode };
 const edgeTypes: EdgeTypes = { flow: FlowEdge };
 
 export function ArchitectureCanvas() {
-  const edges = useMemo(
-    () => initialEdges.map((edge) => ({ ...edge, type: "flow" })),
+  const healthByNode = useMemo(
+    () => new Map(initialNodes.map((n) => [n.id, n.data.health])),
     [],
   );
 
+  const edges = useMemo(
+    () =>
+      initialEdges.map((edge) => ({
+        ...edge,
+        type: "flow",
+        data: { ...edge.data, health: healthByNode.get(edge.target) ?? "healthy" },
+      })),
+    [healthByNode],
+  );
+
   return (
-    <div className="h-[420px] w-full rounded-lg border border-border bg-card/40">
+    <div className="h-105 w-full rounded-lg border border-border bg-card/45">
       <ReactFlowProvider>
         <ReactFlow
           nodes={initialNodes}
