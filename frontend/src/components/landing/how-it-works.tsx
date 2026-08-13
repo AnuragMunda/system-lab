@@ -1,3 +1,5 @@
+// Landing "workflow" section — the design → simulate → break → observe →
+// optimize pipeline, shown as both a flow diagram and a steps list.
 import { ArrowRight } from "lucide-react";
 
 const STEPS = [
@@ -43,6 +45,8 @@ const STEPS = [
   },
 ];
 
+// HowItWorks — renders the numbered pipeline header, the connecting flow
+// diagram, and the per-step description list.
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="border-b border-border">
@@ -74,7 +78,7 @@ export function HowItWorks() {
                 >
                   {s.n}
                 </div>
-                <span className="text-[10px] font-mono text-ink-300">
+                <span className="text-[10px] font-mono text-muted-foreground">
                   {s.step}
                 </span>
               </div>

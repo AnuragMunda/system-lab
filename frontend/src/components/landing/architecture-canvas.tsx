@@ -1,5 +1,7 @@
 "use client";
 
+// Landing architecture preview — a read-only ReactFlow diagram of a sample
+// system that demonstrates the product's visual canvas.
 import { useMemo } from "react";
 import {
   ReactFlow,
@@ -9,19 +11,24 @@ import {
   type EdgeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { initialNodes, initialEdges } from "./architecture-data";
+import { initialNodes, initialEdges } from "@/data/architecture-data";
 import { SystemNode } from "./system-node";
 import { FlowEdge } from "./flow-edge";
 
 const nodeTypes = { systemNode: SystemNode };
 const edgeTypes: EdgeTypes = { flow: FlowEdge };
 
+// ArchitectureCanvas — renders the interactive ReactFlow preview of the sample
+// architecture. Nodes and edges are static (non-interactive) decorations.
 export function ArchitectureCanvas() {
+  // Map of node id -> its health, used to colour each inbound edge below.
   const healthByNode = useMemo(
     () => new Map(initialNodes.map((n) => [n.id, n.data.health])),
     [],
   );
 
+  // Each edge's data.health is derived from its TARGET node, so the inbound edge
+  // reflects the health of the connected node it points to.
   const edges = useMemo(
     () =>
       initialEdges.map((edge) => ({

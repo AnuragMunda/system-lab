@@ -1,3 +1,5 @@
+// Decorative animated background for auth screens: a grid + flowing network motif.
+// Purely presentational and non-interactive (aria-hidden, pointer-events-none).
 export function AuthBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden bg-grid opacity-60" aria-hidden="true">

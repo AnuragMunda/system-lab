@@ -1,3 +1,4 @@
+// Site header / top navigation bar for the landing page.
 import Link from "next/link";
 import { Command, Terminal } from "lucide-react";
 
@@ -8,6 +9,8 @@ const NAV_LINKS = [
   { label: "Docs", href: "#docs" },
 ];
 
+// SiteHeader — sticky translucent nav with brand, primary links, command-palette
+// trigger, and Sign In / Get Started actions.
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">

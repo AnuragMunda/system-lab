@@ -1,3 +1,4 @@
+// Site footer for the landing page — brand blurb and link columns.
 import Link from "next/link";
 import { Terminal } from "lucide-react";
 
@@ -10,6 +11,8 @@ const FOOTER_COLUMNS: { title: string; links: string[] }[] = [
   { title: "Company", links: ["Privacy", "Terms"] },
 ];
 
+// SiteFooter — renders the brand block, link columns from FOOTER_COLUMNS,
+// and the bottom status/copyright bar.
 export function SiteFooter() {
   return (
     <footer className="bg-background">

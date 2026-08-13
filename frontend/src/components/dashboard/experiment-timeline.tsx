@@ -1,7 +1,9 @@
+// Timeline list of the user's most recent experiments and their outcomes.
 import Link from "next/link";
 import { CheckCircle2, CircleDashed, Timer, XCircle } from "lucide-react";
-import { recentExperiments, type ExperimentStatus } from "./dashboard-data";
+import { recentExperiments, type ExperimentStatus } from "@/data/dashboard-data";
 
+// Maps each ExperimentStatus to its icon, text colour, and display label.
 const STATUS_STYLES: Record<
   ExperimentStatus,
   { icon: typeof CheckCircle2; text: string; label: string }
@@ -11,6 +13,7 @@ const STATUS_STYLES: Record<
   running: { icon: CircleDashed, text: "text-accent", label: "Running" },
 };
 
+// Section header plus a bordered, ordered list of recent experiments by status.
 export function ExperimentTimeline() {
   return (
     <section aria-labelledby="recent-experiments-heading">

@@ -6,6 +6,8 @@ interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
+// Labelled text input with built-in field error display and ARIA wiring
+// (aria-invalid / aria-describedby) to the rendered error message.
 export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
   function AuthInput({ label, error, id, className, ...props }, ref) {
     const inputId = id ?? props.name;

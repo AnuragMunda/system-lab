@@ -5,6 +5,8 @@ interface AuthCheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   label: React.ReactNode;
 }
 
+// Accessible styled checkbox: a visually-hidden native input paired with a
+// custom check icon, supporting an arbitrary React node as its label.
 export const AuthCheckbox = forwardRef<HTMLInputElement, AuthCheckboxProps>(
   function AuthCheckbox({ label, id, className, ...props }, ref) {
     const inputId = id ?? props.name;

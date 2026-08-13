@@ -21,6 +21,8 @@ interface FieldErrors {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Signup form: validates name/email/password/confirm/terms, enforces password
+// requirements via PasswordStrength, then fakes the registration request.
 export function SignupForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,6 +67,7 @@ export function SignupForm() {
     setSubmitting(true);
     // TODO: wire up to POST /api/v1/auth/register and handle the response
     // (e.g. email already in use / server error should populate `setFormError`).
+    // Submits via a stubbed timeout until the API is connected.
     window.setTimeout(() => setSubmitting(false), 900);
   }
 

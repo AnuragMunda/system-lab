@@ -17,6 +17,8 @@ interface FieldErrors {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Login form: validates email/password, then fakes the sign-in request.
+// Includes remember-me checkbox, forgot-password link, and social auth entry.
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,6 +46,7 @@ export function LoginForm() {
     setSubmitting(true);
     // TODO: wire up to POST /api/v1/auth/login and handle the response
     // (incorrect password / server error should populate `setFormError`).
+    // Submits via a stubbed timeout until the API is connected.
     window.setTimeout(() => setSubmitting(false), 900);
   }
 

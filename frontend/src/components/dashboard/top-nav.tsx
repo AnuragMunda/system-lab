@@ -1,6 +1,9 @@
+// Sticky top bar for the dashboard: brand, workspace switcher, global search,
+// notifications, and the account avatar menu.
 import Link from "next/link";
 import { Bell, ChevronDown, Command, Search, Terminal } from "lucide-react";
 
+// Top navigation header rendered across all dashboard pages.
 export function TopNav() {
   return (
     <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/95 px-4 backdrop-blur-md">

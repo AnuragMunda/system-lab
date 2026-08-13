@@ -1,3 +1,5 @@
+// Card shell used by every auth screen: renders the title/subtitle header,
+// the form (`children`), and an optional footer link row.
 export function AuthCard({
   title,
   subtitle,

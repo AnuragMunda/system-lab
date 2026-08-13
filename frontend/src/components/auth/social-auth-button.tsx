@@ -1,3 +1,4 @@
+// Inline GitHub logo used as the icon for the social auth button.
 function GithubMark() {
   return (
     <svg
@@ -11,6 +12,8 @@ function GithubMark() {
   );
 }
 
+// "Continue with GitHub" button. Currently disabled/placeholder ("Soon")
+// until the OAuth flow is wired up; `disabled` toggles that state.
 export function SocialAuthButton({
   disabled = false,
 }: {

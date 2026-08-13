@@ -1,3 +1,5 @@
+// Sidebar navigation for the dashboard shell: groups primary lab, analysis, and
+// collaboration links plus footer settings/shortcuts. Hidden on small screens.
 import Link from "next/link";
 import {
   Activity,
@@ -17,6 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+// A single navigation entry: its label, route, icon, and optional active/badge state.
 interface NavItem {
   label: string;
   href: string;
@@ -25,6 +28,7 @@ interface NavItem {
   badge?: string;
 }
 
+// Primary workspace links (Home, Projects, Experiments, Simulations, Scenarios, Templates).
 const LAB_ITEMS: NavItem[] = [
   { label: "Home", href: "/dashboard", icon: Home, active: true },
   { label: "Projects", href: "/dashboard/projects", icon: FolderKanban },
@@ -34,6 +38,7 @@ const LAB_ITEMS: NavItem[] = [
   { label: "Templates", href: "/dashboard/templates", icon: LayoutTemplate },
 ];
 
+// Observability and analysis links; Incidents carries a "2" badge.
 const ANALYSIS_ITEMS: NavItem[] = [
   { label: "Metrics", href: "/dashboard/metrics", icon: Activity },
   { label: "Incidents", href: "/dashboard/incidents", icon: AlertTriangle, badge: "2" },
@@ -41,11 +46,13 @@ const ANALYSIS_ITEMS: NavItem[] = [
   { label: "Architecture Diff", href: "/dashboard/architecture-diff", icon: GitCompare },
 ];
 
+// Team and shared-project collaboration links.
 const COLLAB_ITEMS: NavItem[] = [
   { label: "Team", href: "/dashboard/team", icon: Users },
   { label: "Shared Projects", href: "/dashboard/shared", icon: Share2 },
 ];
 
+// Renders a labelled group of nav links, highlighting the active item and any badge.
 function NavSection({ label, items }: { label: string; items: NavItem[] }) {
   return (
     <div>
@@ -86,6 +93,7 @@ function NavSection({ label, items }: { label: string; items: NavItem[] }) {
   );
 }
 
+// The full dashboard sidebar: sectioned nav plus footer settings, docs, and shortcuts.
 export function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col justify-between border-r border-border bg-background md:flex">

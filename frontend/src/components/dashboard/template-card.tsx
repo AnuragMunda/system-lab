@@ -1,12 +1,15 @@
+// A single starter-template card with category, stack tags, and complexity.
 import { ArrowUpRight, Boxes } from "lucide-react";
-import type { Template } from "./dashboard-data";
+import type { Template } from "@/data/dashboard-data";
 
+// Maps template complexity to its accent colour (Beginner→success, Advanced→danger).
 const COMPLEXITY_STYLES: Record<Template["complexity"], string> = {
   Beginner: "text-success",
   Intermediate: "text-accent",
   Advanced: "text-danger",
 };
 
+// Clickable card for one Template; `template` drives category, stack, and stats.
 export function TemplateCard({ template }: { template: Template }) {
   return (
     <button

@@ -1,7 +1,11 @@
+// Landing telemetry strip — a compact readout beneath the architecture canvas
+// summarising the sample system's node/edge counts and health breakdown.
 import { Boxes, Spline } from "lucide-react";
-import { initialNodes, initialEdges } from "./architecture-data";
+import { initialNodes, initialEdges } from "@/data/architecture-data";
 
+// TelemetryStrip — derives its counts from the shared architecture data.
 export function TelemetryStrip() {
+  // All counts (nodes/edges/health breakdown) are derived from the architecture data.
   const nodes = initialNodes.length;
   const edges = initialEdges.length;
   const healthy = initialNodes.filter((n) => n.data.health === "healthy").length;

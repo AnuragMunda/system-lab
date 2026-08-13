@@ -5,6 +5,7 @@ export interface PasswordRequirement {
   met: boolean;
 }
 
+// Derives the checklist of password rules from the current input value.
 export function getPasswordRequirements(password: string): PasswordRequirement[] {
   return [
     { label: "At least 8 characters", met: password.length >= 8 },
@@ -25,6 +26,8 @@ const STRENGTH_META = [
   { label: "Strong", color: "bg-success" },
 ];
 
+// Visual password strength meter: a 3-segment bar plus a per-requirement
+// checklist, derived from `getPasswordRequirements`.
 export function PasswordStrength({ password }: { password: string }) {
   const requirements = getPasswordRequirements(password);
   const level = getStrengthLevel(requirements, password.length > 0);

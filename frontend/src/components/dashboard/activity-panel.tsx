@@ -1,3 +1,4 @@
+// Vertical activity feed of recent lab events, rendered as a connected timeline.
 import {
   Bot,
   Boxes,
@@ -6,8 +7,9 @@ import {
   UserPlus,
   type LucideIcon,
 } from "lucide-react";
-import { labActivity, type ActivityKind } from "./dashboard-data";
+import { labActivity, type ActivityKind } from "@/data/dashboard-data";
 
+// Maps each ActivityKind to the icon shown in its timeline node.
 const KIND_ICON: Record<ActivityKind, LucideIcon> = {
   "architecture-created": Boxes,
   "simulation-completed": CheckCircle2,
@@ -16,6 +18,7 @@ const KIND_ICON: Record<ActivityKind, LucideIcon> = {
   "ai-recommendation": Bot,
 };
 
+// Maps each ActivityKind to the colour applied to its timeline node icon.
 const KIND_COLOR: Record<ActivityKind, string> = {
   "architecture-created": "text-primary",
   "simulation-completed": "text-success",
@@ -24,6 +27,7 @@ const KIND_COLOR: Record<ActivityKind, string> = {
   "ai-recommendation": "text-primary",
 };
 
+// Renders the "Your Lab Activity" aside with icons, titles, details, and timestamps.
 export function ActivityPanel() {
   return (
     <aside

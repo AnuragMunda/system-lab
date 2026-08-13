@@ -8,6 +8,8 @@ import { AuthSubmitButton } from "./auth-submit-button";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// "Forgot password" form: validates the email, fakes the reset-link request,
+// then shows a success state with a link back to sign in.
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | undefined>();
@@ -29,6 +31,7 @@ export function ForgotPasswordForm() {
     setError(undefined);
     setSubmitting(true);
     // TODO: wire up to POST /api/v1/auth/forgot-password
+    // Submits via a stubbed timeout until the API is connected.
     window.setTimeout(() => {
       setSubmitting(false);
       setSent(true);

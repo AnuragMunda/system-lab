@@ -1,7 +1,9 @@
+// Grid of recently updated projects sourced from dashboard seed data.
 import Link from "next/link";
-import { recentProjects } from "./dashboard-data";
+import { recentProjects } from "@/data/dashboard-data";
 import { ProjectCard } from "./project-card";
 
+// Section header plus a responsive card grid of recent projects (max 3 per row).
 export function RecentProjects() {
   return (
     <section aria-labelledby="recent-projects-heading">

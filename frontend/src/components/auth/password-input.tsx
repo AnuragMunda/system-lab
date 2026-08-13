@@ -9,6 +9,8 @@ interface PasswordInputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
+// Text input that masks the value and provides a show/hide toggle button
+// (with aria-pressed + label) plus built-in field error display.
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   function PasswordInput({ label, error, id, className, ...props }, ref) {
     const [visible, setVisible] = useState(false);

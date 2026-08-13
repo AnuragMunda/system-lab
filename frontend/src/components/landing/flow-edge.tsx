@@ -1,8 +1,11 @@
 "use client";
 
+// Animated edge for the landing architecture diagram — a static base line
+// overlaid with a flowing pulse whose colour encodes the connected node's health.
 import { BaseEdge, getSmoothStepPath, type EdgeProps } from "@xyflow/react";
-import { HEALTH_STYLES } from "./architecture-data";
+import { HEALTH_STYLES } from "@/data/architecture-data";
 
+// FlowEdge — renders a single diagram edge with an animated overlay.
 export function FlowEdge({
   sourceX,
   sourceY,
@@ -22,6 +25,8 @@ export function FlowEdge({
     borderRadius: 12,
   });
 
+  // The animated stroke colour comes from HEALTH_STYLES[health].edgeVar,
+  // so the pulse matches the target node's health state.
   const flowColor =
     HEALTH_STYLES[(data?.health as keyof typeof HEALTH_STYLES) ?? "healthy"].edgeVar;
 

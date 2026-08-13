@@ -1,6 +1,8 @@
+// Landing closing call-to-action — a final prompt to sign up, with headline and button.
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+// FinalCta — renders the "Enter the Lab" signup CTA section.
 export function FinalCta() {
   return (
     <section id="start" className="border-b border-border bg-grid">

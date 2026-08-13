@@ -1,17 +1,7 @@
-import {
-  AlertTriangle,
-  ArrowUpRight,
-  Cpu,
-  Network,
-  Terminal,
-} from "lucide-react";
+// Landing "interface" section — three mocked product screens (editor,
+// observability, chaos console) to showcase the look and feel of the app.
+import { AlertTriangle, Cpu, Network, Terminal } from "lucide-react";
 
-interface ExampleArchitecture {
-  name: string;
-  summary: string;
-  nodes: string[];
-  stats: { label: string; value: string }[];
-}
 const SCREENS = [
   {
     title: "Architecture Editor",
@@ -40,7 +30,7 @@ function MockEditor() {
   return (
     <div className="flex h-full">
       {/* left panel */}
-      <div className="w-36 border-r border-ink-700 bg-ink-900 p-2 space-y-1">
+      <div className="w-36 border-r border-border bg-card p-2 space-y-1">
         {[
           "Load Balancer",
           "API Gateway",
@@ -56,17 +46,17 @@ function MockEditor() {
             key={n}
             className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono ${
               i === 2
-                ? "bg-accent/10 border border-accent/30 text-accent"
-                : "text-ink-300 hover:bg-ink-800 border border-transparent"
+                ? "bg-primary/10 border border-primary/30 text-primary"
+                : "text-muted-foreground hover:bg-muted border border-transparent"
             }`}
           >
-            <span className="w-2.5 h-2.5 rounded-sm border border-ink-500" />
+            <span className="w-2.5 h-2.5 rounded-sm border border-border-strong" />
             {n}
           </div>
         ))}
       </div>
       {/* canvas */}
-      <div className="flex-1 relative grid-bg-sm">
+        <div className="flex-1 relative bg-grid">
         <svg className="absolute inset-0 w-full h-full">
           <line
             x1="60"
@@ -119,7 +109,7 @@ function MockEditor() {
         ].map((n, i) => (
           <div
             key={i}
-            className="absolute w-12 h-8 bg-ink-850 border rounded text-[8px] font-mono flex items-center justify-center"
+            className="absolute w-12 h-8 bg-card border border-border rounded text-[8px] font-mono flex items-center justify-center"
             style={{ left: n.x, top: n.y, borderColor: n.c }}
           >
             <span
@@ -131,8 +121,8 @@ function MockEditor() {
         ))}
       </div>
       {/* right panel */}
-      <div className="w-32 border-l border-ink-700 bg-ink-900 p-2">
-        <div className="text-[8px] font-mono text-ink-400 mb-1.5 uppercase">
+      <div className="w-32 border-l border-border bg-card p-2">
+        <div className="text-[8px] font-mono text-muted-foreground mb-1.5 uppercase">
           Properties
         </div>
         {[
@@ -146,8 +136,8 @@ function MockEditor() {
             key={k}
             className="flex justify-between text-[9px] font-mono py-0.5"
           >
-            <span className="text-ink-400">{k}</span>
-            <span className="text-ink-200">{v}</span>
+            <span className="text-muted-foreground">{k}</span>
+            <span className="text-foreground">{v}</span>
           </div>
         ))}
       </div>
@@ -171,9 +161,9 @@ function MockObservability() {
         ].map((m) => (
           <div
             key={m.l}
-            className="bg-ink-850 border border-ink-700 rounded px-2 py-1.5"
+            className="bg-card border border-border rounded px-2 py-1.5"
           >
-            <div className="text-[8px] font-mono text-ink-400">{m.l}</div>
+            <div className="text-[8px] font-mono text-muted-foreground">{m.l}</div>
             <div
               className="text-sm font-mono font-semibold"
               style={{ color: m.c }}
@@ -184,8 +174,8 @@ function MockObservability() {
         ))}
       </div>
       {/* chart */}
-      <div className="bg-ink-850 border border-ink-700 rounded p-2 h-24">
-        <div className="text-[8px] font-mono text-ink-400 mb-1">
+      <div className="bg-card border border-border rounded p-2 h-24">
+        <div className="text-[8px] font-mono text-muted-foreground mb-1">
           throughput / 60s
         </div>
         <div className="flex items-end gap-px h-14">
@@ -204,8 +194,8 @@ function MockObservability() {
       {/* sparklines */}
       <div className="grid grid-cols-2 gap-2">
         {["cpu.utilization", "mem.utilization"].map((l) => (
-          <div key={l} className="bg-ink-850 border border-ink-700 rounded p-2">
-            <div className="text-[8px] font-mono text-ink-400 mb-1">{l}</div>
+          <div key={l} className="bg-card border border-border rounded p-2">
+            <div className="text-[8px] font-mono text-muted-foreground mb-1">{l}</div>
             <svg className="w-full h-8" viewBox="0 0 100 32">
               <polyline
                 fill="none"
@@ -225,40 +215,40 @@ function MockChaos() {
   return (
     <div className="p-3 h-full font-mono text-[10px]">
       <div className="flex items-center gap-1.5 mb-2">
-        <Terminal className="w-3 h-3 text-signal-amber" />
-        <span className="text-ink-300">chaos@console:~$</span>
+        <Terminal className="w-3 h-3 text-accent" />
+        <span className="text-muted-foreground">chaos@console:~$</span>
       </div>
-      <div className="space-y-0.5 text-ink-400">
-        <div className="text-accent">
-          $ inject --node orders-svc --type latency --value 500ms
+      <div className="space-y-0.5 text-muted-foreground">
+          <div className="text-primary">
+            $ inject --node orders-svc --type latency --value 500ms
         </div>
-        <div className="text-ink-500">
+        <div className="text-muted-foreground">
           {" "}
           → injecting 500ms latency into orders-svc
         </div>
-        <div className="text-ink-500"> → monitoring cascade effects...</div>
-        <div className="text-signal-amber">
+        <div className="text-muted-foreground"> → monitoring cascade effects...</div>
+        <div className="text-accent">
           {" "}
           ⚠ p99 rising on payments-svc (142ms → 380ms)
         </div>
-        <div className="text-signal-red">
+        <div className="text-danger">
           {" "}
           ✗ queue backlog growing: 1.2k → 4.8k msgs
         </div>
-        <div className="text-signal-red">
+        <div className="text-danger">
           {" "}
           ✗ worker pool saturated: 6/6 replicas at 94% cpu
         </div>
-        <div className="text-signal-amber">
+        <div className="text-accent">
           {" "}
           ⚠ autoscaler triggered: scaling workers 6 → 9
         </div>
-        <div className="text-accent"> ✓ recovery detected after 47s</div>
-        <div className="text-ink-500">
+          <div className="text-primary"> ✓ recovery detected after 47s</div>
+        <div className="text-muted-foreground">
           {" "}
           → report saved: /reports/chaos-2026-08-12.json
         </div>
-        <div className="text-ink-300 mt-1">
+        <div className="text-muted-foreground mt-1">
           $ <span className="animate-blink">█</span>
         </div>
       </div>
@@ -266,15 +256,17 @@ function MockChaos() {
   );
 }
 
+// ArchitecturePreview — renders the section header and the grid of mocked
+// product screens, each rendered by its own mock component.
 export function ArchitecturePreview() {
   return (
-    <section className="relative py-24 border-t border-ink-700">
+    <section className="relative py-24 border-t border-border">
       <div className="max-w-[1600px] mx-auto px-6">
         <div className="mb-12">
-          <div className="flex items-center gap-2 text-[11px] font-mono text-ink-400 mb-3">
-            <span className="font-mono text-xs uppercase tracking-widest text-primary">
-              Interace
-            </span>
+          <div className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground mb-3">
+              <span className="font-mono text-xs uppercase tracking-widest text-primary">
+                Interface
+              </span>
           </div>
           <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Built like the tools you already trust.
@@ -287,32 +279,32 @@ export function ArchitecturePreview() {
             return (
               <div
                 key={s.title}
-                className="bg-ink-850 border border-ink-700 rounded-lg overflow-hidden group hover:border-ink-500 transition-colors"
+                className="bg-card border border-border rounded-lg overflow-hidden group hover:border-border-strong transition-colors"
               >
                 {/* window chrome */}
-                <div className="flex items-center gap-2 px-3 py-2 border-b border-ink-700 bg-ink-900">
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-card">
                   <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-ink-600" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-ink-600" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-ink-600" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-muted" />
                   </div>
-                  <div className="flex items-center gap-1.5 ml-2 text-[10px] font-mono text-ink-400">
+                  <div className="flex items-center gap-1.5 ml-2 text-[10px] font-mono text-muted-foreground">
                     <Icon className="w-3 h-3" style={{ color: s.accent }} />
                     {s.title}
                   </div>
-                  <span className="ml-auto text-[9px] font-mono text-ink-500">
+                  <span className="ml-auto text-[9px] font-mono text-muted-foreground">
                     ⌘1
                   </span>
                 </div>
                 {/* mock content */}
-                <div className="h-56 bg-ink-900">
+                <div className="h-56 bg-card">
                   {s.mock === "editor" && <MockEditor />}
                   {s.mock === "observability" && <MockObservability />}
                   {s.mock === "chaos" && <MockChaos />}
                 </div>
                 {/* footer */}
-                <div className="px-3 py-2.5 border-t border-ink-700">
-                  <p className="text-[12px] text-ink-300">{s.desc}</p>
+                <div className="px-3 py-2.5 border-t border-border">
+                  <p className="text-[12px] text-muted-foreground">{s.desc}</p>
                 </div>
               </div>
             );

@@ -1,3 +1,4 @@
+// Landing "capabilities" section — a grid of the product's feature tiles.
 import {
   Bot,
   Gauge,
@@ -53,6 +54,8 @@ const FEATURES: Feature[] = [
   },
 ];
 
+// Features — renders the feature grid from the FEATURES list; the AI Architect
+// tile spans two columns on wider breakpoints.
 export function Features() {
   return (
     <section id="features" className="border-b border-border">

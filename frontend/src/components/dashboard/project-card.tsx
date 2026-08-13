@@ -1,12 +1,15 @@
+// A single project summary card showing health, description, and key stats.
 import { Boxes, Clock, FlaskConical, Users } from "lucide-react";
-import type { Project, ProjectHealth } from "./dashboard-data";
+import type { Project, ProjectHealth } from "@/data/dashboard-data";
 
+// Maps each ProjectHealth to its dot colour, text colour, and display label.
 const HEALTH_STYLES: Record<ProjectHealth, { dot: string; text: string; label: string }> = {
   healthy: { dot: "bg-success", text: "text-success", label: "Healthy" },
   degraded: { dot: "bg-accent", text: "text-accent", label: "Degraded" },
   critical: { dot: "bg-danger", text: "text-danger", label: "Critical" },
 };
 
+// Clickable card for one Project; `project` drives the name, health, and stats.
 export function ProjectCard({ project }: { project: Project }) {
   const health = HEALTH_STYLES[project.health];
 

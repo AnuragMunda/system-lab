@@ -1,5 +1,7 @@
 import { Loader2 } from "lucide-react";
 
+// Full-width submit button for auth forms; swaps to a spinner + loading label
+// while `loading` is true and disables interaction.
 export function AuthSubmitButton({
   label,
   loadingLabel,

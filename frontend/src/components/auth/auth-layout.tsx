@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Terminal } from "lucide-react";
 import { AuthBackground } from "./auth-background";
 
+// Full-screen page layout for all auth routes: brand header plus the
+// decorative background, centering whatever form is passed as children.
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-background px-6 py-12">

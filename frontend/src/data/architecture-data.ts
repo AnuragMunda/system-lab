@@ -1,7 +1,13 @@
+// Mock/seed data for the architecture canvas: a small system topology (nodes +
+// edges) and the styling map used to colour nodes/edges by health.
+// Shapes: SystemNodeKind (node category) and SystemFlowNode (React Flow node with
+// SystemNodeData: label, kind, health, rps, latencyMs, cpu, replicas).
+// initialNodes / initialEdges are the seed graph; HEALTH_STYLES maps NodeHealth → tokens.
 import type { Node, Edge } from "@xyflow/react";
 
-export type NodeHealth = "healthy" | "degraded" | "critical";
+type NodeHealth = "healthy" | "degraded" | "critical";
 
+// The category/kind of a system node, used to pick iconography and layout.
 export type SystemNodeKind =
   | "gateway"
   | "service"
@@ -9,7 +15,7 @@ export type SystemNodeKind =
   | "queue"
   | "database";
 
-export interface SystemNodeData extends Record<string, unknown> {
+interface SystemNodeData extends Record<string, unknown> {
   label: string;
   kind: SystemNodeKind;
   health: NodeHealth;
@@ -19,10 +25,14 @@ export interface SystemNodeData extends Record<string, unknown> {
   replicas: number;
 }
 
+// A React Flow node carrying SystemNodeData, keyed by the custom "systemNode" type.
 export type SystemFlowNode = Node<SystemNodeData, "systemNode">;
 
-export type SystemFlowEdge = Edge<{ health?: NodeHealth }, "flow">;
+type SystemFlowEdge = Edge<{ health?: NodeHealth }, "flow">;
 
+// HEALTH_STYLES ties each NodeHealth to the styling tokens used across the
+// landing diagram: icon colour, metric value colour, health dot, node border,
+// and the animated edge colour (edgeVar).
 export const HEALTH_STYLES: Record<
   NodeHealth,
   { icon: string; value: string; dot: string; border: string; edgeVar: string }
@@ -50,6 +60,7 @@ export const HEALTH_STYLES: Record<
   },
 };
 
+// Seed graph nodes: a gateway → services → cache → queue/db topology with health/metrics.
 export const initialNodes: SystemFlowNode[] = [
   {
     id: "gateway",
@@ -137,6 +148,7 @@ export const initialNodes: SystemFlowNode[] = [
   },
 ];
 
+// Seed graph edges connecting the initialNodes by source/target id.
 export const initialEdges: SystemFlowEdge[] = [
   { id: "e-gw-auth", source: "gateway", target: "svc-auth" },
   { id: "e-gw-orders", source: "gateway", target: "svc-orders" },

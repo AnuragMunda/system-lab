@@ -1,5 +1,9 @@
+// Mock/seed data for the dashboard: projects, experiments, activity feed, and templates.
+// Shapes: ProjectHealth, Project, ExperimentStatus/Experiment, ActivityKind/ActivityItem,
+// and Template. Each exported array is the sample dataset consumed by the dashboard widgets.
 export type ProjectHealth = "healthy" | "degraded" | "critical";
 
+// A dashboard project summary: identity, description, health, and headline metrics.
 export interface Project {
   id: string;
   name: string;
@@ -11,6 +15,7 @@ export interface Project {
   collaborators: number;
 }
 
+// Seed list of recently updated projects rendered by RecentProjects / ProjectCard.
 export const recentProjects: Project[] = [
   {
     id: "ecommerce-platform",
@@ -76,7 +81,8 @@ export const recentProjects: Project[] = [
 
 export type ExperimentStatus = "passed" | "failed" | "running";
 
-export interface Experiment {
+// A single experiment run: what was tested, its scenario/result, and outcome status.
+interface Experiment {
   id: string;
   name: string;
   project: string;
@@ -87,6 +93,7 @@ export interface Experiment {
   status: ExperimentStatus;
 }
 
+// Seed list of recent experiments rendered by ExperimentTimeline.
 export const recentExperiments: Experiment[] = [
   {
     id: "exp-01",
@@ -147,7 +154,8 @@ export type ActivityKind =
   | "collaborator-joined"
   | "ai-recommendation";
 
-export interface ActivityItem {
+// A single entry in the lab activity feed: kind, title, detail, and timestamp.
+interface ActivityItem {
   id: string;
   kind: ActivityKind;
   title: string;
@@ -155,6 +163,7 @@ export interface ActivityItem {
   timestamp: string;
 }
 
+// Seed activity feed rendered by ActivityPanel.
 export const labActivity: ActivityItem[] = [
   {
     id: "act-01",
@@ -200,6 +209,7 @@ export const labActivity: ActivityItem[] = [
   },
 ];
 
+// A starter template: category, size, complexity tier, and technology stack tags.
 export interface Template {
   id: string;
   name: string;
@@ -209,6 +219,7 @@ export interface Template {
   stack: string[];
 }
 
+// Seed list of templates rendered by ExploreTemplates / TemplateCard.
 export const templates: Template[] = [
   {
     id: "url-shortener",

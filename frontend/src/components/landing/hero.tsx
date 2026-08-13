@@ -1,8 +1,12 @@
+// Landing hero section — the top banner of the page introducing the product
+// with a headline, CTAs, and a live architecture/telemetry preview.
 import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { ArchitectureCanvas } from "./architecture-canvas";
 import { TelemetryStrip } from "./telemetry-strip";
 
+// Hero — renders the product pitch, primary/secondary CTAs, and the embedded
+// live architecture canvas with its telemetry strip.
 export function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-border bg-grid">

@@ -1,5 +1,7 @@
 import { AlertCircle } from "lucide-react";
 
+// Renders a single inline form/global error message with an alert icon.
+// Returns null when there is no message to display.
 export function FormError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
 

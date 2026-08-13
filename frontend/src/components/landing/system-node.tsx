@@ -1,5 +1,7 @@
 "use client";
 
+// A single system node in the landing architecture diagram — shows the node
+// kind icon, label, health dot, and live-style metrics (req/s, latency, cpu, replicas).
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import {
   Database,
@@ -9,8 +11,8 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import type { SystemFlowNode, SystemNodeKind } from "./architecture-data";
-import { HEALTH_STYLES } from "./architecture-data";
+import type { SystemFlowNode, SystemNodeKind } from "@/data/architecture-data";
+import { HEALTH_STYLES } from "@/data/architecture-data";
 
 const KIND_ICON: Record<SystemNodeKind, LucideIcon> = {
   gateway: Router,
@@ -20,8 +22,12 @@ const KIND_ICON: Record<SystemNodeKind, LucideIcon> = {
   database: Database,
 };
 
+// SystemNode — renders one node card. The icon, metric values, health dot, and
+// border are all driven by HEALTH_STYLES[data.health].
 export function SystemNode({ data }: NodeProps<SystemFlowNode>) {
   const Icon = KIND_ICON[data.kind];
+  // All visual treatment (icon colour, value colour, dot, border) is pulled from
+  // HEALTH_STYLES for the node's current health.
   const styles = HEALTH_STYLES[data.health];
   const healthLabel =
     data.health === "healthy"
