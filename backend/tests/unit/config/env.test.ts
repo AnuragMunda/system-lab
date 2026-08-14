@@ -77,7 +77,7 @@ describe("env", () => {
     });
 
     expect(env).toMatchObject({
-      PORT: "3000",
+      PORT: "4000",
       NODE_ENV: "development",
       DATABASE_URL: "postgres://localhost:5432/systemlab",
       REDIS_URL: "redis://localhost:6379",
