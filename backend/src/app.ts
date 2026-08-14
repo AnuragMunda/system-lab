@@ -13,13 +13,19 @@ import cookieParser from "cookie-parser";
 import { logger } from "./lib/logger.js";
 import router from "./routes/index.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
+import { env } from "./config/env.js";
 
 const app = express();
 const httpLogger = pinoHttp({ logger });
 
 // Middlewares
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: env.CLIENT_ORIGIN,
+    credentials: true,
+  }),
+);
 app.use(httpLogger);
 app.use(cookieParser());
 

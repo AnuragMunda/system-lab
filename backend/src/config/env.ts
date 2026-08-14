@@ -11,7 +11,7 @@ import { SignOptions } from "jsonwebtoken";
 import { z } from "zod";
 
 const envSchema = z.object({
-  PORT: z.string().default("3000"),
+  PORT: z.string().default("4000"),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -28,6 +28,8 @@ const envSchema = z.object({
 
   REFRESH_TOKEN_COOKIE_NAME: z.string().min(2),
   REFRESH_TOKEN_MAX_AGE: z.coerce.number().int().positive(),
+
+  CLIENT_ORIGIN: z.url().default("http://localhost:3000"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
