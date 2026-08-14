@@ -2,6 +2,9 @@
 
 import { type SyntheticEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/store/hooks";
+import { loginThunk } from "@/store/authSlice";
 import { AuthInput } from "./ui/auth-input";
 import { PasswordInput } from "./ui/password-input";
 import { AuthCheckbox } from "./ui/auth-checkbox";
@@ -15,13 +18,15 @@ import { validateForm, type FormErrors } from "@/lib/utils";
 // Login form: validates email/password, then fakes the sign-in request.
 // Includes remember-me checkbox, forgot-password link, and social auth entry.
 export function LoginForm() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(undefined);
 
@@ -40,10 +45,19 @@ export function LoginForm() {
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
-    // TODO: wire up to POST /api/v1/auth/login and handle the response
-    // (incorrect password / server error should populate `setFormError`).
-    // Submits via a stubbed timeout until the API is connected.
-    window.setTimeout(() => setSubmitting(false), 900);
+    setFormError(undefined);
+
+    try {
+      await dispatch(loginThunk({ email, password })).unwrap();
+      router.push("/dashboard");
+    } catch (err) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Something went wrong. Please try again.";
+      setFormError(message);
+      setSubmitting(false);
+    }
   }
 
   return (

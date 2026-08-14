@@ -2,6 +2,9 @@
 
 import { type SyntheticEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/store/hooks";
+import { registerThunk } from "@/store/authSlice";
 import { AuthInput } from "./ui/auth-input";
 import { PasswordInput } from "./ui/password-input";
 import { AuthCheckbox } from "./ui/auth-checkbox";
@@ -16,6 +19,8 @@ import { validateForm, type FormErrors } from "@/lib/utils";
 // Signup form: validates name/email/password/confirm/terms, enforces password
 // requirements via PasswordStrength, then fakes the registration request.
 export function SignupForm() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +30,7 @@ export function SignupForm() {
   const [formError, setFormError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(undefined);
 
@@ -64,10 +69,21 @@ export function SignupForm() {
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
-    // TODO: wire up to POST /api/v1/auth/register and handle the response
-    // (e.g. email already in use / server error should populate `setFormError`).
-    // Submits via a stubbed timeout until the API is connected.
-    window.setTimeout(() => setSubmitting(false), 900);
+    setFormError(undefined);
+
+    try {
+      // register issues no tokens, so we send only the collected fields and
+      // send the user to login to authenticate afterwards.
+      await dispatch(registerThunk({ name, email, password })).unwrap();
+      router.push("/login");
+    } catch (err) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Something went wrong. Please try again.";
+      setFormError(message);
+      setSubmitting(false);
+    }
   }
 
   return (

@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { AuthCard } from "@/components/auth/auth-card";
+import { GuestGuard } from "@/components/auth/guest-guard";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
 // Page-level metadata for the reset-password screen.
@@ -13,13 +14,15 @@ export const metadata: Metadata = {
 // Renders the forgot-password page: card explaining the reset flow and wrapping the ForgotPasswordForm.
 export default function ForgotPasswordPage() {
   return (
-    <AuthLayout>
-      <AuthCard
-        title="Reset your password"
-        subtitle="Enter the email associated with your account and we'll send you a link to reset your password."
-      >
-        <ForgotPasswordForm />
-      </AuthCard>
-    </AuthLayout>
+    <GuestGuard>
+      <AuthLayout>
+        <AuthCard
+          title="Reset your password"
+          subtitle="Enter the email associated with your account and we'll send you a link to reset your password."
+        >
+          <ForgotPasswordForm />
+        </AuthCard>
+      </AuthLayout>
+    </GuestGuard>
   );
 }

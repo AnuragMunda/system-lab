@@ -1,6 +1,7 @@
 // Dashboard layout (`/dashboard/*`) — wraps all dashboard routes with the top nav and sidebar shell.
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TopNav } from "@/components/dashboard/top-nav";
+import { AuthGuard } from "@/components/dashboard/auth-guard";
 import { Metadata } from "next";
 
 // Page-level metadata for the dashboard screen.
@@ -17,11 +18,13 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNav />
-      <div className="flex flex-1">
-        <Sidebar />
-        <main className="flex-1 overflow-x-hidden">{children}</main>
-      </div>
+      <AuthGuard>
+        <TopNav />
+        <div className="flex flex-1">
+          <Sidebar />
+          <main className="flex-1 overflow-x-hidden">{children}</main>
+        </div>
+      </AuthGuard>
     </div>
   );
 }

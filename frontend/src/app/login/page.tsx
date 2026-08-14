@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { AuthCard } from "@/components/auth/auth-card";
+import { GuestGuard } from "@/components/auth/guest-guard";
 import { LoginForm } from "@/components/auth/login-form";
 
 // Page-level metadata for the sign-in screen.
@@ -14,13 +15,15 @@ export const metadata: Metadata = {
 // Renders the login page: welcome card wrapping the email/password LoginForm.
 export default function LoginPage() {
   return (
-    <AuthLayout>
-      <AuthCard
-        title="Welcome back"
-        subtitle="Continue building, breaking, and understanding systems."
-      >
-        <LoginForm />
-      </AuthCard>
-    </AuthLayout>
+    <GuestGuard>
+      <AuthLayout>
+        <AuthCard
+          title="Welcome back"
+          subtitle="Continue building, breaking, and understanding systems."
+        >
+          <LoginForm />
+        </AuthCard>
+      </AuthLayout>
+    </GuestGuard>
   );
 }
