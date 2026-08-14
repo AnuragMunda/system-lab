@@ -12,7 +12,7 @@ export function AuthBackground() {
       />
 
       <svg
-        className="absolute inset-0 h-full w-full opacity-[0.35]"
+        className="absolute inset-0 h-full w-full"
         viewBox="0 0 1200 800"
         preserveAspectRatio="xMidYMid slice"
         fill="none"

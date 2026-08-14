@@ -12,8 +12,8 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { initialNodes, initialEdges } from "@/data/architecture-data";
-import { SystemNode } from "./system-node";
-import { FlowEdge } from "./flow-edge";
+import { SystemNode } from "./ui/system-node";
+import { FlowEdge } from "./ui/flow-edge";
 
 const nodeTypes = { systemNode: SystemNode };
 const edgeTypes: EdgeTypes = { flow: FlowEdge };

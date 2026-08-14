@@ -1,25 +1,17 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { type SyntheticEvent, useState } from "react";
 import Link from "next/link";
-import { AuthInput } from "./auth-input";
-import { PasswordInput } from "./password-input";
-import { AuthCheckbox } from "./auth-checkbox";
-import { AuthDivider } from "./auth-divider";
-import { SocialAuthButton } from "./social-auth-button";
-import { AuthSubmitButton } from "./auth-submit-button";
-import { FormError } from "./form-error";
-import { PasswordStrength, getPasswordRequirements } from "./password-strength";
-
-interface FieldErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  terms?: string;
-}
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { AuthInput } from "./ui/auth-input";
+import { PasswordInput } from "./ui/password-input";
+import { AuthCheckbox } from "./ui/auth-checkbox";
+import { AuthDivider } from "./ui/auth-divider";
+import { SocialAuthButton } from "./ui/social-auth-button";
+import { AuthSubmitButton } from "./ui/auth-submit-button";
+import { FormError } from "./ui/form-error";
+import { PasswordStrength, getPasswordRequirements } from "./ui/password-strength";
+import { EMAIL_PATTERN } from "@/lib/constants";
+import { validateForm, type FormErrors } from "@/lib/utils";
 
 // Signup form: validates name/email/password/confirm/terms, enforces password
 // requirements via PasswordStrength, then fakes the registration request.
@@ -29,37 +21,44 @@ export function SignupForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(undefined);
 
-    const nextErrors: FieldErrors = {};
-    if (!name.trim()) {
-      nextErrors.name = "Enter your full name.";
-    }
-    if (!email) {
-      nextErrors.email = "Enter your email address.";
-    } else if (!EMAIL_PATTERN.test(email)) {
-      nextErrors.email = "Enter a valid email address.";
-    }
-    const requirements = getPasswordRequirements(password);
-    if (!password) {
-      nextErrors.password = "Create a password.";
-    } else if (requirements.some((r) => !r.met)) {
-      nextErrors.password = "Password does not meet all requirements.";
-    }
-    if (!confirmPassword) {
-      nextErrors.confirmPassword = "Confirm your password.";
-    } else if (confirmPassword !== password) {
-      nextErrors.confirmPassword = "Passwords do not match.";
-    }
-    if (!agreed) {
-      nextErrors.terms = "You must agree to the Terms of Service and Privacy Policy.";
-    }
+    const nextErrors = validateForm(
+      { name, email, password, confirmPassword, agreed },
+      {
+        name: { required: "Enter your full name." },
+        email: {
+          required: "Enter your email address.",
+          pattern: {
+            value: EMAIL_PATTERN,
+            message: "Enter a valid email address.",
+          },
+        },
+        password: {
+          required: "Create a password.",
+          custom: (value) =>
+            getPasswordRequirements(String(value)).some((r) => !r.met)
+              ? "Password does not meet all requirements."
+              : undefined,
+        },
+        confirmPassword: {
+          required: "Confirm your password.",
+          match: { field: "password", message: "Passwords do not match." },
+        },
+        agreed: {
+          checked: {
+            message:
+              "You must agree to the Terms of Service and Privacy Policy.",
+          },
+        },
+      },
+    );
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -133,11 +132,17 @@ export function SignupForm() {
           label={
             <>
               I agree to the{" "}
-              <Link href="/terms" className="text-foreground hover:text-primary">
+              <Link
+                href="/terms"
+                className="text-foreground hover:text-primary"
+              >
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="text-foreground hover:text-primary">
+              <Link
+                href="/privacy"
+                className="text-foreground hover:text-primary"
+              >
                 Privacy Policy
               </Link>
             </>
@@ -158,7 +163,10 @@ export function SignupForm() {
 
       <p className="mt-2 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-foreground hover:text-primary">
+        <Link
+          href="/login"
+          className="font-medium text-foreground hover:text-primary"
+        >
           Sign In
         </Link>
       </p>

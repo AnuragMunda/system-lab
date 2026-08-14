@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Terminal } from "lucide-react";
-import { AuthBackground } from "./auth-background";
+import { AuthBackground } from "./ui/auth-background";
 
 // Full-screen page layout for all auth routes: brand header plus the
 // decorative background, centering whatever form is passed as children.

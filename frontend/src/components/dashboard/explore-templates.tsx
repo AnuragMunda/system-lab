@@ -1,7 +1,7 @@
 // Browseable grid of starter templates surfaced on the dashboard.
 import Link from "next/link";
 import { templates } from "@/data/dashboard-data";
-import { TemplateCard } from "./template-card";
+import { TemplateCard } from "./ui/template-card";
 
 // Section header plus a responsive card grid of available templates (up to 4 per row).
 export function ExploreTemplates() {

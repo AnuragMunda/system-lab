@@ -4,8 +4,9 @@
 // SystemNodeData: label, kind, health, rps, latencyMs, cpu, replicas).
 // initialNodes / initialEdges are the seed graph; HEALTH_STYLES maps NodeHealth → tokens.
 import type { Node, Edge } from "@xyflow/react";
+import { HEALTH_STYLES, type Health } from "@/lib/health";
 
-type NodeHealth = "healthy" | "degraded" | "critical";
+export type NodeHealth = Health;
 
 // The category/kind of a system node, used to pick iconography and layout.
 export type SystemNodeKind =
@@ -32,33 +33,8 @@ type SystemFlowEdge = Edge<{ health?: NodeHealth }, "flow">;
 
 // HEALTH_STYLES ties each NodeHealth to the styling tokens used across the
 // landing diagram: icon colour, metric value colour, health dot, node border,
-// and the animated edge colour (edgeVar).
-export const HEALTH_STYLES: Record<
-  NodeHealth,
-  { icon: string; value: string; dot: string; border: string; edgeVar: string }
-> = {
-  healthy: {
-    icon: "text-success",
-    value: "text-success",
-    dot: "bg-success",
-    border: "border-success/40",
-    edgeVar: "var(--color-success)",
-  },
-  degraded: {
-    icon: "text-accent",
-    value: "text-accent",
-    dot: "bg-accent",
-    border: "border-accent/40",
-    edgeVar: "var(--color-accent)",
-  },
-  critical: {
-    icon: "text-danger",
-    value: "text-danger",
-    dot: "bg-danger",
-    border: "border-danger/40",
-    edgeVar: "var(--color-danger)",
-  },
-};
+// and the animated edge colour (edgeVar). Source of truth lives in @/lib/health.
+export { HEALTH_STYLES };
 
 // Seed graph nodes: a gateway → services → cache → queue/db topology with health/metrics.
 export const initialNodes: SystemFlowNode[] = [

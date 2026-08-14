@@ -3,10 +3,10 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { ArrowLeft, MailCheck } from "lucide-react";
-import { AuthInput } from "./auth-input";
-import { AuthSubmitButton } from "./auth-submit-button";
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { AuthInput } from "./ui/auth-input";
+import { AuthSubmitButton } from "./ui/auth-submit-button";
+import { EMAIL_PATTERN } from "@/lib/constants";
+import { validateForm } from "@/lib/utils";
 
 // "Forgot password" form: validates the email, fakes the reset-link request,
 // then shows a success state with a link back to sign in.
@@ -19,12 +19,18 @@ export function ForgotPasswordForm() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!email) {
-      setError("Enter your email address.");
-      return;
-    }
-    if (!EMAIL_PATTERN.test(email)) {
-      setError("Enter a valid email address.");
+    const errors = validateForm(
+      { email },
+      {
+        email: {
+          required: "Enter your email address.",
+          pattern: { value: EMAIL_PATTERN, message: "Enter a valid email address." },
+        },
+      },
+    );
+    const firstError = Object.values(errors)[0];
+    if (firstError) {
+      setError(firstError);
       return;
     }
 

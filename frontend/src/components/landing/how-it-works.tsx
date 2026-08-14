@@ -1,6 +1,7 @@
 // Landing "workflow" section — the design → simulate → break → observe →
 // optimize pipeline, shown as both a flow diagram and a steps list.
 import { ArrowRight } from "lucide-react";
+import { BRAND_ACCENTS } from "@/lib/constants";
 
 const STEPS = [
   {
@@ -9,7 +10,7 @@ const STEPS = [
     description:
       "Drag nodes onto the canvas. Connect them. Configure each one — instance type, replicas, retry policies, connection pools, caching strategies.",
     bullets: ["10+ node types", "Custom connections", "Config per node"],
-    accent: "#3dd68c",
+    accent: BRAND_ACCENTS.primary,
   },
   {
     n: "02",
@@ -17,7 +18,7 @@ const STEPS = [
     description:
       "Generate traffic that mirrors reality. Steady-state, diurnal, flash-crowd, or your own custom distribution.",
     bullets: ["Realistic load", "Geo distribution", "Custom patterns"],
-    accent: "#22d3ee",
+    accent: BRAND_ACCENTS.cyan,
   },
   {
     n: "03",
@@ -25,7 +26,7 @@ const STEPS = [
     description:
       "Inject chaos. Kill nodes, partition networks, saturate disks, add latency, drop packets. Watch failure cascade.",
     bullets: ["Node failure", "Network partition", "Latency injection"],
-    accent: "#f59e0b",
+    accent: BRAND_ACCENTS.warning,
   },
   {
     n: "04",
@@ -33,7 +34,7 @@ const STEPS = [
     description:
       "Per-node metrics, distributed traces, service maps, flame graphs. See exactly where requests queue, retry, and fail.",
     bullets: ["Live metrics", "Distributed traces", "Bottleneck analysis"],
-    accent: "#a78bfa",
+    accent: BRAND_ACCENTS.purple,
   },
   {
     n: "05",
@@ -41,7 +42,7 @@ const STEPS = [
     description:
       "Compare architectures side by side. Run the same workload against two topologies. Let the optimizer suggest improvements.",
     bullets: ["A/B comparison", "Cost analysis", "AI suggestions"],
-    accent: "#3dd68c",
+    accent: BRAND_ACCENTS.primary,
   },
 ];
 

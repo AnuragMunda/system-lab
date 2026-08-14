@@ -1,27 +1,28 @@
 // Landing "interface" section — three mocked product screens (editor,
 // observability, chaos console) to showcase the look and feel of the app.
 import { AlertTriangle, Cpu, Network, Terminal } from "lucide-react";
+import { BRAND_ACCENTS } from "@/lib/constants";
 
 const SCREENS = [
   {
     title: "Architecture Editor",
     desc: "A visual canvas with the density and keyboard ergonomics of a real IDE.",
     icon: Network,
-    accent: "#3dd68c",
+    accent: BRAND_ACCENTS.primary,
     mock: "editor",
   },
   {
     title: "Live Observability",
     desc: "Grafana-grade dashboards wired directly to your running simulation.",
     icon: Cpu,
-    accent: "#22d3ee",
+    accent: BRAND_ACCENTS.cyan,
     mock: "observability",
   },
   {
     title: "Chaos Console",
     desc: "Inject failures with the precision of a CLI and the visibility of a GUI.",
     icon: AlertTriangle,
-    accent: "#f59e0b",
+    accent: BRAND_ACCENTS.warning,
     mock: "chaos",
   },
 ];
@@ -100,12 +101,12 @@ function MockEditor() {
           />
         </svg>
         {[
-          { x: 20, y: 35, label: "LB", c: "#3dd68c" },
-          { x: 100, y: 35, label: "GW", c: "#3dd68c" },
-          { x: 180, y: 15, label: "svc", c: "#3dd68c" },
-          { x: 180, y: 55, label: "svc", c: "#f59e0b" },
-          { x: 260, y: 15, label: "db", c: "#3dd68c" },
-          { x: 260, y: 55, label: "cache", c: "#3dd68c" },
+          { x: 20, y: 35, label: "LB", c: BRAND_ACCENTS.primary },
+          { x: 100, y: 35, label: "GW", c: BRAND_ACCENTS.primary },
+          { x: 180, y: 15, label: "svc", c: BRAND_ACCENTS.primary },
+          { x: 180, y: 55, label: "svc", c: BRAND_ACCENTS.warning },
+          { x: 260, y: 15, label: "db", c: BRAND_ACCENTS.primary },
+          { x: 260, y: 55, label: "cache", c: BRAND_ACCENTS.primary },
         ].map((n, i) => (
           <div
             key={i}
@@ -154,10 +155,10 @@ function MockObservability() {
     <div className="p-3 space-y-2 h-full">
       <div className="grid grid-cols-4 gap-2">
         {[
-          { l: "rps", v: "12.4k", c: "#3dd68c" },
-          { l: "p99", v: "48ms", c: "#f59e0b" },
-          { l: "err", v: "0.3%", c: "#ef4444" },
-          { l: "sat", v: "67%", c: "#22d3ee" },
+          { l: "rps", v: "12.4k", c: BRAND_ACCENTS.primary },
+          { l: "p99", v: "48ms", c: BRAND_ACCENTS.warning },
+          { l: "err", v: "0.3%", c: BRAND_ACCENTS.danger },
+          { l: "sat", v: "67%", c: BRAND_ACCENTS.cyan },
         ].map((m) => (
           <div
             key={m.l}
@@ -183,10 +184,10 @@ function MockObservability() {
             <div
               key={i}
               className="flex-1 rounded-t-sm"
-              style={{
-                height: `${h}%`,
-                background: `linear-gradient(to top, #3dd68c55, #3dd68c)`,
-              }}
+                style={{
+                  height: `${h}%`,
+                  background: `linear-gradient(to top, ${BRAND_ACCENTS.primary}55, ${BRAND_ACCENTS.primary})`,
+                }}
             />
           ))}
         </div>
@@ -199,7 +200,7 @@ function MockObservability() {
             <svg className="w-full h-8" viewBox="0 0 100 32">
               <polyline
                 fill="none"
-                stroke="#22d3ee"
+                stroke={BRAND_ACCENTS.cyan}
                 strokeWidth="1"
                 points="0,20 10,15 20,18 30,10 40,14 50,8 60,12 70,6 80,10 90,4 100,8"
               />

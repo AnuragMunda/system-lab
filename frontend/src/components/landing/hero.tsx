@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { ArchitectureCanvas } from "./architecture-canvas";
-import { TelemetryStrip } from "./telemetry-strip";
+import { TelemetryStrip } from "./ui/telemetry-strip";
 
 // Hero — renders the product pitch, primary/secondary CTAs, and the embedded
 // live architecture canvas with its telemetry strip.

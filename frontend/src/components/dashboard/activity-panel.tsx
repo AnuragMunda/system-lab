@@ -9,22 +9,13 @@ import {
 } from "lucide-react";
 import { labActivity, type ActivityKind } from "@/data/dashboard-data";
 
-// Maps each ActivityKind to the icon shown in its timeline node.
-const KIND_ICON: Record<ActivityKind, LucideIcon> = {
-  "architecture-created": Boxes,
-  "simulation-completed": CheckCircle2,
-  "scenario-executed": PlayCircle,
-  "collaborator-joined": UserPlus,
-  "ai-recommendation": Bot,
-};
-
-// Maps each ActivityKind to the colour applied to its timeline node icon.
-const KIND_COLOR: Record<ActivityKind, string> = {
-  "architecture-created": "text-primary",
-  "simulation-completed": "text-success",
-  "scenario-executed": "text-accent",
-  "collaborator-joined": "text-foreground",
-  "ai-recommendation": "text-primary",
+// Maps each ActivityKind to the icon and colour shown in its timeline node.
+const KIND_META: Record<ActivityKind, { icon: LucideIcon; color: string }> = {
+  "architecture-created": { icon: Boxes, color: "text-primary" },
+  "simulation-completed": { icon: CheckCircle2, color: "text-success" },
+  "scenario-executed": { icon: PlayCircle, color: "text-accent" },
+  "collaborator-joined": { icon: UserPlus, color: "text-foreground" },
+  "ai-recommendation": { icon: Bot, color: "text-primary" },
 };
 
 // Renders the "Your Lab Activity" aside with icons, titles, details, and timestamps.
@@ -42,12 +33,12 @@ export function ActivityPanel() {
 
       <ol className="flex flex-col gap-4 px-4 py-4">
         {labActivity.map((item, index) => {
-          const Icon = KIND_ICON[item.kind];
+          const { icon: Icon, color } = KIND_META[item.kind];
           return (
             <li key={item.id} className="flex gap-3">
               <div className="flex flex-col items-center">
                 <span
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-background ${KIND_COLOR[item.kind]}`}
+                  className={`flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-background ${color}`}
                 >
                   <Icon className="size-3.5" aria-hidden="true" />
                 </span>

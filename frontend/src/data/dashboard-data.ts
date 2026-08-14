@@ -1,7 +1,9 @@
 // Mock/seed data for the dashboard: projects, experiments, activity feed, and templates.
 // Shapes: ProjectHealth, Project, ExperimentStatus/Experiment, ActivityKind/ActivityItem,
 // and Template. Each exported array is the sample dataset consumed by the dashboard widgets.
-export type ProjectHealth = "healthy" | "degraded" | "critical";
+import type { Health } from "@/lib/health";
+
+export type ProjectHealth = Health;
 
 // A dashboard project summary: identity, description, health, and headline metrics.
 export interface Project {
