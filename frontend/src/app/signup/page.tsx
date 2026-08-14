@@ -6,7 +6,7 @@ import { SignupForm } from "@/components/auth/signup-form";
 
 // Page-level metadata for the signup screen.
 export const metadata: Metadata = {
-  title: "Create Your Laboratory — System Labs",
+  title: "Sign Up | System Labs",
   description:
     "Create a System Labs account to design distributed architectures and simulate real-world behavior.",
 };

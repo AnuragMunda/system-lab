@@ -1,6 +1,13 @@
 // Dashboard layout (`/dashboard/*`) — wraps all dashboard routes with the top nav and sidebar shell.
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TopNav } from "@/components/dashboard/top-nav";
+import { Metadata } from "next";
+
+// Page-level metadata for the dashboard screen.
+export const metadata: Metadata = {
+  title: "Dashboard | System Labs",
+  description: "Your dashboard of System Labs",
+};
 
 // Renders the dashboard shell: a full-height column with TopNav on top and Sidebar + scrollable main content below.
 export default function DashboardLayout({

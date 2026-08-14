@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/auth/login-form";
 
 // Page-level metadata for the sign-in screen.
 export const metadata: Metadata = {
-  title: "Sign In — System Labs",
+  title: "Sign In | System Labs",
   description:
     "Sign in to System Labs to continue building, breaking, and understanding distributed systems.",
 };

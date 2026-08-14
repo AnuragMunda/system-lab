@@ -64,11 +64,10 @@ body {
   color: var(--foreground);
 }
 
-/* Faint 40px grid overlay used as a subtle background texture. */
+/* Faint 40px dot grid used as a subtle background texture.
+   One 1px dot is painted at each lattice point of the 40px grid. */
 .bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 

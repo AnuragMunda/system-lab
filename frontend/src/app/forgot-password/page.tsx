@@ -6,7 +6,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
 // Page-level metadata for the reset-password screen.
 export const metadata: Metadata = {
-  title: "Reset Password — System Labs",
+  title: "Reset Password | System Labs",
   description: "Reset the password for your System Labs account.",
 };
 

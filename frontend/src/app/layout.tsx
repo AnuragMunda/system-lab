@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "System Labs — Build systems. Break systems. Understand systems.",
+  title: "System Labs",
   description:
     "Design distributed architectures, simulate real-world traffic and failures, and understand how your systems behave under pressure.",
 };
