@@ -45,7 +45,7 @@ export function TopNav() {
 
   return (
     <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/95 px-4 backdrop-blur-md">
-      <Link href="/dashboard" className="flex items-center gap-2 pr-2">
+      <Link href="/" className="flex items-center gap-2 pr-2">
         <Terminal className="size-4 text-primary" aria-hidden="true" />
         <span className="hidden font-mono text-sm font-medium tracking-tight text-foreground sm:inline">
           system<span className="text-muted-foreground">_</span>labs
@@ -59,7 +59,10 @@ export function TopNav() {
         className="hidden items-center gap-1.5 rounded-sm px-2 py-1.5 text-sm text-foreground transition-colors hover:bg-card md:flex"
       >
         <span className="text-muted-foreground">Personal Workspace</span>
-        <ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
+        <ChevronDown
+          className="size-3.5 text-muted-foreground"
+          aria-hidden="true"
+        />
       </button>
 
       <div className="ml-0 flex-1 md:ml-2">

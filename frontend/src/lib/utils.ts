@@ -5,7 +5,10 @@ export interface ValidationRule {
   pattern?: { value: RegExp; message: string };
   match?: { field: string; message: string };
   checked?: { message: string };
-  custom?: (value: unknown, values: Record<string, unknown>) => string | undefined;
+  custom?: (
+    value: unknown,
+    values: Record<string, unknown>,
+  ) => string | undefined;
 }
 
 export type ValidationSchema = Record<string, ValidationRule>;
@@ -31,11 +34,18 @@ export function validateForm(
       errors[field] = rule.checked.message;
       continue;
     }
-    if (rule.pattern && typeof value === "string" && !rule.pattern.value.test(value)) {
+    if (
+      rule.pattern &&
+      typeof value === "string" &&
+      !rule.pattern.value.test(value)
+    ) {
       errors[field] = rule.pattern.message;
       continue;
     }
-    if (rule.match && String(value ?? "") !== String(values[rule.match.field] ?? "")) {
+    if (
+      rule.match &&
+      String(value ?? "") !== String(values[rule.match.field] ?? "")
+    ) {
       errors[field] = rule.match.message;
       continue;
     }

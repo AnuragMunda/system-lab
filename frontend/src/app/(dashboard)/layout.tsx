@@ -17,13 +17,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-grid">
       <AuthGuard>
-        <TopNav />
-        <div className="flex flex-1">
-          <Sidebar />
-          <main className="flex-1 overflow-x-hidden">{children}</main>
-        </div>
+      <TopNav />
+      <div
+        className="flex flex-1"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 45% at 50% 20%, color-mix(in srgb, var(--color-primary) 5%, transparent), transparent 70%)",
+        }}
+      >
+        <Sidebar />
+        <main className="flex-1 overflow-x-hidden">{children}</main>
+      </div>
       </AuthGuard>
     </div>
   );
