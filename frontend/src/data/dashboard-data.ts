@@ -1,83 +1,129 @@
 // Mock/seed data for the dashboard: projects, experiments, activity feed, and templates.
-// Shapes: ProjectHealth, Project, ExperimentStatus/Experiment, ActivityKind/ActivityItem,
+// Shapes: Project, ExperimentStatus/Experiment, ActivityKind/ActivityItem,
 // and Template. Each exported array is the sample dataset consumed by the dashboard widgets.
 import type { Health } from "@/lib/health";
 
-export type ProjectHealth = Health;
-
-// A dashboard project summary: identity, description, health, and headline metrics.
+// A dashboard project: identity, description, health, architectures, and headline metrics.
+// `activityRank` is a display-only ordinal (1 = most recent) used to sort by last activity.
 export interface Project {
   id: string;
   name: string;
   description: string;
-  nodeCount: number;
+  health: Health;
+  architectures: string[];
+  componentCount: number;
   simulationCount: number;
-  health: ProjectHealth;
-  lastModified: string;
-  collaborators: number;
+  experimentCount: number;
+  owner: string;
+  lastActivity: string;
+  activityRank: number;
 }
 
-// Seed list of recently updated projects rendered by RecentProjects / ProjectCard.
-export const recentProjects: Project[] = [
+// Seed list of projects rendered by RecentProjects / ProjectCard and the Projects page.
+export const projects: Project[] = [
   {
     id: "ecommerce-platform",
     name: "E-Commerce Platform",
-    description: "Multi-region checkout with async inventory sync",
-    nodeCount: 12,
-    simulationCount: 42,
+    description: "Scalable online shopping platform with multi-region checkout.",
     health: "healthy",
-    lastModified: "2h ago",
-    collaborators: 3,
+    architectures: ["Production", "High Availability", "Event Driven", "Cache Optimization"],
+    componentCount: 12,
+    simulationCount: 38,
+    experimentCount: 6,
+    owner: "Anurag",
+    lastActivity: "10 minutes ago",
+    activityRank: 1,
+  },
+  {
+    id: "video-streaming-platform",
+    name: "Video Streaming Platform",
+    description: "Adaptive-bitrate delivery from ingest to edge.",
+    health: "healthy",
+    architectures: ["Ingest", "Transcoder", "CDN Edge"],
+    componentCount: 24,
+    simulationCount: 51,
+    experimentCount: 9,
+    owner: "Anurag",
+    lastActivity: "2 hours ago",
+    activityRank: 2,
+  },
+  {
+    id: "url-shortener",
+    name: "URL Shortener",
+    description: "High-throughput link shortening with analytics.",
+    health: "healthy",
+    architectures: ["API Gateway", "KV Store"],
+    componentCount: 8,
+    simulationCount: 17,
+    experimentCount: 3,
+    owner: "Anurag",
+    lastActivity: "1 day ago",
+    activityRank: 4,
   },
   {
     id: "payments-ledger",
     name: "Payments Ledger",
-    description: "Double-entry ledger with idempotent settlement",
-    nodeCount: 8,
-    simulationCount: 27,
+    description: "Double-entry ledger with idempotent settlement.",
     health: "degraded",
-    lastModified: "5h ago",
-    collaborators: 2,
+    architectures: ["Ledger", "Settlement"],
+    componentCount: 8,
+    simulationCount: 27,
+    experimentCount: 4,
+    owner: "Anurag",
+    lastActivity: "5 hours ago",
+    activityRank: 3,
   },
   {
     id: "realtime-chat-mesh",
     name: "Realtime Chat Mesh",
-    description: "Presence-aware fanout across WebSocket clusters",
-    nodeCount: 15,
-    simulationCount: 63,
+    description: "Presence-aware fanout across WebSocket clusters.",
     health: "healthy",
-    lastModified: "1d ago",
-    collaborators: 4,
+    architectures: ["Presence", "Fanout", "WebSocket Cluster"],
+    componentCount: 15,
+    simulationCount: 63,
+    experimentCount: 7,
+    owner: "Anurag",
+    lastActivity: "1 day ago",
+    activityRank: 5,
   },
   {
     id: "video-transcode-pipeline",
     name: "Video Transcode Pipeline",
-    description: "Chunked upload to adaptive-bitrate delivery",
-    nodeCount: 10,
-    simulationCount: 19,
+    description: "Chunked upload to adaptive-bitrate delivery.",
     health: "critical",
-    lastModified: "2d ago",
-    collaborators: 1,
+    architectures: ["Upload", "Transcode"],
+    componentCount: 10,
+    simulationCount: 19,
+    experimentCount: 2,
+    owner: "Anurag",
+    lastActivity: "2 days ago",
+    activityRank: 6,
   },
   {
     id: "ride-dispatch-engine",
     name: "Ride Dispatch Engine",
-    description: "Geo-sharded matching with surge pricing service",
-    nodeCount: 14,
-    simulationCount: 35,
+    description: "Geo-sharded matching with surge pricing service.",
     health: "healthy",
-    lastModified: "3d ago",
-    collaborators: 5,
+    architectures: ["Matching", "Pricing", "Geo Index"],
+    componentCount: 14,
+    simulationCount: 35,
+    experimentCount: 5,
+    owner: "Anurag",
+    lastActivity: "3 days ago",
+    activityRank: 7,
   },
   {
     id: "event-driven-inventory",
     name: "Event-Driven Inventory",
-    description: "CQRS projections over a Kafka-backed event log",
-    nodeCount: 9,
-    simulationCount: 21,
+    description: "CQRS projections over a Kafka-backed event log.",
     health: "healthy",
-    lastModified: "4d ago",
-    collaborators: 2,
+    architectures: ["Command", "Query", "Projection"],
+    componentCount: 9,
+    simulationCount: 21,
+    experimentCount: 4,
+    owner: "Anurag",
+    lastActivity: "4 days ago",
+    activityRank: 8,
   },
 ];
 

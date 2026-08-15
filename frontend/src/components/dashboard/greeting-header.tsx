@@ -1,5 +1,5 @@
 // Personalized dashboard header: a time-of-day greeting plus a "New Project" CTA.
-import { Plus } from "lucide-react";
+import { NewProjectDialog } from "./new-project-dialog";
 
 // Returns a greeting based on the current local hour (morning/afternoon/evening).
 function getGreeting() {
@@ -22,13 +22,7 @@ export function GreetingHeader({ name }: { name: string }) {
         </p>
       </div>
 
-      <button
-        type="button"
-        className="flex items-center justify-center gap-2 rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-      >
-        <Plus className="size-4" aria-hidden="true" />
-        New Project
-      </button>
+      <NewProjectDialog />
     </div>
   );
 }
