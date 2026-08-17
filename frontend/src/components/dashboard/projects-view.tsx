@@ -1,13 +1,15 @@
 // Projects page body: header with the "New Project" CTA, a toolbar for
 // search / filter / sort / grid-list toggle, and a grid or list of ProjectCards.
-// All controls are client-side over the static `projects` fixture set.
+// Projects are fetched from the backend; all toolbar controls are client-side.
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LayoutGrid, List, Search } from "lucide-react";
-import { projects, type Project } from "@/data/dashboard-data";
+import { type Project } from "@/data/dashboard-data";
 import { ProjectCard } from "./ui/project-card";
 import { NewProjectDialog } from "./new-project-dialog";
+import { fetchProjects } from "@/store/projectsSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 // Health filter values surfaced in the Filter dropdown.
 const HEALTH_FILTERS = [
@@ -35,10 +37,19 @@ const HEALTH_ORDER: Record<Project["health"], number> = {
 
 // Renders the Projects header, toolbar, and project grid/list.
 export function ProjectsView() {
+  const dispatch = useAppDispatch();
+  const projects = useAppSelector((state) => state.projects.items);
+  const status = useAppSelector((state) => state.projects.status);
+
   const [query, setQuery] = useState("");
   const [healthFilter, setHealthFilter] = useState<(typeof HEALTH_FILTERS)[number]["value"]>("all");
   const [sort, setSort] = useState<(typeof SORT_OPTIONS)[number]["value"]>("activity");
   const [view, setView] = useState<"grid" | "list">("grid");
+
+  // Load the user's projects once on mount.
+  useEffect(() => {
+    if (status === "idle") dispatch(fetchProjects());
+  }, [status, dispatch]);
 
   // Filter by search term + health, then sort by the selected key.
   const visible = useMemo(() => {
@@ -70,7 +81,7 @@ export function ProjectsView() {
     });
 
     return sorted;
-  }, [query, healthFilter, sort]);
+  }, [projects, query, healthFilter, sort]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -177,7 +188,15 @@ export function ProjectsView() {
         </div>
       </div>
 
-      {visible.length === 0 ? (
+      {status === "loading" && projects.length === 0 ? (
+        <p className="rounded-md border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
+          Loading projects…
+        </p>
+      ) : projects.length === 0 ? (
+        <p className="rounded-md border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
+          You don&apos;t have any projects yet.
+        </p>
+      ) : visible.length === 0 ? (
         <p className="rounded-md border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
           No projects match your filters.
         </p>

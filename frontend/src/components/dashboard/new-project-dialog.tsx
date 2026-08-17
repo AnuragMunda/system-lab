@@ -8,6 +8,8 @@ import { createPortal } from "react-dom";
 import { Plus, Sparkles, X } from "lucide-react";
 import { AuthInput } from "@/components/auth/ui/auth-input";
 import { templates } from "@/data/dashboard-data";
+import { createProject } from "@/store/projectsSlice";
+import { useAppDispatch } from "@/store/hooks";
 
 // Project visibility choices (mirror the backend enum).
 type Visibility = "private" | "unlisted" | "public";
@@ -57,7 +59,9 @@ export function NewProjectDialog() {
   const [startFrom, setStartFrom] = useState<StartFrom>("empty");
   const [templateId, setTemplateId] = useState<string>(templates[0]?.id ?? "");
   const [systemDescription, setSystemDescription] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
+  const dispatch = useAppDispatch();
 
   // Close on Escape, lock body scroll, and focus the name field while open.
   useEffect(() => {
@@ -81,13 +85,27 @@ export function NewProjectDialog() {
     setStartFrom("empty");
     setSystemDescription("");
     setTemplateId(templates[0]?.id ?? "");
+    setError(null);
   }
 
-  // Stub submit: name is required, then close. No persistence/API yet.
-  function handleCreate() {
+  // Creates the project via the backend, then closes. The backend only persists
+  // name/description/visibility; startFrom/template/AI are UI-only for now.
+  async function handleCreate() {
     if (!name.trim()) return;
-    setOpen(false);
-    resetForm();
+    setError(null);
+    try {
+      await dispatch(
+        createProject({
+          name: name.trim(),
+          description: description.trim() || undefined,
+          visibility: visibility.toUpperCase() as "PRIVATE" | "PUBLIC" | "UNLISTED",
+        }),
+      ).unwrap();
+      setOpen(false);
+      resetForm();
+    } catch {
+      setError("Something went wrong creating your project.");
+    }
   }
 
   const modal = open
@@ -237,14 +255,18 @@ export function NewProjectDialog() {
               ) : null}
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-sm cursor-pointer border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-              >
-                Cancel
-              </button>
+              {error ? (
+                <p className="px-5 pb-1 text-sm text-danger">{error}</p>
+              ) : null}
+
+              <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Cancel
+                </button>
               <button
                 type="button"
                 onClick={handleCreate}
