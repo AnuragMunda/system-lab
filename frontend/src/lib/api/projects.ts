@@ -58,3 +58,10 @@ export async function updateProjectApi(
     body: JSON.stringify(input),
   });
 }
+
+// Deletes a project owned by the user. Returns the deleted project (ignored caller-side).
+export async function deleteProjectApi(id: string): Promise<BackendProject> {
+  return apiFetch<BackendProject>(`/api/v1/projects/${id}`, {
+    method: "DELETE",
+  });
+}

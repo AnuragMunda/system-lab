@@ -18,6 +18,7 @@ import {
 import type { Project } from "@/data/dashboard-data";
 import { HEALTH_STYLES } from "@/lib/health";
 import { EditProjectDialog } from "@/components/dashboard/edit-project-dialog";
+import { DeleteProjectDialog } from "@/components/dashboard/delete-project-dialog";
 
 // Architecture chips shown before collapsing into a "+N more" affordance.
 const MAX_ARCHITECTURES = 3;
@@ -75,6 +76,7 @@ function ArchitectureSummary({ architectures }: { architectures: string[] }) {
 function ProjectActions({ project }: { project: Project }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const href = `/projects/${project.id}`;
 
   return (
@@ -133,7 +135,10 @@ function ProjectActions({ project }: { project: Project }) {
               <button
                 type="button"
                 role="menuitem"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setDeleteOpen(true);
+                }}
                 className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
               >
                 Delete
@@ -147,6 +152,12 @@ function ProjectActions({ project }: { project: Project }) {
         project={project}
         open={editOpen}
         onClose={() => setEditOpen(false)}
+      />
+
+      <DeleteProjectDialog
+        project={project}
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
       />
     </div>
   );

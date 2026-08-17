@@ -5,6 +5,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { Project, ProjectVisibility } from "@/data/dashboard-data";
 import {
   createProjectApi,
+  deleteProjectApi,
   listProjectsApi,
   updateProjectApi,
   type BackendProject,
@@ -82,6 +83,14 @@ export const updateProject = createAsyncThunk<
   return toProjectView(raw, ownerName);
 });
 
+// Deletes a project owned by the user; the fulfilled case removes it from the list.
+export const deleteProject = createAsyncThunk<void, string>(
+  "projects/delete",
+  async (id) => {
+    await deleteProjectApi(id);
+  },
+);
+
 const projectsSlice = createSlice({
   name: "projects",
   initialState,
@@ -114,6 +123,14 @@ const projectsSlice = createSlice({
       })
       .addCase(updateProject.rejected, (state, action) => {
         state.error = action.error.message ?? "Failed to update project.";
+      })
+      .addCase(deleteProject.fulfilled, (state, action) => {
+        state.items = state.items.filter((p) => p.id !== action.meta.arg);
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(deleteProject.rejected, (state, action) => {
+        state.error = action.error.message ?? "Failed to delete project.";
       });
   },
 });
