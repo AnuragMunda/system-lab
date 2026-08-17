@@ -3,6 +3,9 @@
 // and Template. Each exported array is the sample dataset consumed by the dashboard widgets.
 import type { Health } from "@/lib/health";
 
+// Project visibility — mirrors the backend enum (lowercased for the UI).
+export type ProjectVisibility = "private" | "unlisted" | "public";
+
 // A dashboard project: identity, description, health, architectures, and headline metrics.
 // `activityRank` is a display-only ordinal (1 = most recent) used to sort by last activity.
 export interface Project {
@@ -17,6 +20,7 @@ export interface Project {
   owner: string;
   lastActivity: string;
   activityRank: number;
+  visibility: ProjectVisibility;
 }
 
 // Projects are now fetched dynamically from the backend (see store/projectsSlice);

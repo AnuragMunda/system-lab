@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Project } from "@/data/dashboard-data";
 import { HEALTH_STYLES } from "@/lib/health";
+import { EditProjectDialog } from "@/components/dashboard/edit-project-dialog";
 
 // Architecture chips shown before collapsing into a "+N more" affordance.
 const MAX_ARCHITECTURES = 3;
@@ -69,10 +70,12 @@ function ArchitectureSummary({ architectures }: { architectures: string[] }) {
   );
 }
 
-// Footer actions shared by both views: "Open Project" link plus a placeholder menu.
-function ProjectActions({ id }: { id: string }) {
+// Footer actions shared by both views: "Open Project" link plus a "•••" menu
+// (Open / Edit / Delete). Edit opens the project-edit modal.
+function ProjectActions({ project }: { project: Project }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const href = `/projects/${id}`;
+  const [editOpen, setEditOpen] = useState(false);
+  const href = `/projects/${project.id}`;
 
   return (
     <div className="flex items-center gap-2">
@@ -108,21 +111,43 @@ function ProjectActions({ id }: { id: string }) {
               role="menu"
               className="absolute bottom-10 right-0 z-50 w-40 overflow-hidden rounded-md border border-border bg-card shadow-lg"
             >
-              {["Open", "Rename", "Duplicate", "Delete"].map((action) => (
-                <button
-                  key={action}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                  className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
-                >
-                  {action}
-                </button>
-              ))}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Open
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setEditOpen(true);
+                }}
+                className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Delete
+              </button>
             </div>
           </>
         ) : null}
       </div>
+
+      <EditProjectDialog
+        project={project}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+      />
     </div>
   );
 }
@@ -172,7 +197,7 @@ export function ProjectCard({
           </span>
         </div>
 
-        <ProjectActions id={project.id} />
+        <ProjectActions project={project} />
       </article>
     );
   }
@@ -211,7 +236,7 @@ export function ProjectCard({
       </Link>
 
       <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3">
-        <ProjectActions id={project.id} />
+        <ProjectActions project={project} />
       </div>
     </article>
   );

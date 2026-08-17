@@ -2,12 +2,14 @@
 // supports creating new ones. The backend `Project` is mapped to the dashboard
 // view model, which the backend doesn't yet populate (architectures/metrics/health).
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { Project } from "@/data/dashboard-data";
+import type { Project, ProjectVisibility } from "@/data/dashboard-data";
 import {
   createProjectApi,
   listProjectsApi,
+  updateProjectApi,
   type BackendProject,
   type CreateProjectInput,
+  type UpdateProjectInput,
 } from "@/lib/api/projects";
 import { formatRelativeTime } from "@/lib/utils";
 import type { RootState } from "./index";
@@ -41,9 +43,9 @@ function toProjectView(raw: BackendProject, ownerName: string): Project {
     simulationCount: 0,
     experimentCount: 0,
     owner: ownerName,
-    lastActivity: formatRelativeTime(raw.createdAt),
-    // Newer projects get a smaller rank so "Last activity" sorting shows them first.
-    activityRank: -new Date(raw.createdAt).getTime(),
+    lastActivity: formatRelativeTime(raw.updatedAt),
+    activityRank: -new Date(raw.updatedAt).getTime(),
+    visibility: raw.visibility.toLowerCase() as ProjectVisibility,
   };
 }
 
@@ -69,6 +71,17 @@ export const createProject = createAsyncThunk<Project, CreateProjectInput>(
   },
 );
 
+// Updates a project's name/description/visibility and replaces the stored item.
+export const updateProject = createAsyncThunk<
+  Project,
+  { id: string; input: UpdateProjectInput }
+>("projects/update", async ({ id, input }, { getState }) => {
+  const raw = await updateProjectApi(id, input);
+  const user = (getState() as RootState).auth.user;
+  const ownerName = user?.name ?? "You";
+  return toProjectView(raw, ownerName);
+});
+
 const projectsSlice = createSlice({
   name: "projects",
   initialState,
@@ -93,6 +106,14 @@ const projectsSlice = createSlice({
       })
       .addCase(createProject.rejected, (state, action) => {
         state.error = action.error.message ?? "Failed to create project.";
+      })
+      .addCase(updateProject.fulfilled, (state, action) => {
+        const index = state.items.findIndex((p) => p.id === action.payload.id);
+        if (index !== -1) state.items[index] = action.payload;
+        state.status = "succeeded";
+      })
+      .addCase(updateProject.rejected, (state, action) => {
+        state.error = action.error.message ?? "Failed to update project.";
       });
   },
 });

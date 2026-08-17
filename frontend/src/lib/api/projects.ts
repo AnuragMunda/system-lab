@@ -20,6 +20,9 @@ export interface CreateProjectInput {
   visibility: "PRIVATE" | "PUBLIC" | "UNLISTED";
 }
 
+// Payload accepted by PATCH /api/v1/projects/:id — all fields optional.
+export type UpdateProjectInput = Partial<CreateProjectInput>;
+
 // Paginated envelope returned by GET /api/v1/projects.
 interface PaginatedProjects {
   items: BackendProject[];
@@ -41,6 +44,17 @@ export async function createProjectApi(
 ): Promise<BackendProject> {
   return apiFetch<BackendProject>("/api/v1/projects", {
     method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+// Updates an existing project (name/description/visibility) owned by the user.
+export async function updateProjectApi(
+  id: string,
+  input: UpdateProjectInput,
+): Promise<BackendProject> {
+  return apiFetch<BackendProject>(`/api/v1/projects/${id}`, {
+    method: "PATCH",
     body: JSON.stringify(input),
   });
 }
