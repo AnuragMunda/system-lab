@@ -12,11 +12,27 @@ import { z } from "zod";
 const componentTypeSchema = z.enum([
   "client",
   "load_balancer",
+  "api_gateway",
+  "cdn",
+  "reverse_proxy",
   "api",
   "cache",
   "database",
   "queue",
   "worker",
+  "server",
+  "serverless_function",
+  "postgresql",
+  "mysql",
+  "mongodb",
+  "redis",
+  "object_storage",
+  "kafka",
+  "rabbitmq",
+  "event_bus",
+  "external_api",
+  "payment_provider",
+  "auth_provider",
 ]);
 
 /** X/Y canvas coordinates for a node. */
@@ -25,12 +41,41 @@ const positionSchema = z.object({
   y: z.number(),
 });
 
+/** Optional autoscaling bounds for a component. */
+const autoscalingSchema = z
+  .object({
+    enabled: z.boolean(),
+    min: z.number().int().nonnegative(),
+    max: z.number().int().nonnegative(),
+    targetCpu: z.number().min(0).max(100),
+  })
+  .optional();
+
+/** Optional retry/circuit-breaker policy for a component. */
+const retryPolicySchema = z
+  .object({
+    retries: z.number().int().nonnegative(),
+    circuitBreaker: z.boolean(),
+  })
+  .optional();
+
 /** Optional runtime tuning for a component node. */
 const componentConfig = z.object({
   latencyMs: z.number().nonnegative().optional(),
   capacity: z.number().positive().optional(),
   concurrency: z.number().nonnegative().optional(),
   errorRate: z.number().min(0).max(1).optional(),
+
+  // Extended editor configuration
+  replicas: z.number().int().nonnegative().optional(),
+  cpu: z.number().nonnegative().optional(),
+  memory: z.number().nonnegative().optional(),
+  autoscaling: autoscalingSchema,
+  region: z.string().optional(),
+  timeoutMs: z.number().nonnegative().optional(),
+  retryPolicy: retryPolicySchema,
+  traffic: z.number().nonnegative().optional(),
+  health: z.enum(["healthy", "degraded", "critical"]).optional(),
 });
 
 /** Optional runtime tuning for a connection edge. */
@@ -38,6 +83,10 @@ const connectionConfig = z.object({
   latencyMs: z.number().nonnegative().optional(),
   bandwidthMbps: z.number().positive().optional(),
   packetLossRate: z.number().min(0).max(1).optional(),
+
+  // Extended editor configuration
+  protocol: z.string().optional(),
+  trafficRate: z.number().nonnegative().optional(),
 });
 
 /** A single node in the architecture graph. */

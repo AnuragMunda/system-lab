@@ -22,4 +22,8 @@ interface ConnectionConfig {
   latencyMs?: number; // Average latency in milliseconds
   bandwidthMbps?: number; // Maximum bandwidth in megabits per second
   packetLossRate?: number; // Rate of packet loss occurring
+
+  // Extended editor configuration
+  protocol?: string; // e.g. "http", "grpc", "tcp", "kafka"
+  trafficRate?: number; // Requests per second flowing over the connection
 }

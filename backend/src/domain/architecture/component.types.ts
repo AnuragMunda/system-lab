@@ -23,16 +23,57 @@ export interface ArchitectureNode {
 export type componentType =
   | "client"
   | "load_balancer"
+  | "api_gateway"
+  | "cdn"
+  | "reverse_proxy"
   | "api"
   | "cache"
   | "database"
   | "queue"
-  | "worker";
+  | "worker"
+  | "server"
+  | "serverless_function"
+  | "postgresql"
+  | "mysql"
+  | "mongodb"
+  | "redis"
+  | "object_storage"
+  | "kafka"
+  | "rabbitmq"
+  | "event_bus"
+  | "external_api"
+  | "payment_provider"
+  | "auth_provider";
+
+/** Autoscaling bounds for a component. */
+export interface AutoscalingConfig {
+  enabled: boolean;
+  min: number;
+  max: number;
+  targetCpu: number; // percentage 0-100
+}
+
+/** Retry/circuit-breaker policy for a component. */
+export interface RetryPolicy {
+  retries: number;
+  circuitBreaker: boolean;
+}
 
 /** Runtime tuning knobs for a component, used during simulation. All fields are optional. */
 interface ComponentConfig {
   latencyMs?: number; // Average latency in milliseconds
   capacity?: number; // Maximum number of requests that can be processed simultaneously
   concurrency?: number; // Number of concurrent operations
-  errorRate?: number; // Rate of errors occurring
+  errorRate?: number; // Rate of errors occurring (0-1)
+
+  // Extended editor configuration
+  replicas?: number;
+  cpu?: number; // CPU cores per replica
+  memory?: number; // Memory in GB per replica
+  autoscaling?: AutoscalingConfig;
+  region?: string;
+  timeoutMs?: number;
+  retryPolicy?: RetryPolicy;
+  traffic?: number; // Requests per second handled
+  health?: "healthy" | "degraded" | "critical";
 }
