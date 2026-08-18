@@ -65,3 +65,8 @@ export async function deleteProjectApi(id: string): Promise<BackendProject> {
     method: "DELETE",
   });
 }
+
+// Fetches a single project by id (used by the project workspace header).
+export async function getProjectApi(id: string): Promise<BackendProject> {
+  return apiFetch<BackendProject>(`/api/v1/projects/${id}`);
+}

@@ -21,6 +21,18 @@ export function formatRelativeTime(iso: string): string {
   return `${Math.floor(days / 7)}w ago`;
 }
 
+// Shows a transient, bottom-centered toast message. Used for "coming soon" / copy
+// actions where no dedicated UI exists yet. No-ops during SSR.
+export function toast(message: string) {
+  if (typeof document === "undefined") return;
+  const el = document.createElement("div");
+  el.textContent = message;
+  el.className =
+    "fixed bottom-4 left-1/2 z-[100] -translate-x-1/2 rounded-md border border-border bg-card px-4 py-2.5 text-sm text-foreground shadow-lg";
+  document.body.appendChild(el);
+  window.setTimeout(() => el.remove(), 2200);
+}
+
 export interface ValidationRule {
   required?: string;
   pattern?: { value: RegExp; message: string };
