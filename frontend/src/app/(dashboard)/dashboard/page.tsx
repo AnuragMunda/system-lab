@@ -9,7 +9,7 @@ import { RecentProjects } from "@/components/dashboard/recent-projects";
 export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-350 px-6 py-8">
-      <GreetingHeader name="Anurag" />
+      <GreetingHeader />
 
       <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-10">

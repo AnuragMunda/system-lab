@@ -1,5 +1,8 @@
+"use client";
+
 // Personalized dashboard header: a time-of-day greeting plus a "New Project" CTA.
 import { NewProjectDialog } from "./new-project-dialog";
+import { useAuth } from "@/store/hooks";
 
 // Returns a greeting based on the current local hour (morning/afternoon/evening).
 function getGreeting() {
@@ -10,12 +13,14 @@ function getGreeting() {
 }
 
 // Renders the greeting line and primary CTA. `name` is the current user's name.
-export function GreetingHeader({ name }: { name: string }) {
+export function GreetingHeader() {
+  const { user } = useAuth();
+
   return (
     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
         <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground">
-          {getGreeting()}, {name}.
+          {getGreeting()}, {user?.name}.
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
           Ready to build something interesting?
