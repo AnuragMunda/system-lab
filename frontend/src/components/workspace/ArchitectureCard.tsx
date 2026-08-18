@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { HEALTH_STYLES } from "@/lib/health";
 import { toast } from "@/lib/utils";
+import { EditArchitectureDialog } from "./EditArchitectureDialog";
 import type { ArchitectureOverviewCard } from "@/data/project-overview";
 
 // Small label/value metric row used in the card body.
@@ -31,13 +32,16 @@ export function ArchitectureCard({
   card,
   projectId,
   onDeleted,
+  onUpdated,
 }: {
   card: ArchitectureOverviewCard;
   projectId: string;
   onDeleted: (id: string) => void;
+  onUpdated: () => void;
 }) {
   const styles = HEALTH_STYLES[card.health];
   const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const simHref = `/projects/${projectId}/simulations`;
   const archHref = `/projects/${projectId}/architectures`;
 
@@ -138,6 +142,17 @@ export function ArchitectureCard({
                   role="menuitem"
                   onClick={() => {
                     setMenuOpen(false);
+                    setEditOpen(true);
+                  }}
+                  className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
                     toast("Architecture duplicated (coming soon)");
                   }}
                   className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
@@ -159,6 +174,13 @@ export function ArchitectureCard({
             </>
           ) : null}
         </div>
+
+        <EditArchitectureDialog
+          architecture={{ id: card.id, name: card.name, description: card.description }}
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onUpdated={onUpdated}
+        />
       </div>
     </article>
   );

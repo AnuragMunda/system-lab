@@ -45,6 +45,8 @@ export default function ProjectOverviewPage() {
         cards={cards}
         onCreated={reload}
         onDeleted={handleDelete}
+        onUpdated={reload}
+        limit={3}
       />
 
       <ArchitectureComparison architectureNames={cards.map((card) => card.name)} />

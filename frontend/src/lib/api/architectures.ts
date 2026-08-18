@@ -63,3 +63,15 @@ export async function deleteArchitectureApi(id: string): Promise<BackendArchitec
     method: "DELETE",
   });
 }
+
+// Updates an architecture's name/description (PATCH). Only the provided fields are
+// sent; the backend merges them into the existing record (graph is untouched).
+export async function updateArchitectureApi(
+  id: string,
+  input: { name?: string; description?: string },
+): Promise<BackendArchitecture> {
+  return apiFetch<BackendArchitecture>(`/api/v1/architectures/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}

@@ -24,7 +24,7 @@ const SORT_OPTIONS: {
 
 // Renders the full Architectures tab for the current project.
 export function ArchitecturesView() {
-  const { projectId, project, architectures, reload } = useWorkspace();
+  const { projectId, architectures, reload } = useWorkspace();
   const [query, setQuery] = useState("");
   const [sort, setSort] =
     useState<(typeof SORT_OPTIONS)[number]["value"]>("recent");
@@ -116,7 +116,7 @@ export function ArchitecturesView() {
                   {option.label}
                 </option>
               ))}
-            </select>
+              </select>
           </div>
         </div>
       </div>
@@ -133,6 +133,7 @@ export function ArchitecturesView() {
               card={p.card}
               projectId={projectId}
               onDeleted={handleDelete}
+              onUpdated={reload}
             />
           ))}
         </div>

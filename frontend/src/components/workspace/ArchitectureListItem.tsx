@@ -9,6 +9,7 @@ import { useState } from "react";
 import { MoreHorizontal, Play, GitCompare, SquareArrowOutUpRight } from "lucide-react";
 import { HEALTH_STYLES } from "@/lib/health";
 import { toast } from "@/lib/utils";
+import { EditArchitectureDialog } from "./EditArchitectureDialog";
 import type { ArchitectureOverviewCard } from "@/data/project-overview";
 
 // Renders one architecture as a compact, full-width list row.
@@ -16,13 +17,16 @@ export function ArchitectureListItem({
   card,
   projectId,
   onDeleted,
+  onUpdated,
 }: {
   card: ArchitectureOverviewCard;
   projectId: string;
   onDeleted: (id: string) => void;
+  onUpdated: () => void;
 }) {
   const styles = HEALTH_STYLES[card.health];
   const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const simHref = `/projects/${projectId}/simulations`;
 
   return (
@@ -124,6 +128,17 @@ export function ArchitectureListItem({
                     role="menuitem"
                     onClick={() => {
                       setMenuOpen(false);
+                      setEditOpen(true);
+                    }}
+                    className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMenuOpen(false);
                       toast("Comparison coming soon");
                     }}
                     className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
@@ -146,6 +161,13 @@ export function ArchitectureListItem({
             ) : null}
           </div>
         </div>
+
+        <EditArchitectureDialog
+          architecture={{ id: card.id, name: card.name, description: card.description }}
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onUpdated={onUpdated}
+        />
       </div>
     </article>
   );
