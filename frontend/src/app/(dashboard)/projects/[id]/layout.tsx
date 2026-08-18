@@ -59,7 +59,7 @@ export default function ProjectWorkspaceLayout({
       .catch(() => {});
   }, [projectId]);
 
-  const value: WorkspaceContextValue = { projectId, architectures, reload };
+  const value: WorkspaceContextValue = { projectId, project, architectures, reload };
 
   return (
     <WorkspaceContext.Provider value={value}>

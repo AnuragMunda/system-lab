@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { MoreHorizontal, Play, Plus, Share2 } from "lucide-react";
+import { MoreHorizontal, Plus, Share2 } from "lucide-react";
 import { NewArchitectureDialog } from "./NewArchitectureDialog";
 import { toast } from "@/lib/utils";
 
@@ -23,7 +23,6 @@ export function ProjectHeader({
   onCreated: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const simHref = `/projects/${projectId}/simulations`;
 
   function handleShare() {
     setMenuOpen(false);
@@ -70,14 +69,6 @@ export function ProjectHeader({
               </button>
             )}
           />
-
-          <Link
-            href={simHref}
-            className="inline-flex items-center justify-center gap-2 rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-border-strong hover:bg-muted"
-          >
-            <Play className="size-4" aria-hidden="true" />
-            Run Simulation
-          </Link>
 
           <button
             type="button"

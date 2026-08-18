@@ -5,10 +5,12 @@
 
 import { createContext, useContext } from "react";
 import type { BackendArchitecture } from "@/lib/api/architectures";
+import type { BackendProject } from "@/lib/api/projects";
 
 // Value provided by the workspace layout to its section pages.
 export interface WorkspaceContextValue {
   projectId: string;
+  project: BackendProject | null;
   architectures: BackendArchitecture[];
   reload: () => void;
 }

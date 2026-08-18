@@ -23,6 +23,7 @@ export interface ArchitectureOverviewCard {
   cost?: string;
   version: string;
   lastModified: string;
+  simulations: number;
 }
 
 // Project-wide health headline numbers (architectures count is supplied real).
@@ -69,6 +70,7 @@ interface ArchitectureEnrichment {
   cost?: string;
   version: string;
   lastModified: string;
+  simulations: number;
 }
 
 const ARCHITECTURE_ENRICHMENT_SEED: Record<string, ArchitectureEnrichment> = {
@@ -79,6 +81,7 @@ const ARCHITECTURE_ENRICHMENT_SEED: Record<string, ArchitectureEnrichment> = {
     errorRate: "0.4%",
     version: "v12",
     lastModified: "10 minutes ago",
+    simulations: 42,
   },
   "high availability": {
     health: "healthy",
@@ -87,6 +90,7 @@ const ARCHITECTURE_ENRICHMENT_SEED: Record<string, ArchitectureEnrichment> = {
     errorRate: "0.7%",
     version: "v7",
     lastModified: "1 hour ago",
+    simulations: 18,
   },
   "event driven": {
     health: "degraded",
@@ -95,6 +99,7 @@ const ARCHITECTURE_ENRICHMENT_SEED: Record<string, ArchitectureEnrichment> = {
     errorRate: "1.8%",
     version: "v4",
     lastModified: "2 hours ago",
+    simulations: 12,
   },
   "cost optimized": {
     health: "healthy",
@@ -103,6 +108,7 @@ const ARCHITECTURE_ENRICHMENT_SEED: Record<string, ArchitectureEnrichment> = {
     cost: "$284/mo",
     version: "v3",
     lastModified: "3 hours ago",
+    simulations: 9,
   },
 };
 
@@ -154,6 +160,7 @@ function fallbackEnrichment(arch: BackendArchitecture): ArchitectureEnrichment {
     errorRate: `${(0.2 + (arch.id.length % 15) / 10).toFixed(1)}%`,
     version: "v1",
     lastModified: formatRelativeTime(arch.updatedAt) || "just now",
+    simulations: (arch.id.length % 40) + 5,
   };
 }
 
@@ -177,6 +184,7 @@ export function buildArchitectureCards(
       cost: seed.cost,
       version: seed.version,
       lastModified: seed.lastModified,
+      simulations: seed.simulations,
     };
   });
 }

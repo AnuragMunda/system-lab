@@ -6,15 +6,37 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Copy, FilePlus2, Sparkles, LayoutTemplate, X } from "lucide-react";
+import { AuthInput } from "@/components/auth/ui/auth-input";
+import { TextArea } from "@/components/dashboard/project-form-fields";
 import { createArchitectureApi } from "@/lib/api/architectures";
 import { toast } from "@/lib/utils";
 
 // The four creation entry points surfaced in the dialog.
 const OPTIONS = [
-  { key: "blank", label: "Blank Architecture", desc: "Start from an empty canvas.", icon: FilePlus2 },
-  { key: "template", label: "From Template", desc: "Scaffold from a starter topology.", icon: LayoutTemplate },
-  { key: "duplicate", label: "Duplicate Existing", desc: "Clone one of your architectures.", icon: Copy },
-  { key: "ai", label: "Generate with AI", desc: "Describe a system, get a design.", icon: Sparkles },
+  {
+    key: "blank",
+    label: "Blank Architecture",
+    desc: "Start from an empty canvas.",
+    icon: FilePlus2,
+  },
+  {
+    key: "template",
+    label: "From Template",
+    desc: "Scaffold from a starter topology.",
+    icon: LayoutTemplate,
+  },
+  {
+    key: "duplicate",
+    label: "Duplicate Existing",
+    desc: "Clone one of your architectures.",
+    icon: Copy,
+  },
+  {
+    key: "ai",
+    label: "Generate with AI",
+    desc: "Describe a system, get a design.",
+    icon: Sparkles,
+  },
 ] as const;
 
 type OptionKey = (typeof OPTIONS)[number]["key"];
@@ -33,6 +55,7 @@ export function NewArchitectureDialog({
   const [open, setOpen] = useState(false);
   const [option, setOption] = useState<OptionKey>("blank");
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -54,6 +77,7 @@ export function NewArchitectureDialog({
   function reset() {
     setOption("blank");
     setName("");
+    setDescription("");
     setError(null);
     setCreating(false);
   }
@@ -75,6 +99,7 @@ export function NewArchitectureDialog({
       await createArchitectureApi({
         projectId,
         name: name.trim(),
+        description: description.trim() || undefined,
         nodes: [],
         edges: [],
       });
@@ -113,7 +138,7 @@ export function NewArchitectureDialog({
                 aria-label="Close"
                 className="flex size-8 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                <X className="size-4" aria-hidden="true" />
+                <X className="size-4 cursor-pointer" aria-hidden="true" />
               </button>
             </div>
 
@@ -127,36 +152,49 @@ export function NewArchitectureDialog({
                       key={opt.key}
                       type="button"
                       onClick={() => setOption(opt.key)}
-                      className={`flex flex-col gap-2 rounded-md border p-3 text-left transition-colors ${
+                      className={`cursor-pointer flex flex-col gap-2 rounded-md border p-3 text-left transition-colors ${
                         selected
                           ? "border-primary bg-primary/5"
                           : "border-border hover:border-border-strong hover:bg-muted"
                       }`}
                     >
-                      <Icon className="size-4 text-primary" aria-hidden="true" />
+                      <Icon
+                        className="size-4 text-primary"
+                        aria-hidden="true"
+                      />
                       <span className="text-sm font-medium text-foreground">
                         {opt.label}
                       </span>
-                      <span className="text-xs text-muted-foreground">{opt.desc}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {opt.desc}
+                      </span>
                     </button>
                   );
                 })}
               </div>
 
               {option === "blank" ? (
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium text-foreground">Name</span>
-                  <input
-                    ref={nameRef}
+                <div className="flex flex-col gap-4">
+                  <AuthInput
+                    label="Name"
+                    name="new-architecture-name"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
-                    placeholder="e.g. Production"
-                    className="rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-border-strong focus:outline-none"
+                    ref={nameRef}
                   />
-                </label>
+                  <TextArea
+                    label="Description"
+                    id="new-architecture-description"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    placeholder="Describe this architecture…"
+                    rows={3}
+                  />
+                </div>
               ) : (
                 <p className="rounded-sm border border-border bg-background px-3 py-2.5 text-sm text-muted-foreground">
-                  This option is coming soon — choose Blank Architecture to create one now.
+                  This option is coming soon — choose Blank Architecture to
+                  create one now.
                 </p>
               )}
 
@@ -167,7 +205,7 @@ export function NewArchitectureDialog({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                className="cursor-pointer rounded-sm border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
               >
                 Cancel
               </button>
@@ -175,7 +213,7 @@ export function NewArchitectureDialog({
                 type="button"
                 onClick={handleCreate}
                 disabled={creating || (option === "blank" && !name.trim())}
-                className="rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded-sm bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {creating ? "Creating…" : "Create Architecture"}
               </button>

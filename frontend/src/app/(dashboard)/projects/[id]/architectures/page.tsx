@@ -1,5 +1,5 @@
-import { ProjectPlaceholder } from "@/components/workspace/ProjectPlaceholder";
+import { ArchitecturesView } from "@/components/workspace/ArchitecturesView";
 
 export default function ArchitecturesPage() {
-  return <ProjectPlaceholder title="Architectures" />;
+  return <ArchitecturesView />;
 }
