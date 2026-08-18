@@ -21,7 +21,7 @@ export function CreateArchitectureCard({
         <button
           type="button"
           onClick={open}
-          className="group flex min-h-[14rem] flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border bg-card/40 px-4 py-6 text-center transition-colors hover:border-border-strong hover:bg-card"
+          className="cursor-pointer group flex min-h-[14rem] flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border bg-card/40 px-4 py-6 text-center transition-colors hover:border-border-strong hover:bg-card"
         >
           <span className="flex size-11 items-center justify-center rounded-full border border-border bg-background text-primary transition-colors group-hover:border-primary/50">
             <Plus className="size-5" aria-hidden="true" />

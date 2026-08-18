@@ -5,14 +5,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  MoreHorizontal,
-  Play,
-  SquareArrowOutUpRight,
-} from "lucide-react";
+import { MoreHorizontal, Play, SquareArrowOutUpRight } from "lucide-react";
 import { HEALTH_STYLES } from "@/lib/health";
 import { toast } from "@/lib/utils";
 import { EditArchitectureDialog } from "./EditArchitectureDialog";
+import { DeleteArchitectureDialog } from "./DeleteArchitectureDialog";
 import type { ArchitectureOverviewCard } from "@/data/project-overview";
 
 // Small label/value metric row used in the card body.
@@ -42,6 +39,7 @@ export function ArchitectureCard({
   const styles = HEALTH_STYLES[card.health];
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const simHref = `/projects/${projectId}/simulations`;
   const archHref = `/projects/${projectId}/architectures`;
 
@@ -55,7 +53,10 @@ export function ArchitectureCard({
           <span
             className={`flex shrink-0 items-center gap-1.5 text-xs ${styles.value}`}
           >
-            <span className={`size-1.5 rounded-full ${styles.dot}`} aria-hidden="true" />
+            <span
+              className={`size-1.5 rounded-full ${styles.dot}`}
+              aria-hidden="true"
+            />
             {styles.label}
           </span>
         </div>
@@ -103,7 +104,7 @@ export function ArchitectureCard({
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex size-8 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="cursor-pointer inline-flex size-8 items-center justify-center rounded-sm border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <MoreHorizontal className="size-4" aria-hidden="true" />
           </button>
@@ -115,7 +116,7 @@ export function ArchitectureCard({
                 aria-hidden="true"
                 tabIndex={-1}
                 onClick={() => setMenuOpen(false)}
-                className="fixed inset-0 z-40 cursor-default"
+                className="fixed inset-0 z-40"
               />
               <div
                 role="menu"
@@ -144,7 +145,7 @@ export function ArchitectureCard({
                     setMenuOpen(false);
                     setEditOpen(true);
                   }}
-                  className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                  className="cursor-pointer block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   Edit
                 </button>
@@ -155,7 +156,7 @@ export function ArchitectureCard({
                     setMenuOpen(false);
                     toast("Architecture duplicated (coming soon)");
                   }}
-                  className="block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                  className="cursor-pointer block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   Duplicate
                 </button>
@@ -164,9 +165,9 @@ export function ArchitectureCard({
                   role="menuitem"
                   onClick={() => {
                     setMenuOpen(false);
-                    onDeleted(card.id);
+                    setDeleteOpen(true);
                   }}
-                  className="block w-full px-3 py-2 text-left text-sm text-danger transition-colors hover:bg-muted"
+                  className="cursor-pointer block w-full px-3 py-2 text-left text-sm text-danger transition-colors hover:bg-muted"
                 >
                   Delete
                 </button>
@@ -176,10 +177,21 @@ export function ArchitectureCard({
         </div>
 
         <EditArchitectureDialog
-          architecture={{ id: card.id, name: card.name, description: card.description }}
+          architecture={{
+            id: card.id,
+            name: card.name,
+            description: card.description,
+          }}
           open={editOpen}
           onClose={() => setEditOpen(false)}
           onUpdated={onUpdated}
+        />
+
+        <DeleteArchitectureDialog
+          architecture={{ id: card.id, name: card.name }}
+          open={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onDeleted={() => onDeleted(card.id)}
         />
       </div>
     </article>
