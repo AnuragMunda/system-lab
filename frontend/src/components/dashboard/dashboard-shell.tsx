@@ -23,14 +23,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <>
       <TopNav />
       <div
-        className="flex flex-1"
+        className="flex flex-1 overflow-hidden"
         style={{
           background:
             "radial-gradient(ellipse 60% 45% at 50% 20%, color-mix(in srgb, var(--color-primary) 5%, transparent), transparent 70%)",
         }}
       >
         <Sidebar />
-        <main className="flex-1 overflow-x-hidden">{children}</main>
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+          {children}
+        </main>
       </div>
     </>
   );

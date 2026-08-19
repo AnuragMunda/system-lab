@@ -18,7 +18,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-grid">
+    <div className="flex h-dvh flex-col bg-grid">
       <AuthGuard>
         <DashboardShell>{children}</DashboardShell>
       </AuthGuard>
