@@ -30,6 +30,11 @@ export function ArchitectureListItem({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const simHref = `/projects/${projectId}/simulations`;
+  const editorHref = `/projects/${projectId}/architectures/${card.id}`;
+
+  function openEditor() {
+    window.open(editorHref, "_blank", "noopener,noreferrer");
+  }
 
   return (
     <article className="flex flex-col gap-3 rounded-md border border-border bg-card p-4 transition-colors hover:border-border-strong sm:flex-row sm:items-center sm:justify-between">
@@ -59,7 +64,7 @@ export function ArchitectureListItem({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => toast("Architecture editor coming soon")}
+            onClick={openEditor}
             className="cursor-pointer inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-border-strong hover:bg-muted"
           >
             <SquareArrowOutUpRight className="size-3.5" aria-hidden="true" />
@@ -106,17 +111,17 @@ export function ArchitectureListItem({
                   role="menu"
                   className="absolute bottom-10 right-0 z-50 w-40 overflow-hidden rounded-md border border-border bg-card shadow-lg"
                 >
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      toast("Architecture editor coming soon");
-                    }}
-                    className="cursor-pointer block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
-                  >
-                    Open
-                  </button>
+                   <button
+                     type="button"
+                     role="menuitem"
+                     onClick={() => {
+                       setMenuOpen(false);
+                       openEditor();
+                     }}
+                     className="cursor-pointer block w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                   >
+                     Open
+                   </button>
                   <Link
                     href={simHref}
                     role="menuitem"

@@ -5,7 +5,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { ProjectHeader } from "@/components/workspace/ProjectHeader";
 import { ProjectNav } from "@/components/workspace/ProjectNav";
 import {
@@ -26,8 +26,17 @@ export default function ProjectWorkspaceLayout({
 }) {
   const params = useParams();
   const projectId = String(params.id);
+  const pathname = usePathname();
   const [project, setProject] = useState<BackendProject | null>(null);
   const [architectures, setArchitectures] = useState<BackendArchitecture[]>([]);
+
+  // When the URL is the architecture editor (`/projects/:id/architectures/:archId`)
+  // we render full-bleed (no header/nav chrome) so the editor owns the viewport.
+  const segments = pathname.split("/").filter(Boolean);
+  const isEditor =
+    segments[0] === "projects" &&
+    segments[2] === "architectures" &&
+    segments.length >= 4;
 
   // Load the project + its architectures once per project id.
   useEffect(() => {
@@ -63,14 +72,22 @@ export default function ProjectWorkspaceLayout({
 
   return (
     <WorkspaceContext.Provider value={value}>
-      <ProjectHeader
-        projectId={projectId}
-        name={project?.name ?? "Project"}
-        description={project?.description ?? ""}
-        onCreated={reload}
-      />
-      <ProjectNav projectId={projectId} />
-      <div className="mx-auto w-full max-w-350 px-6 py-8">{children}</div>
+      {isEditor ? (
+        <div className="h-[100dvh] w-full overflow-hidden">
+          {children}
+        </div>
+      ) : (
+        <>
+          <ProjectHeader
+            projectId={projectId}
+            name={project?.name ?? "Project"}
+            description={project?.description ?? ""}
+            onCreated={reload}
+          />
+          <ProjectNav projectId={projectId} />
+          <div className="mx-auto w-full max-w-350 px-6 py-8">{children}</div>
+        </>
+      )}
     </WorkspaceContext.Provider>
   );
 }

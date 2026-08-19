@@ -137,3 +137,22 @@ body {
 .animate-rise {
   animation: rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Pointer cursor on clickable controls within the editor. Drag sources (palette
+   items, canvas nodes) keep grab, and connection handles keep crosshair. */
+.editor-root a,
+.editor-root [role="button"],
+.editor-root button:not(.cursor-grab),
+.editor-root .react-flow__edge,
+.editor-root .react-flow__edge-path,
+.editor-root .react-flow__edge-interaction,
+.editor-root .react-flow__controls-button,
+.editor-root .react-flow__minimap {
+  cursor: pointer;
+}
+.editor-root .react-flow__node:not(.dragging) {
+  cursor: grab;
+}
+.editor-root .react-flow__handle {
+  cursor: crosshair;
+}

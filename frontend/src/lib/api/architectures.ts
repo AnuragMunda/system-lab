@@ -2,6 +2,24 @@
 // Architectures belong to a project; the graph (nodes + edges) is stored as JSONB.
 import { apiFetch } from "./http";
 
+// A node as stored/returned by the backend. `config` is a free-form bag of the
+// component's tunable fields (latency, replicas, autoscaling, …).
+export interface BackendArchitectureNode {
+  id: string;
+  type: string;
+  name: string;
+  position: { x: number; y: number };
+  config: Record<string, unknown>;
+}
+
+// An edge as stored/returned by the backend.
+export interface BackendArchitectureEdge {
+  id: string;
+  source: string;
+  target: string;
+  config: Record<string, unknown>;
+}
+
 // Raw architecture as returned by the backend (ISO date strings over JSON).
 // `graph.nodes` is the source of truth for the architecture's component count.
 export interface BackendArchitecture {
@@ -9,7 +27,7 @@ export interface BackendArchitecture {
   projectId: string;
   name: string;
   description: string | null;
-  graph: { nodes: unknown[]; edges: unknown[] };
+  graph: { nodes: BackendArchitectureNode[]; edges: BackendArchitectureEdge[] };
   createdAt: string;
   updatedAt: string;
 }
@@ -64,11 +82,24 @@ export async function deleteArchitectureApi(id: string): Promise<BackendArchitec
   });
 }
 
-// Updates an architecture's name/description (PATCH). Only the provided fields are
-// sent; the backend merges them into the existing record (graph is untouched).
+// Fetches a single architecture by id (GET /api/v1/architectures/:id).
+export async function getArchitectureApi(
+  id: string,
+): Promise<BackendArchitecture> {
+  return apiFetch<BackendArchitecture>(`/api/v1/architectures/${id}`);
+}
+
+// Updates an architecture (PATCH). The backend merges the provided fields into the
+// existing record — sending `nodes`/`edges` replaces the stored graph. The graph
+// is only included when the editor has changes to persist.
 export async function updateArchitectureApi(
   id: string,
-  input: { name?: string; description?: string },
+  input: {
+    name?: string;
+    description?: string;
+    nodes?: unknown[];
+    edges?: unknown[];
+  },
 ): Promise<BackendArchitecture> {
   return apiFetch<BackendArchitecture>(`/api/v1/architectures/${id}`, {
     method: "PATCH",

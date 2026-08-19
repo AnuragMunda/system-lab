@@ -1,7 +1,8 @@
-// Dashboard layout (`/dashboard/*`) — wraps all dashboard routes with the top nav and sidebar shell.
-import { Sidebar } from "@/components/dashboard/sidebar";
-import { TopNav } from "@/components/dashboard/top-nav";
+// Dashboard layout (`/dashboard/*`) — wraps all dashboard routes with the top nav
+// and sidebar shell. The architecture editor route opts out of that chrome (see
+// `DashboardShell`) so it can own the full viewport.
 import { AuthGuard } from "@/components/dashboard/auth-guard";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Metadata } from "next";
 
 // Page-level metadata for the dashboard screen.
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   description: "Your dashboard of System Labs",
 };
 
-// Renders the dashboard shell: a full-height column with TopNav on top and Sidebar + scrollable main content below.
+// Renders the dashboard shell, conditionally including the top nav + sidebar.
 export default function DashboardLayout({
   children,
 }: {
@@ -19,17 +20,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col bg-grid">
       <AuthGuard>
-      <TopNav />
-      <div
-        className="flex flex-1"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 45% at 50% 20%, color-mix(in srgb, var(--color-primary) 5%, transparent), transparent 70%)",
-        }}
-      >
-        <Sidebar />
-        <main className="flex-1 overflow-x-hidden">{children}</main>
-      </div>
+        <DashboardShell>{children}</DashboardShell>
       </AuthGuard>
     </div>
   );
