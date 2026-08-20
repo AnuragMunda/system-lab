@@ -92,10 +92,10 @@ export function Inspector({
         type="button"
         onClick={onToggle}
         aria-label="Open inspector"
-        className="flex w-9 shrink-0 flex-col items-center justify-center gap-1 border-l border-border bg-card text-primary transition-colors hover:bg-muted"
+        className="flex w-9 shrink-0 flex-col items-center justify-center gap-2 border-l border-border bg-card text-primary transition-colors hover:bg-muted"
       >
         <PanelRightOpen className="size-4" aria-hidden="true" />
-        <span className="text-[10px] uppercase tracking-wide [writing-mode:vertical-rl]">
+        <span className="text-[15px] uppercase tracking-wider [writing-mode:vertical-rl]">
           Inspector
         </span>
       </button>

@@ -78,7 +78,7 @@ const initialState: EditorState = {
   saving: false,
   lastSavedAt: null,
   simulation: { running: false, tick: 0, telemetry: EMPTY_TELEMETRY },
-  aiPanelOpen: true,
+  aiPanelOpen: false,
 };
 
 const HISTORY_LIMIT = 50;

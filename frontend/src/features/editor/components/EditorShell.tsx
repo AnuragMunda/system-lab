@@ -94,7 +94,7 @@ export function EditorShell({
         dispatch(setSaving(false));
         toast("Failed to save architecture");
       }
-    }, 1000);
+    }, 2000);
     return () => window.clearTimeout(handle);
   }, [dirty, architecture.id, name, dispatch]);
 

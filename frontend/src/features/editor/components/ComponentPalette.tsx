@@ -48,10 +48,10 @@ export function ComponentPalette({
         type="button"
         onClick={onToggle}
         aria-label="Open components panel"
-        className="flex w-9 shrink-0 flex-col items-center justify-center gap-1 border-r border-border bg-card text-primary transition-colors hover:bg-muted"
+        className="flex w-9 shrink-0 flex-col items-center justify-center gap-2 border-r border-border bg-card text-primary transition-colors hover:bg-muted"
       >
         <PanelLeftOpen className="size-4" aria-hidden="true" />
-        <span className="text-[10px] uppercase tracking-wide [writing-mode:vertical-rl]">
+        <span className="text-[15px] uppercase tracking-wider [writing-mode:vertical-rl]">
           Components
         </span>
       </button>

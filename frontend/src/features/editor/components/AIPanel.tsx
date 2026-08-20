@@ -31,10 +31,10 @@ export function AIPanel() {
         type="button"
         onClick={() => dispatch(toggleAiPanel())}
         aria-label="Open AI panel"
-        className="flex w-9 shrink-0 flex-col items-center justify-center gap-1 border-l border-border bg-card text-primary transition-colors hover:bg-muted"
+        className="flex w-9 shrink-0 flex-col items-center justify-center gap-2 border-l border-border bg-card text-primary transition-colors hover:bg-muted"
       >
         <Sparkles className="size-4" />
-        <span className="text-[10px] [writing-mode:vertical-rl]">AI</span>
+        <span className="text-[15px] uppercase tracking-wider [writing-mode:vertical-rl]">AI Architect</span>
       </button>
     );
   }

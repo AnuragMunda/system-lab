@@ -5,7 +5,9 @@
 // panel toggle. Zoom/fit actions use the React Flow instance (must be within a
 // ReactFlowProvider); zoom level is passed in from the canvas via the shell.
 import {
+  Check,
   Download,
+  Loader2,
   Maximize2,
   Play,
   Redo2,
@@ -23,6 +25,7 @@ import Link from "next/link";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { redo, setName, startSimulation, stopSimulation, toggleAiPanel, undo } from "@/store/editorSlice";
+import { useEffect, useRef, useState } from "react";
 import { serializeEdge, serializeNode } from "../serialize";
 import { toast } from "@/lib/utils";
 
@@ -42,6 +45,27 @@ export function TopToolbar({
   const canUndo = useAppSelector((s) => s.editor.past.length > 0);
   const canRedo = useAppSelector((s) => s.editor.future.length > 0);
   const dirty = useAppSelector((s) => s.editor.dirty);
+  const saving = useAppSelector((s) => s.editor.saving);
+  const lastSavedAt = useAppSelector((s) => s.editor.lastSavedAt);
+
+  // Show the "Saved" confirmation briefly after a successful autosave, then hide it.
+  // The state toggles are intentional UI-side effects of the autosave lifecycle.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  const [savedVisible, setSavedVisible] = useState(false);
+  const savedTimer = useRef<number | null>(null);
+  useEffect(() => {
+    if (savedTimer.current) window.clearTimeout(savedTimer.current);
+    if (lastSavedAt && !saving && !dirty) {
+      setSavedVisible(true);
+      savedTimer.current = window.setTimeout(() => setSavedVisible(false), 3000);
+    } else {
+      setSavedVisible(false);
+    }
+    return () => {
+      if (savedTimer.current) window.clearTimeout(savedTimer.current);
+    };
+  }, [lastSavedAt, saving, dirty]);
+  /* eslint-enable react-hooks/set-state-in-effect */
   const nodes = useAppSelector((s) => s.editor.nodes);
   const edges = useAppSelector((s) => s.editor.edges);
   const { zoomIn, zoomOut, fitView } = useReactFlow();
@@ -103,8 +127,19 @@ export function TopToolbar({
           aria-label="Architecture name"
           className="min-w-0 max-w-[14rem] truncate rounded-sm border border-transparent bg-transparent px-1.5 py-1 text-sm font-medium text-foreground outline-none transition-colors hover:border-border focus-visible:border-border-strong"
         />
-        {dirty ? <span className="size-1.5 shrink-0 rounded-full bg-accent" aria-label="Unsaved changes" /> : null}
       </nav>
+
+      {saving ? (
+        <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex" aria-live="polite">
+          <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+          Saving…
+        </span>
+      ) : savedVisible ? (
+        <span className="hidden items-center gap-1.5 text-xs text-success sm:flex" aria-live="polite">
+          <Check className="size-3.5" aria-hidden="true" />
+          Saved
+        </span>
+      ) : null}
 
       <div className="ml-auto flex items-center gap-1.5">
         <button
